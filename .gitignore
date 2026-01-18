@@ -1,0 +1,13 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3
+*.sqlite3
+
+# Media (optional)
+restaurant/media/
