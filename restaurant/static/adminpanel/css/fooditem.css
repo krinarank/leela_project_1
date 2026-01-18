@@ -1,0 +1,149 @@
+/* RESET */
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #f4f6f8;
+    padding: 20px;
+}
+
+/* CONTAINER */
+
+ .container {
+    display: flex !important;
+    flex-direction: row !important; 
+    width: 100%;
+    gap: 30px;
+}
+
+/* LEFT: FORM */
+.left {
+    order: 1;
+    width: 25%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* RIGHT: TABLE */
+.right {
+    order: 2;
+    width: 75%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+/* FORM STYLING */
+.left h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.left label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.left input[type="text"],
+.left input[type="number"],
+.left select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.left input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-top: 5px;
+}
+
+.left button {
+    width: 100%;
+    padding: 12px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.left button:hover {
+    background: #218838;
+}
+
+/* TABLE STYLING */
+.right table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.right table th,
+.right table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.right table th {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: 600;
+}
+
+.right table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.right table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.right a {
+    margin: 0 5px;
+    text-decoration: none;
+    font-size: 1.1rem;
+}
+
+/* MESSAGES */
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* RESPONSIVE */
+@media screen and (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .left, .right {
+        width: 100%;
+        order: unset;
+    }
+}

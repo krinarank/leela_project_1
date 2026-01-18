@@ -1,0 +1,77 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Subcategory</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/category.css' %}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LEFT SIDE : TABLE -->
+    <div class="left">
+        <u><h3>Added Subcategories</h3></u>
+
+        <table>
+            <tr>
+                <th>Subcategory Name</th>
+                <th>Category</th>
+                <th>Action</th>
+            </tr>
+
+            {% for sub in subcategories %}
+            <tr>
+                <td>{{ sub.subcategory_name }}</td>
+                <td>{{ sub.food_item_cat.category_name }}</td>
+                <td>
+                    <a href="{% url 'update_subcategory' sub.id %}">✏️</a>
+                    <a href="{% url 'delete_subcategory_item' sub.id %}"
+                       onclick="return confirm('Are you sure you want to delete subcategory?')">🗑️</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No subcategory added</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- RIGHT SIDE : FORM -->
+    <div class="right">
+        <u><h3>Add Subcategory</h3></u>
+
+        <!-- MESSAGE -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Select Category</label>
+            <select name="category_id" required>
+                <option value="">-- Select Category --</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label>Subcategory Name</label>
+            <input type="text" name="subcategory_name"
+                   placeholder="Subcategory name" required>
+
+            <button type="submit">Add Subcategory</button>
+        </form>
+    </div>
+
+</div>
+<a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
+</body>
+</html>

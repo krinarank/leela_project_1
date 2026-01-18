@@ -1,0 +1,131 @@
+{% extends 'menu/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
+
+<div class="container py-4">
+
+    <h2 class="mb-4 text-center">🍽 Our Menu</h2>
+
+    <!-- ===== MAIN CATEGORY FILTER ===== -->
+    <div class="d-flex justify-content-center gap-2 mb-4">
+        <button class="btn btn-outline-dark main-filter active" data-filter="all">All</button>
+        {% for category in categories %}
+            <button class="btn btn-outline-dark main-filter"
+                    data-filter="{{ category.category_name|lower }}">
+                {{ category.category_name }}
+            </button>
+        {% endfor %}
+    </div>
+
+    {% for category in categories %}
+    <div class="category-block" data-category="{{ category.category_name|lower }}">
+
+        <!-- SUBCATEGORY FILTER -->
+        <div class="subcategory-filter d-none mb-3">
+            <button class="btn btn-sm btn-outline-dark sub-filter active" data-sub="all">All</button>
+            {% for sub in category.fooditemsubcategory_set.all %}
+                <button class="btn btn-sm btn-outline-dark sub-filter"
+                        data-sub="{{ sub.subcategory_name|lower }}">
+                    {{ sub.subcategory_name }}
+                </button>
+            {% endfor %}
+        </div>
+
+        {% for sub in category.fooditemsubcategory_set.all %}
+        <div class="row subcategory-block"
+             data-subcategory="{{ sub.subcategory_name|lower }}">
+
+            {% for item in sub.fooditem_set.all %}
+            {% if item.is_available %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3 food-item">
+                <div class="card food-card shadow-sm h-100">
+
+                    {% if item.images.first %}
+                    <div class="image-box"
+                         style="--bg-img: url('{{ item.images.first.img_url.url }}');">
+                        <img src="{{ item.images.first.img_url.url }}"
+                             alt="{{ item.name }}">
+                    </div>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h6 class="card-title">{{ item.name }}</h6>
+                        <div class="price">₹ {{ item.price }}</div>
+                        <div class="calories">{{ item.calories }} cal</div>
+                    </div>
+
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const mainFilters = document.querySelectorAll('.main-filter');
+    const categories = document.querySelectorAll('.category-block');
+
+    function resetSub(cat) {
+        cat.querySelectorAll('.sub-filter').forEach(b => b.classList.remove('active'));
+        cat.querySelector('.sub-filter[data-sub="all"]').classList.add('active');
+        cat.querySelectorAll('.subcategory-block').forEach(b => b.style.display = 'flex');
+    }
+
+    mainFilters.forEach(btn => {
+        btn.addEventListener('click', () => {
+
+            mainFilters.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+
+            categories.forEach(cat => {
+                const subBox = cat.querySelector('.subcategory-filter');
+
+                if (filter === 'all') {
+                    cat.style.display = 'block';
+                    subBox.classList.add('d-none');
+                    resetSub(cat);
+                }
+                else if (cat.dataset.category === filter) {
+                    cat.style.display = 'block';
+                    subBox.classList.remove('d-none');
+                    resetSub(cat);
+                }
+                else {
+                    cat.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    document.querySelectorAll('.sub-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sub = btn.dataset.sub;
+            const cat = btn.closest('.category-block');
+
+            cat.querySelectorAll('.sub-filter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            cat.querySelectorAll('.subcategory-block').forEach(block => {
+                block.style.display =
+                    (sub === 'all' || block.dataset.subcategory === sub)
+                    ? 'flex' : 'none';
+            });
+        });
+    });
+
+    document.querySelector('.main-filter[data-filter="all"]').click();
+});
+</script>
+
+{% endblock %}

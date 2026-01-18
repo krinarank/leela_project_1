@@ -1,0 +1,112 @@
+<!-- 
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Subcategory</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/update_category.css' %}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+
+        <h2>Update Subcategory</h2>
+
+        
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %} 
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+         {% endif %}
+
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Subcategory Name</label>
+            <input type="text"
+                   name="subcategory_name"
+                   value="{{ sub.subcategory_name }}"
+                   required>
+
+            <label>Select Category</label>
+            <select name="category_id" required>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}"
+                        {% if cat.id == sub.food_item_cat.id %}selected{% endif %}>
+                        {{ cat.category_name }}
+                    </option>
+                {% endfor %}
+            </select><br><br>
+
+            <button type="submit">Update</button><br><br>
+
+            <a href="{% url 'add_subcategory' %}" class="back-link">
+                ← Back to Subcategory Page
+            </a>
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html> -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Subcategory</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/update_category.css' %}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+
+        <h2>Update Subcategory</h2>
+
+        <!-- ✅ SUCCESS / ERROR MESSAGE -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Subcategory Name</label>
+            <input type="text" name="subcategory_name"
+                   value="{{ sub.subcategory_name }}" required>
+
+            <label>Select Category</label>
+            <select name="food_item_cat" required>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}"
+                        {% if cat.id == sub.food_item_cat.id %}selected{% endif %}>
+                        {{ cat.category_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <br><br>
+            <button type="submit">Update</button>
+            <br><br>
+            <a href="{% url 'add_subcategory' %}" class="back-link">← Back</a>
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>

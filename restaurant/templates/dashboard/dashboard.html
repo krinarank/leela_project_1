@@ -1,0 +1,130 @@
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<style>
+    body { margin:0; font-family: Arial, sans-serif; background:#f4f6f8; }
+
+    .sidebar {
+        height: 100vh;
+        width: 220px;
+        position: fixed;
+        top:0; left:0;
+        background-color:#2c3e50;
+        color:#fff;
+        display:flex;
+        flex-direction: column;
+    }
+    .sidebar h2 { text-align:center; padding:20px 0; margin:0; border-bottom:1px solid #34495e; }
+    .sidebar a { padding:15px 20px; text-decoration:none; color:#ecf0f1; border-bottom:1px solid #34495e; }
+    .sidebar a:hover, .sidebar a.active { background-color:#34495e; }
+    .sidebar .logout { margin-top:auto; background:#c0392b; text-align:center; padding:12px 0; border-top:1px solid #e74c3c; }
+    .sidebar .logout a { color:white; text-decoration:none; display:block; }
+
+    .main { margin-left:220px; padding:20px; }
+    .card { background:#fff; padding:20px; margin-bottom:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+
+    @media (max-width:768px){ .sidebar { width:100%; height:auto; position:relative; } .main{margin-left:0;} }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Admin Panel</h2>
+    <a href="{% url 'dashboard' %}" class="active">Dashboard</a>
+    <a href="{% url 'admin_menu' %}">Menu</a>
+    <a href="#">Orders</a>
+    <a href="#">Customers</a>
+    <div class="logout">
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+</div>
+
+<div class="main">
+    <div class="card">
+        <h3>Dashboard</h3>
+        <p>Welcome to your admin panel.</p>
+    </div>
+</div>
+
+<script>
+    const sidebarLinks = document.querySelectorAll('.sidebar a');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(){
+            sidebarLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html> -->
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">
+</head>
+<body>
+<div class="dashboard">
+    <div class="dashboard-left">
+        <h2 style="color:rgb(228, 228, 228);">Admin panel</h2>
+        <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
+        <a href="javascript:void(0)" onclick="toggleMainMenu()">🍽 Menu ▾</a>
+
+    <div id="mainMenu" class="submenu">
+
+    <a href="javascript:void(0)" onclick="toggleGridMenu()">🍱 Menu Grid ▾</a>
+    <div id="gridMenu" class="submenu-inner">
+        <a href="{% url 'add_category' %}">Food Category</a>
+        <a href="{% url 'add_subcategory' %}">Food Subcategory</a>
+        <a href="{% url 'add_fooditem' %}"> Food Item</a>
+        <a href="{% url 'add_foodimage' %}"> Food Image</a>
+    </div>
+
+    <a href="javascript:void(0)">📋 Menu List ▾</a>
+    <!-- future use -->
+</div>
+
+
+        <a href="#">📦 Orders</a>
+        <a href="#">👤 Customers</a>
+
+         <div class="logout">
+              <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+
+
+    </div>
+    <!-- RIGHT CONTENT -->
+    <div style="padding:50px;" class="dashboard-right">
+        <h2>Welcome to Dashboard</h2>
+    </div>
+   
+
+</div>
+<script>
+// function toggleMenu(){
+//     let menu = document.getElementById("menuDropdown");
+//     menu.style.display = menu.style.display === "block" ? "none" : "block";
+// }
+function toggleMainMenu(){
+    let menu = document.getElementById("mainMenu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+function toggleGridMenu(){
+    let grid = document.getElementById("gridMenu");
+    grid.style.display = grid.style.display === "block" ? "none" : "block";
+}
+
+
+
+</script>
+
+</body>
+</html>

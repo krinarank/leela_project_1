@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Category</title>
+      {% load static %}
+    <link rel="stylesheet" href="{% static 'adminpanel/css/category.css' %}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- TABLE (visual LEFT ma dekhase) -->
+    <div class="left">
+        <u><h3>Added Categories</h3></u>
+
+        <table>
+            <tr>
+                <th>Category Name</th>
+                <th>Action</th>
+            </tr>
+
+            {% for cat in categories %}
+            <tr>
+                <td>{{ cat.category_name }}</td>
+                <td>
+                    <a href="{% url 'update_category' cat.id %}">✏️</a>
+                    <a href="{% url 'delete_category_item' cat.id %}"
+                       onclick="return confirm('Delete?')">🗑️</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No category added</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- FORM (visual RIGHT ma dekhase) -->
+    <div class="right">
+        <u><h3>Add Category</h3></u>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="category_name" placeholder="Category name" required>
+            <button type="submit">Add Category</button>
+        </form>
+    </div>
+
+</div>
+<a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
+</body>
+</html>

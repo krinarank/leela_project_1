@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Menu</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'adminpanel/css/admin_menu.css' %}">
+</head>
+<body>
+
+<div class="admin-container">
+
+    <h1 class="title">Admin Menu Panel</h1>
+
+    <div class="menu-grid">
+
+        <a href="{% url 'add_category' %}" class="menu-card">
+            <span>📁</span>
+            <h3>Add Category</h3>
+        </a>
+
+        <a href="{% url 'add_subcategory' %}" class="menu-card">
+            <span>📂</span>
+            <h3>Add Subcategory</h3>
+        </a>
+
+        <a href="{% url 'add_fooditem' %}" class="menu-card">
+            <span>🍔</span>
+            <h3>Add Food Item</h3>
+        </a>
+
+        <a href="{% url 'dashboard' %}" class="menu-card back">
+            <span>⬅</span>
+            <h3>Back to Dashboard</h3>
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

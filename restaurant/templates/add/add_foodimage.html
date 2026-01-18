@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Food Image</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/foodimage.css' %}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LEFT : ADD FORM -->
+    <div class="left">
+        <u><h3>Add Food Image</h3></u>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <label>Food Item</label>
+            <select name="food_item" required>
+                <option value="">-- Select Food Item --</option>
+                {% for item in food_items %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Select Image</label>
+            <input type="file" name="img_url" required>
+
+            <button type="submit">Upload Image</button>
+        </form>
+    </div>
+
+    <!-- RIGHT : TABLE -->
+    <div class="right">
+        <u><h3>Uploaded Food Images</h3></u>
+
+        <table>
+            <tr>
+                <th>Food</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Image</th>
+                <th>Action</th>
+            </tr>
+
+            {% for img in images %}
+            <tr>
+                <td>{{ img.food_item.name }}</td>
+                <td>{{ img.food_item.sub_cat.food_item_cat.category_name }}</td>
+                <td>{{ img.food_item.sub_cat.subcategory_name }}</td>
+                <td>
+                    <img src="{{ img.img_url.url }}" width="80">
+                </td>
+                <td>
+                   
+                  <a href="{% url 'update_foodimage' img.id %}">✏️</a>
+    <a href="{% url 'delete_foodimage_item' img.id %}"
+       onclick="return confirm('Delete this image?')">🗑️</a>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No images uploaded</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div>
+
+<a href="{% url 'dashboard' %}">⬅ Back to dashboard</a>
+
+</body>
+</html>

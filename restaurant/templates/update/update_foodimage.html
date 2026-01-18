@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Food Image</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/update_foodimage.css' %}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LEFT SIDE : UPDATE FORM -->
+    <div class="left card">
+        <h3><u>Update Food Image</u></h3>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Food Item</label>
+                <select name="food_item" required>
+                    {% for item in food_items %}
+                        <option value="{{ item.id }}"
+                            {% if item.id == image.food_item.id %}selected{% endif %}>
+                            {{ item.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Current Image</label><br>
+                <img src="{{ image.img_url.url }}" class="preview-img">
+            </div>
+
+            <div class="form-group">
+                <label>Change Image</label>
+                <input type="file" name="img_url">
+            </div><br>
+
+            <button type="submit" class="btn">Update Image</button>
+        </form>
+    </div>
+
+    <!-- RIGHT SIDE : INFO TABLE -->
+    <div class="right card">
+        <h3><u>Image Details</u></h3>
+
+        <table class="info-table">
+            <tr>
+                <th>Food</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+            </tr>
+            <tr>
+                <td>{{ image.food_item.name }}</td>
+                <td>{{ image.food_item.sub_cat.food_item_cat.category_name }}</td>
+                <td>{{ image.food_item.sub_cat.subcategory_name }}</td>
+            </tr>
+        </table>
+    </div>
+<a href="{% url 'add_foodimage' %}" class="back-link">⬅ Back to Food Images</a>
+</div>
+
+
+
+</body>
+</html>
