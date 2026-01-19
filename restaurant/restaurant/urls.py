@@ -30,11 +30,8 @@ from adminpanel import views as admin_views
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),  # default Django admin
-    path('', views.login_view, name='login'), 
-    #path('dashboard/', views.dashboard_view, name='dashboard'),  # dashboard
+    path('admin/', views.login_view, name='login'), 
     path('dashboard/', include('adminpanel.urls')),
-    # path('menu/', menu_views.menu_view, name='menu'),
      path('', include('menu.urls')),
     path('logout/', admin_views.logout_view, name='logout'), 
 ]

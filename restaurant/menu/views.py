@@ -1,5 +1,3 @@
-
-
 from django.shortcuts import render
 from adminpanel.models import FoodItemCategory, FoodItemSubCategory, FoodItem, FoodItemImage
 

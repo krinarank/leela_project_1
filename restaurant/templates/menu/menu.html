@@ -4,7 +4,9 @@
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
-
+<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <div class="container py-4">
 
     <h2 class="mb-4 text-center">🍽 Our Menu</h2>
@@ -127,5 +129,4 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('.main-filter[data-filter="all"]').click();
 });
 </script>
-
 {% endblock %}
