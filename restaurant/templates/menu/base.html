@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="{% static 'menu/css/frontend.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'menu/css/footer.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 
 </head>
 <body>
@@ -33,4 +36,50 @@
     </main>
 
 </body>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+
+    <div class="footer-container">
+
+        <!-- Contact Info -->
+        <div class="footer-column">
+            <h4>Contact Us</h4>
+            <p>📍 Leela Restaurant, Dehgam Road, Opp. Cars24, Ahmedabad</p>
+            <p>📞 +91 9876543210</p>
+            <p>✉️ leelarestaurant.official@gmail.com</p>
+        </div>
+
+        <!-- Useful Links -->
+        <div class="footer-column">
+            <h4>Useful Links</h4>
+            <a href="/">Home</a>
+            <a href="/menu/">Menu</a>
+            <a href="/about/">About</a>
+            <a href="/contact/">Contact</a>
+            <a href="/cart/">Cart</a>
+            <a href="/wishlist/">Wishlist</a>
+            <a href="/login/">Login</a>
+        </div>
+
+    </div>
+
+    <!-- ===== COPYRIGHT + ICONS ===== -->
+    <div class="footer-bottom">
+
+        <span class="copyright">
+            © 2026 Your Restaurant | All rights reserved
+        </span>
+
+        <div class="footer-social">
+            <a href="#"><img src="{% static 'menu/icons/fb.svg' %}" alt="Facebook"></a>
+            <a href="#"><img src="{% static 'menu/icons/insta.svg' %}" alt="Instagram"></a>
+            <a href="#"><img src="{% static 'menu/icons/wp.svg' %}" alt="WhatsApp"></a>
+        </div>
+
+    </div>
+
+</footer>
+
+
 </html>
