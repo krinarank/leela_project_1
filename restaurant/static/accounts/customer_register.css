@@ -1,0 +1,115 @@
+/* ================= REGISTER PAGE WRAPPER ================= */
+.register-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff5ec, #ffe8d6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= REGISTER CARD ================= */
+.register-card {
+    background: #fff;
+    width: 100%;
+    max-width: 450px;
+    padding: 35px 30px;
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+/* ================= TITLE ================= */
+.register-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff7a18;
+    font-weight: 700;
+}
+
+/* ================= FORM GROUP ================= */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* ================= LABEL ================= */
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* ================= INPUT ================= */
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #ff7a18;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255,122,24,0.15);
+}
+
+/* ================= GENDER RADIO ================= */
+.gender-box {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+}
+
+/* ================= BUTTON ================= */
+.register-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff7a18, #ff4d00);
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.register-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255,122,24,0.4);
+}
+
+/* ================= SUCCESS MESSAGE ================= */
+.success-msg {
+    background: #e6ffef;
+    color: #137333;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* ================= LOGIN LINK ================= */
+.login-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.login-link a {
+    color: #ff7a18;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}

@@ -155,4 +155,55 @@ footer {
     font-size: 14px;
 }
 
+/* Account dropdown container */
+.account-dropdown {
+    position: relative;
+    display: inline-block;
+}
 
+.dropbtn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.account-dropdown .fa-caret-down {
+    margin-left: 5px;
+}
+
+/* Dropdown content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #1e1e1e;
+    min-width: 140px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Links inside dropdown */
+.dropdown-content a {
+    color: #fff;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+}
+
+/* .dropdown-content a:hover {
+    background-color: #ff7a18;
+} */
+
+/* Show dropdown on hover */
+.account-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.account-dropdown .dropbtn i.fa-caret-down {
+    display: none; /* icon hide */
+}
