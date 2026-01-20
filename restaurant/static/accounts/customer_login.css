@@ -1,0 +1,104 @@
+/* ================= LOGIN PAGE WRAPPER ================= */
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff5ec, #ffe8d6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= LOGIN CARD ================= */
+.login-card {
+    background: #fff;
+    width: 100%;
+    max-width: 400px;
+    padding: 35px 30px;
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+/* ================= TITLE ================= */
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff4d00;
+    font-weight: 700;
+}
+
+/* ================= FORM GROUP ================= */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* ================= LABEL ================= */
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* ================= INPUT ================= */
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #ff4d00;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255,122,24,0.15);
+}
+
+/* ================= BUTTON ================= */
+.login-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff4d00, #ff4d00);
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255,122,24,0.4);
+}
+
+/* ================= SUCCESS / ERROR MESSAGE ================= */
+.login-msg {
+    background: #ffe6e6;
+    color: #b71c1c;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* ================= REGISTER LINK ================= */
+.register-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.register-link a {
+    color: #ff4d00;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,80 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'accounts/customer_register.css' %}">
+
+<div class="register-page">
+    <div class="register-card">
+    <h2>Customer Registration</h2>
+
+    {% for msg in messages %}
+        <div class="success-msg">
+            {{ msg }}
+        </div>
+    {% endfor %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enter username" required>
+        </div>
+
+        <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="firstname" placeholder="Enter first name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="lastname" placeholder="Enter last name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Gender</label>
+            <select name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter email address" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" name="contactno" placeholder="Enter contact number" required>
+        </div>
+
+        <div class="form-group">
+            <label>Address</label>
+            <textarea name="address" placeholder="Enter address"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" name="confirmpassword" placeholder="Confirm password" required>
+        </div>
+
+        <button type="submit" class="register-btn">
+            Register
+        </button>
+    </form>
+
+    <div class="login-link">
+        Already have an account?
+        <a href="{% url 'customer_login' %}">Login</a>
+    </div>
+
+</div>
+```
+
+</div>

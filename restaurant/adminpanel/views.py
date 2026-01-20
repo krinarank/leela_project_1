@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
+from accounts.models import Customer
 from django.contrib.auth.decorators import login_required
 from .models import (
     FoodItemCategory,
@@ -26,9 +27,15 @@ def login_view(request):
 
     return render(request, 'auth/login.html')
 
+# @login_required(login_url='login')
+# def dashboard_view(request):
+#     return render(request, 'dashboard/dashboard.html')
 @login_required(login_url='login')
 def dashboard_view(request):
-    return render(request, 'dashboard/dashboard.html')
+    total_customers = Customer.objects.filter(isadmin=False).count()
+    return render(request, 'dashboard/dashboard.html', {
+        'total_customers': total_customers
+    })
 
 
 @login_required

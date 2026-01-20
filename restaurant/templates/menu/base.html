@@ -26,6 +26,25 @@
             <a href="{% url 'menu_page' %}">Menu</a>
             <a href="{% url 'about' %}">About Us</a>
             <a href="{% url 'contact' %}">Contact Us</a>
+
+       <!-- Account Dropdown -->
+        <div class="account-dropdown">
+            <button class="dropbtn">
+                Account
+                <i class="fa fa-caret-down"></i>
+            </button>
+
+            <div class="dropdown-content">
+                {% if request.session.customer_id %}
+               
+                    <a href="{% url 'customer_logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'customer_login' %}">Login</a>
+                    <a href="{% url 'customer_register' %}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+
         </nav>
     </header>
 
