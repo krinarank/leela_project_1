@@ -196,7 +196,6 @@ footer {
 }
 
 
-
 /* Show dropdown on hover */
 .account-dropdown:hover .dropdown-content {
     display: block;
@@ -205,3 +204,4 @@ footer {
 .account-dropdown .dropbtn i.fa-caret-down {
     display: none; /* icon hide */
 }
+

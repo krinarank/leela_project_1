@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # -----------------------------
 # Virtual environment
 
@@ -7,3 +8,14 @@
 __pycache__/
 *.pyc
 
+=======
+# Python
+__pycache__/
+*.pyc
+
+# # Virtual environment
+# .venv/
+
+# # Django
+# db.sqlite3
+>>>>>>> da5addb07e6c74bbab915b1876685f0b34980534
