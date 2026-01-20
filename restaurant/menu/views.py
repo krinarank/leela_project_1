@@ -7,31 +7,6 @@ from adminpanel.models import (
     FoodItem
 )
 
-# def menu_view(request):
-#     categories = FoodItemCategory.objects.all()
-#     menu_data = []
-
-#     for cat in categories:
-#         subcats = FoodItemSubCategory.objects.filter(food_item_cat=cat)
-#         subcat_items = []
-
-#         for sub in subcats:
-#             items = FoodItem.objects.filter(
-#                 sub_cat=sub,
-#                 is_available=True
-#             ).prefetch_related('images')   # IMPORTANT
-
-#             subcat_items.append({
-#                 'subcategory': sub,
-#                 'items': items
-#             })
-
-#         menu_data.append({
-#             'category': cat,
-#             'subcategories': subcat_items
-#         })
-
-#     return render(request, 'menu/menu.html', {'menu_data': menu_data})
 from django.shortcuts import render
 
 def home(request):

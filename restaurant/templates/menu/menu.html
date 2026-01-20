@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function resetSub(cat) {
         cat.querySelectorAll('.sub-filter').forEach(b => b.classList.remove('active'));
         cat.querySelector('.sub-filter[data-sub="all"]').classList.add('active');
-        cat.querySelectorAll('.subcategory-block').forEach(b => b.style.display = 'flex');
+        cat.querySelectorAll('.subcategory-block').forEach(b => b.style.display = '');
     }
 
     mainFilters.forEach(btn => {

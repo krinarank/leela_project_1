@@ -40,7 +40,10 @@ INSTALLED_APPS = [
     'adminpanel',
     'menu',
     'accounts',
+
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
