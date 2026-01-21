@@ -16,17 +16,20 @@
 
         <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
 
-        <a href="javascript:void(0)" onclick="toggleMainMenu()">🍽 Menu ▾</a>
+        <!-- MENU -->
+        <a href="javascript:void(0)" onclick="toggleMenu()">🍽 Menu ▾</a>
 
-        <div id="mainMenu" class="submenu">
-            <a href="javascript:void(0)" onclick="toggleGridMenu()">🍱 Menu Grid ▾</a>
+        <div id="menuBlock" class="submenu">
 
-            <div id="gridMenu" class="submenu-inner">
+            <a href="javascript:void(0)" onclick="toggleGrid()">🍱 Menu Grid ▾</a>
+
+            <div id="gridBlock" class="submenu-inner">
                 <a href="{% url 'add_category' %}">Food Category</a>
                 <a href="{% url 'add_subcategory' %}">Food Subcategory</a>
                 <a href="{% url 'add_fooditem' %}">Food Item</a>
                 <a href="{% url 'add_foodimage' %}">Food Image</a>
             </div>
+
         </div>
 
         <a href="#">📦 Orders</a>
@@ -37,7 +40,7 @@
         </div>
     </div>
 
-    <!-- RIGHT CONTENT -->
+    <!-- RIGHT SIDE -->
     <div class="dashboard-right">
         <h2>Welcome to Dashboard</h2>
 
@@ -50,13 +53,13 @@
 </div>
 
 <script>
-function toggleMainMenu(){
-    let menu = document.getElementById("mainMenu");
+function toggleMenu() {
+    let menu = document.getElementById("menuBlock");
     menu.style.display = menu.style.display === "block" ? "none" : "block";
 }
 
-function toggleGridMenu(){
-    let grid = document.getElementById("gridMenu");
+function toggleGrid() {
+    let grid = document.getElementById("gridBlock");
     grid.style.display = grid.style.display === "block" ? "none" : "block";
 }
 </script>
