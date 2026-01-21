@@ -1,7 +1,7 @@
 /* ================= LOGIN PAGE WRAPPER ================= */
 .login-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #fff5ec, #ffe8d6);
+    background: linear-gradient(135deg, #ff512f, #f09819);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -9,12 +9,40 @@
 
 /* ================= LOGIN CARD ================= */
 .login-card {
-    background: #fff;
+    background: #ffffff;
     width: 100%;
     max-width: 400px;
-    padding: 35px 30px;
-    border-radius: 14px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    padding: 55px 30px 35px;
+    border-radius: 18px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+/* ================= USER ICON (ADMIN STYLE) ================= */
+.login-card::before {
+    content: "";
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 75px;
+    height: 75px;
+    border: 3px solid #ff4d00;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.login-card::after {
+    content: "";
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 14px;
+    background: #ff4d00;
+    border-radius: 50%;
+    box-shadow: 0 20px 0 8px #ff4d00;
 }
 
 /* ================= TITLE ================= */
@@ -40,39 +68,46 @@
 }
 
 /* ================= INPUT ================= */
+/* ================= GRADIENT INPUT (ADMIN STYLE) ================= */
 .form-group input {
     width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+    padding: 12px 16px 12px 44px;
+    border-radius: 30px;
+    border: none;
     font-size: 14px;
+    color: #fff;
+    background: linear-gradient(135deg , #ff512f, #f09819);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);
     transition: 0.3s;
 }
 
 .form-group input:focus {
-    border-color: #ff4d00;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(255,122,24,0.15);
+    box-shadow: 0 0 0 3px rgba(255,77,0,0.35);
+}
+
+.form-group input::placeholder {
+    color: rgba(255,255,255,0.85);
 }
 
 /* ================= BUTTON ================= */
 .login-btn {
     width: 100%;
-    margin-top: 15px;
-    padding: 12px;
-    background: linear-gradient(135deg, #ff4d00, #ff4d00);
+    margin-top: 18px;
+    padding: 13px;
+    background: linear-gradient(135deg, #ff512f, #f09819);
     border: none;
     color: #fff;
     font-size: 15px;
     font-weight: 600;
-    border-radius: 25px;
+    border-radius: 30px;
     cursor: pointer;
     transition: 0.3s;
 }
 
 .login-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(255,122,24,0.4);
+    box-shadow: 0 12px 25px rgba(255,77,0,0.45);
 }
 
 /* ================= SUCCESS / ERROR MESSAGE ================= */
@@ -80,7 +115,7 @@
     background: #ffe6e6;
     color: #b71c1c;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     margin-bottom: 15px;
     text-align: center;
@@ -89,7 +124,7 @@
 /* ================= REGISTER LINK ================= */
 .register-link {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 18px;
     font-size: 14px;
 }
 
@@ -101,4 +136,27 @@
 
 .register-link a:hover {
     text-decoration: underline;
+}
+/* ================= INPUT ICONS ================= */
+.form-group:first-of-type,
+.form-group:nth-of-type(2) {
+    position: relative;
+}
+
+.form-group:first-of-type::before {
+    content: "👤";
+    position: absolute;
+    left: 16px;
+    top: 36px;
+    font-size: 16px;
+    color: #fff;
+}
+
+.form-group:nth-of-type(2)::before {
+    content: "🔒";
+    position: absolute;
+    left: 16px;
+    top: 36px;
+    font-size: 16px;
+    color: #fff;
 }
