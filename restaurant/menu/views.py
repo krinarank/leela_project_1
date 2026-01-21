@@ -10,7 +10,14 @@ from adminpanel.models import (
 from django.shortcuts import render
 
 def home(request):
-    return render(request, 'menu/home.html')
+    special_items = FoodItem.objects.filter(
+        is_special=True,
+        is_available=True
+    ).prefetch_related('images')
+
+    return render(request, 'menu/home.html', {
+        'special_items': special_items
+    })
 
 def menu_page(request):
    categories = FoodItemCategory.objects.prefetch_related(

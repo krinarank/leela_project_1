@@ -93,6 +93,7 @@ def add_fooditem(request):
         price = request.POST.get('price')
         calories = request.POST.get('calories')
         is_available = request.POST.get('is_available') == 'on'
+        is_special = request.POST.get('is_special') == 'on'  
 
         # Validate
         if not all([category_id, subcategory_id, name, price, calories]):
@@ -106,6 +107,7 @@ def add_fooditem(request):
             price=float(price),
             calories=int(calories),
             is_available=is_available,
+             is_special=is_special, 
             sub_cat=subcategory
         )
 
@@ -133,6 +135,7 @@ def update_fooditem(request, id):
         item.price = request.POST.get('price')
         item.calories = request.POST.get('calories')
         item.is_available = True if request.POST.get('is_available') == 'on' else False
+        item.is_special = request.POST.get('is_special') == 'on' 
         item.sub_cat_id = request.POST.get('subcategory_id')
         item.save()
 
