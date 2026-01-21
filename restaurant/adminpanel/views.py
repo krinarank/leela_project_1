@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
+from accounts.models import Customer
 from django.contrib.auth.decorators import login_required
 from .models import (
     FoodItemCategory,
@@ -26,9 +27,15 @@ def login_view(request):
 
     return render(request, 'auth/login.html')
 
+# @login_required(login_url='login')
+# def dashboard_view(request):
+#     return render(request, 'dashboard/dashboard.html')
 @login_required(login_url='login')
 def dashboard_view(request):
-    return render(request, 'dashboard/dashboard.html')
+    total_customers = Customer.objects.filter(isadmin=False).count()
+    return render(request, 'dashboard/dashboard.html', {
+        'total_customers': total_customers
+    })
 
 
 @login_required
@@ -86,6 +93,7 @@ def add_fooditem(request):
         price = request.POST.get('price')
         calories = request.POST.get('calories')
         is_available = request.POST.get('is_available') == 'on'
+        is_special = request.POST.get('is_special') == 'on'  
 
         # Validate
         if not all([category_id, subcategory_id, name, price, calories]):
@@ -99,6 +107,7 @@ def add_fooditem(request):
             price=float(price),
             calories=int(calories),
             is_available=is_available,
+             is_special=is_special, 
             sub_cat=subcategory
         )
 
@@ -126,6 +135,7 @@ def update_fooditem(request, id):
         item.price = request.POST.get('price')
         item.calories = request.POST.get('calories')
         item.is_available = True if request.POST.get('is_available') == 'on' else False
+        item.is_special = request.POST.get('is_special') == 'on' 
         item.sub_cat_id = request.POST.get('subcategory_id')
         item.save()
 

@@ -1,7 +1,62 @@
 {% extends 'menu/base.html' %}
+{% load static %}
 
 {% block content %}
-<h2>Welcome to Our Restaurant</h2>
-<p>Home page content will come later.</p>
-<h1>helllooooooooooo11111</h1>
+
+<!-- ===== HERO SECTION ===== -->
+<div class="hero-section"
+     style="background-image: url('{% static 'menu/icons/home.jpg' %}');">
+
+    <div class="hero-overlay">
+        <h1>Welcome to <span>Taste Villa</span></h1>
+        <p>Delicious food made with love & freshness</p>
+
+        <div class="home-boxes">
+            <div class="box">🍽 Quality Food</div>
+            <div class="box">🚚 Fast Delivery</div>
+            <div class="box">💳 Easy Payment</div>
+        </div>
+    </div>
+
+</div>
+<!-- ===== HERO SECTION END ===== -->
+
+
+<!-- ===== SPECIAL ITEMS SECTION ===== -->
+<div class="container my-5">
+
+    <h2 class="text-center mb-4">Special Items</h2>
+
+    <div class="row justify-content-center">
+
+        {% for item in special_items %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card shadow-sm h-100">
+
+                {% if item.images.first %}
+                <img src="{{ item.images.first.img_url.url }}"
+                     class="card-img-top"
+                     style="height:180px; object-fit:cover;">
+                {% endif %}
+
+                <div class="card-body text-center">
+                    <h6 class="card-title">{{ item.name }}</h6>
+                    <p class="mb-1">₹ {{ item.price }}</p>
+                    <small class="text-muted">{{ item.calories }} cal</small>
+                </div>
+
+                <div class="card-footer text-center bg-white">
+                    <span class="badge bg-danger">Special Item</span>
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No special items available</p>
+        {% endfor %}
+
+    </div>
+
+</div>
+
 {% endblock %}

@@ -1,40 +1,42 @@
-body {
+/* RESET */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     font-family: Arial, sans-serif;
-    background-color: #ffffff;
-    color: #000000;
 }
 
-/* Dashboard container */
+/* BODY */
+body {
+    background-color: #ffffff;
+    color: #000;
+}
+
+/* MAIN DASHBOARD */
 .dashboard {
     display: flex;
     min-height: 100vh;
 }
 
-/* Left panel */
+/* LEFT SIDEBAR */
 .dashboard-left {
-    display: flex;          /* Flex container */
-    flex-direction: column; /* Vertical alignment */
     width: 220px;
     background-color: #2c3e50;
     padding: 20px;
-    box-sizing: border-box;
-    height: 100vh;          /* Full height */
+    display: flex;
+    flex-direction: column;
 }
 
-/* Left panel headings & links */
 .dashboard-left h2 {
-    font-size: 20px;
-    margin-bottom: 20px;
     color: #fff;
+    margin-bottom: 20px;
 }
 
 .dashboard-left a {
-    display: flex;
     color: #e4e4e4;
     text-decoration: none;
-    margin-bottom: 10px;
     padding: 8px;
+    margin-bottom: 8px;
     border-radius: 4px;
 }
 
@@ -42,37 +44,51 @@ body {
     background-color: #3f5f7f;
 }
 
-/* Submenu */
+/* SUB MENU */
 .submenu {
-    display: none;  /* initially hidden */
+    display: none;
     padding-left: 15px;
 }
 
-.submenu a {
+.submenu-inner a {
     font-size: 14px;
 }
 
-/* Logout button */
+/* LOGOUT */
 .logout {
-    margin-top:auto;
+    margin-top: auto;
 }
 
 .logout-btn {
-    display: inline-block;
-    text-align: center;
-    padding: 8px 12px;
     background-color: #d40202;
     color: #fff;
-    text-decoration: none;
+    padding: 8px 12px;
     border-radius: 4px;
+    text-align: center;
 }
 
-.dashboard .logout a:hover,
-.dashboard.active {
-    background-color: #cf3827;            /* full width */
-}
-/* Right content */
-.dashboard > div:nth-child(2) {
+/* RIGHT SIDE */
+.dashboard-right {
     flex: 1;
-    padding: 30px;
+    padding: 50px;
+}
+
+.admin-stat-card {
+    margin-top: 30px;
+    background: #1e1e1e !important;
+    padding: 25px !important;
+    width: 260px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.admin-stat-card h4 {
+    color: #aaa;
+    font-size: 14px;
+}
+
+.admin-stat-card h2 {
+    font-size: 34px;
+    color: #ff4d00;
+    margin-top: 10px;
 }

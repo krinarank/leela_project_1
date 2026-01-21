@@ -17,6 +17,7 @@ class FoodItem(models.Model):
     name = models.CharField(max_length=100)
     price = models.FloatField()
     is_available = models.BooleanField(default=True)
+    is_special = models.BooleanField(default=True)
     calories = models.IntegerField()
     sub_cat = models.ForeignKey(FoodItemSubCategory, on_delete=models.CASCADE)
     def __str__(self):
