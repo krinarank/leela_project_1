@@ -1,0 +1,74 @@
+{% extends 'menu/base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'menu/css/checkout.css' %}">
+
+<h2 class="checkout-title">🧾 Checkout</h2>
+
+<div class="checkout-page">
+
+    <!-- LEFT SIDE -->
+    <div class="checkout-left">
+
+        <div class="card">
+            <h3>Delivery Details</h3>
+
+            <input type="text" placeholder="Full Name">
+            <input type="text" placeholder="Mobile Number">
+            <textarea placeholder="Complete Address"></textarea>
+        </div>
+
+        <div class="card">
+            <h3>Payment Method</h3>
+
+            <label>
+                <input type="radio" checked>
+                Cash on Delivery
+            </label>
+            <label>
+                <input type="radio" disabled>
+                Online Payment (Coming Soon)
+            </label>
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="checkout-right">
+
+        <div class="summary-box">
+            <h3>Order Summary</h3>
+
+            <div class="row">
+                <span>Items Total</span>
+                <span>₹ {{ item_total }}</span>
+            </div>
+
+            <div class="row">
+                <span>GST (5%)</span>
+                <span>₹ {{ tax }}</span>
+            </div>
+
+            <div class="row">
+                <span>Delivery Charge</span>
+                <span>₹ {{ delivery_charge }}</span>
+            </div>
+
+            <hr>
+
+            <div class="total">
+                <span>Total Payable</span>
+                <span>₹ {{ grand_total }}</span>
+            </div>
+
+            <button class="place-order-btn">
+                PLACE ORDER
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

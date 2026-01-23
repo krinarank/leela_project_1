@@ -1,0 +1,48 @@
+
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/location.css' %}">
+
+<div class="page-wrapper">
+
+    <h2 class="page-title">🌍 Manage States</h2>
+
+    <div class="state-container">
+        <!-- ===== Left: Add State Form ===== -->
+        <div class="state-form">
+            <h3>Add State</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="State name" required>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+
+        <!-- ===== Right: State List ===== -->
+        <div class="state-list">
+            <h3>State List</h3>
+            <table class="table">
+                <tr>
+                    <th>sr.no.</th>
+                    <th>State Name</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for state in states %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ state.name }}</td>
+                    <td>
+                        <a href="{% url 'edit_state' state.id %}" class="btn btn-edit">Edit</a>
+                        <a href="{% url 'delete_state' state.id %}" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete {{ state.name }}?');">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">No states found</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+<a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
+</div>
+

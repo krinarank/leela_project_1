@@ -33,6 +33,15 @@
 
         <a href="#">📦 Orders</a>
         <a href="#">👤 Customers</a>
+        <a href="javascript:void(0)" onclick="toggleLocation()">📍 Location ▾</a>
+
+<div id="locationBlock" class="submenu">
+
+    <a href="{% url 'add_and_list_state' %}">🌍 States</a>
+    <a href="{% url 'add_and_list_city' %}">🏙 Cities</a>
+    <a href="{% url 'add_and_list_area' %}">📌 Areas</a>
+
+</div>
         <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
 
         <div class="logout">
@@ -91,6 +100,12 @@ function toggleMainMenu(){
 function toggleGridMenu(){
     let grid = document.getElementById("gridMenu");
     grid.style.display = grid.style.display === "block" ? "none" : "block";
+}
+</script>
+<script>
+function toggleLocation() {
+    let block = document.getElementById("locationBlock");
+    block.style.display = block.style.display === "block" ? "none" : "block";
 }
 </script>
 

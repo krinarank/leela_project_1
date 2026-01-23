@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from accounts.models import Customer
+from location.models import State, City, Area
 from django.contrib.auth.decorators import login_required
 from .models import (
     FoodItemCategory,
@@ -158,24 +159,6 @@ def delete_fooditem(request, id):
     messages.success(request, "Food item deleted successfully")
     return redirect('add_fooditem')
 
-# def add_foodimage(request):
-#     food_items = FoodItem.objects.all()
-#     if request.method == 'POST':
-#         food_id = request.POST.get('food_item')
-#         image_file = request.FILES.get('img_url')
-
-#         if food_id and image_file:
-#             try:
-#                 food = FoodItem.objects.get(id=food_id)  # FK object
-#                 FoodItemImage.objects.create(
-#                     food_item=food,  # must pass object, not string
-#                     img_url=image_file
-#                 )
-#                 print("Image saved!")  # debug
-#                 return redirect('admin_menu')
-#             except FoodItem.DoesNotExist:
-#                 print("FoodItem not found!")
-#     return render(request, 'add/add_foodimage.html', {'food_items': food_items})
 # ---------------- ADD + LIST FOOD IMAGE ----------------
 def add_foodimage(request):
     if request.method == 'POST':
@@ -300,23 +283,6 @@ def admin_inquiry_list(request):
         'inquiries': inquiries
     })
 
-# Admin reply function
-# def admin_reply_inquiry(request, inquiry_id):
-#     inquiry = get_object_or_404(Inquiry, pk=inquiry_id)
-
-#     if request.method == 'POST':
-#         reply_message = request.POST.get('reply_message')
-#         if reply_message:
-#             # Save reply (for simplicity, we update status)
-#             inquiry.status = 'Responded'
-#             inquiry.save()
-#             messages.success(request, f'Replied to "{inquiry.subject}" successfully!')
-#             # TODO: optional: send email to user
-#             return redirect('admin_inquiry_list')
-#         else:
-#             messages.error(request, "Reply message cannot be empty!")
-
-#     return render(request, 'adminpanel/reply_inquiry.html', {'inquiry': inquiry})
 
 def reply_inquiry(request, id):
     #inquiry = Inquiry.objects.get(id=id)
@@ -354,3 +320,139 @@ def dashboard_view(request):
 
 def get_pending_inquiry_count():
     return Inquiry.objects.filter(status='Pending').count()
+# ======================
+# STATE
+# ======================
+def add_and_list_state(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        if name:  # simple validation
+            # Check if state already exists
+            if State.objects.filter(name__iexact=name).exists():
+                messages.error(request, "State already exists!")
+            else:
+                State.objects.create(name=name)
+                messages.success(request, "State added successfully!")
+        return redirect('add_and_list_state')  # redirect to same page to show updated list
+
+    # GET request → show form and list
+    states = State.objects.all().order_by('id')
+    return render(request, "adminpanel/add_and_list_state.html", {'states': states})
+
+def edit_state(request, id):
+    state = get_object_or_404(State, id=id)
+    updated = False  # default
+
+    if request.method == "POST":
+        name = request.POST.get('name')
+        if name:
+            if State.objects.filter(name__iexact=name).exclude(id=id).exists():
+                messages.error(request, "State with this name already exists!")
+            else:
+                state.name = name
+                state.save()
+                updated = True  # ✅ flag to show card
+
+    return render(request, "adminpanel/edit_state.html", {'state': state, 'updated': updated})
+
+
+def delete_state(request, id):
+    State.objects.filter(id=id).delete()
+    return redirect('add_and_list_state')
+
+# ======================
+# CITY
+# ======================
+def add_and_list_city(request):
+    states = State.objects.all().order_by('name')  # For dropdown
+    if request.method == "POST":
+        name = request.POST.get('name')
+        state_id = request.POST.get('state')
+        if name and state_id:
+            state = get_object_or_404(State, id=state_id)
+            if City.objects.filter(name__iexact=name, state=state).exists():
+                messages.error(request, "City already exists for this state!")
+            else:
+                City.objects.create(name=name, state=state)
+                messages.success(request, "City added successfully!")
+        return redirect('add_and_list_city')
+
+    cities = City.objects.all().order_by('id')
+    return render(request, "adminpanel/add_and_list_city.html", {'cities': cities, 'states': states})
+
+
+
+def edit_city(request, id):
+    city = get_object_or_404(City, id=id)
+    states = State.objects.all().order_by('name')
+    updated = False
+
+    if request.method == "POST":
+        new_name = request.POST.get('name')
+        new_state_id = request.POST.get('state')
+
+        if new_name and new_state_id:
+            state_obj = get_object_or_404(State, id=new_state_id)
+
+            if City.objects.filter(name__iexact=new_name, state=state_obj).exclude(id=id).exists():
+                messages.error(request, "City with this name already exists in selected state!")
+            else:
+                city.name = new_name
+                city.state = state_obj
+                city.save()
+                updated = True
+
+    return render(request, "adminpanel/edit_city.html", {'city': city, 'states': states, 'updated': updated})
+
+def delete_city(request, id):
+    City.objects.filter(id=id).delete()
+    return redirect('add_and_list_city')
+
+
+# ======================
+# AREA
+# ======================
+def add_and_list_area(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        city_id = request.POST.get('city')
+        if name and city_id:
+            city = City.objects.get(id=city_id)
+            if Area.objects.filter(name__iexact=name, city=city).exists():
+                messages.error(request, "Area already exists in this city!")
+            else:
+                Area.objects.create(name=name, city=city)
+                messages.success(request, "Area added successfully!")
+        return redirect('add_and_list_area')
+
+    cities = City.objects.all().order_by('name')  # for dropdown
+    areas = Area.objects.all().order_by('id')
+    return render(request, "adminpanel/add_and_list_area.html", {'areas': areas, 'cities': cities})
+
+def edit_area(request, id):
+    area = get_object_or_404(Area, id=id)
+    cities = City.objects.all().order_by('name')
+    updated = False
+
+    if request.method == "POST":
+        new_name = request.POST.get('name')
+        new_city_id = request.POST.get('city')
+
+        if new_name and new_city_id:
+            city_obj = get_object_or_404(City, id=new_city_id)
+
+            if Area.objects.filter(name__iexact=new_name, city=city_obj).exclude(id=id).exists():
+                messages.error(request, "Area with this name already exists in selected city!")
+            else:
+                area.name = new_name
+                area.city = city_obj
+                area.save()
+                updated = True
+
+    return render(request, "adminpanel/edit_area.html", {'area': area, 'cities': cities, 'updated': updated})
+
+
+def delete_area(request, id):
+    Area.objects.filter(id=id).delete()
+    return redirect('add_and_list_area')
+

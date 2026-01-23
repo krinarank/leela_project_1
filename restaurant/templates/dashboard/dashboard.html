@@ -1,34 +1,131 @@
-{% extends 'adminpanel/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">
+</head>
+<body>
 
-{% block content %}
-<h2>Welcome to Dashboard</h2>
+<div class="dashboard">
 
-<div class="dashboard-cards-wrapper">
-    <div class="dashboard-cards">
-        <!-- Total Customers Card -->
-        <div class="admin-stat-card">
-            <u><h4>Total Customers</h4></u>
-            <h2>{{ total_customers }}</h2>
-        </div>
+    <!-- LEFT SIDEBAR -->
+    <div class="dashboard-left">
+        <h2>Admin Panel</h2>
 
-        <!-- Inquiry Card: single card with 3 stats -->
-        <div class="admin-stat-card inquiry-card">
-            <u><h4>Inquiries</h4></u>
-            <div class="inquiry-stats">
-                <div class="stat-item">
-                    <span class="stat-title">Total</span>
-                    <span class="stat-number">{{ total_inquiries }}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-title">Pending</span>
-                    <span class="stat-number">{{ pending_inquiries }}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-title">Responded</span>
-                    <span class="stat-number">{{ responded_inquiries }}</span>
-                </div>
+        <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
+
+        <a href="javascript:void(0)" onclick="toggleMainMenu()">🍽 Menu ▾</a>
+
+        <div id="mainMenu" class="submenu">
+            <a href="javascript:void(0)" onclick="toggleGridMenu()">🍱 Menu Grid ▾</a>
+
+            <div id="gridMenu" class="submenu-inner">
+                <a href="{% url 'add_category' %}">Food Category</a>
+                <a href="{% url 'add_subcategory' %}">Food Subcategory</a>
+                <a href="{% url 'add_fooditem' %}">Food Item</a>
+                <a href="{% url 'add_foodimage' %}">Food Image</a>
             </div>
         </div>
+
+        <a href="#">📦 Orders</a>
+        <a href="#">👤 Customers</a>
+
+        <a href="javascript:void(0)" onclick="toggleLocation()">📍 Location ▾</a>
+        <div id="locationBlock" class="submenu">
+            <a href="{% url 'add_and_list_state' %}">🌍 States</a>
+            <a href="{% url 'add_and_list_city' %}">🏙 Cities</a>
+            <a href="{% url 'add_and_list_area' %}">📌 Areas</a>
+        </div>
+
+        <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
+
+        <div class="logout">
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="dashboard-right">
+
+        <!-- HEADER -->
+        <div class="dashboard-header">
+            <div class="header-left">
+                <h2>Welcome to Dashboard</h2>
+            </div>
+
+            <div class="header-right">
+                <a href="{% url 'admin_inquiry_list' %}" class="header-icon">
+                    📩
+                    {% if pending_inquiries > 0 %}
+                        <span class="badge">{{ pending_inquiries }}</span>
+                    {% endif %}
+                </a>
+                <span class="admin-name">Admin</span>
+            </div>
+        </div>
+
+        <!-- PAGE CONTENT -->
+        <div class="dashboard-content">
+
+            <!-- DASHBOARD CARDS -->
+            <div class="dashboard-cards">
+
+                <div class="admin-stat-card">
+                    <u><h4>Total Customers</h4></u>
+                    <h2>{{ total_customers }}</h2>
+                </div>
+
+                <div class="admin-stat-card inquiry-card">
+                    <u><h4>Inquiries</h4></u>
+                    <div class="inquiry-stats">
+                        <div class="stat-item">
+                            <span>Total</span>
+                            <span class="stat-number">{{ total_inquiries }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Pending</span>
+                            <span class="stat-number">{{ pending_inquiries }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Responded</span>
+                            <span class="stat-number">{{ responded_inquiries }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {% block content %}{% endblock %}
+        </div>
+
     </div>
 </div>
-{% endblock %}
+
+<script>
+function toggleMainMenu(){
+    let menu = document.getElementById("mainMenu");
+    let grid = document.getElementById("gridMenu");
+
+    if (menu.style.display === "block") {
+        menu.style.display = "none";
+        grid.style.display = "none";   
+    } else {
+        menu.style.display = "block";
+        grid.style.display = "none";   
+    }
+}
+function toggleGridMenu(){
+    let grid = document.getElementById("gridMenu");
+    grid.style.display = grid.style.display === "block" ? "none" : "block";
+}
+
+function toggleLocation(){
+    let block = document.getElementById("locationBlock");
+    block.style.display = block.style.display === "block" ? "none" : "block";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/location.css' %}">
+
+<div class="page-wrapper">
+
+    <h2 class="page-title">🏙 Manage Cities</h2>
+
+    <div class="state-container">
+        <!-- ===== Left: Add City Form ===== -->
+        <div class="state-form">
+            <h3>Add City</h3>
+          <form method="POST">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="City name" required>
+    <select name="state" required>
+        <option value="">Select State</option>
+        {% for state in states %}
+        <option value="{{ state.id }}">{{ state.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Save</button>
+</form>
+
+        </div>
+
+        <!-- ===== Right: City List ===== -->
+        <div class="state-list">
+            <h3>City List</h3>
+            <table class="table">
+                <tr>
+                    <th>sr.no.</th>
+                    <th>City Name</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for city in cities %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ city.name }}</td>
+                    <td>
+                        <a href="{% url 'edit_city' city.id %}" class="btn btn-edit">Edit</a>
+                        <a href="{% url 'delete_city' city.id %}" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete {{ city.name }}?');">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">No cities found</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+<a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
+</div>

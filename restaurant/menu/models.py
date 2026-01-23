@@ -1,9 +1,15 @@
-from django.contrib.auth.models import User
+
 from django.db import models
+from django.conf import settings
 
 class Inquiry(models.Model):
     inquiry_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     name = models.CharField(max_length=100)
     email = models.EmailField()

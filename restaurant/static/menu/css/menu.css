@@ -68,3 +68,32 @@ body {
     background-color: #212529 !important;
     color: #fff !important;
 }
+
+.card.food-card {
+    font-size: 14px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.image-box::before {
+    position: absolute;
+    inset: 0;
+}
+
+.image-box::before {
+    z-index: 1;
+    pointer-events: none;
+}
+
+.image-box img {
+    z-index: 2;
+}
+
+/* 🔥 IMPORTANT FIX FOR ALL FILTER */
+body.all-active .category-block {
+    display: contents;
+}
+
+
+
+
