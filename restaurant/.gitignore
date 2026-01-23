@@ -1,9 +1,0 @@
-# Python
-__pycache__/
-*.pyc
-
-# # Virtual environment
-# .venv/
-
-# # Django
-# db.sqlite3
