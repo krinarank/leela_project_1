@@ -9,6 +9,8 @@ from .models import (
     FoodItem,
     FoodItemImage
 )
+from menu.models import Inquiry
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -30,12 +32,12 @@ def login_view(request):
 # @login_required(login_url='login')
 # def dashboard_view(request):
 #     return render(request, 'dashboard/dashboard.html')
-@login_required(login_url='login')
-def dashboard_view(request):
-    total_customers = Customer.objects.filter(isadmin=False).count()
-    return render(request, 'dashboard/dashboard.html', {
-        'total_customers': total_customers
-    })
+# @login_required(login_url='login')
+# def dashboard_view(request):
+#     total_customers = Customer.objects.filter(isadmin=False).count()
+#     return render(request, 'dashboard/dashboard.html', {
+#         'total_customers': total_customers
+#     })
 
 
 @login_required
@@ -290,3 +292,65 @@ def delete_subcategory_item(request, id):
     sub = get_object_or_404(FoodItemSubCategory, id=id)
     sub.delete()
     return redirect('add_subcategory')
+
+@login_required
+def admin_inquiry_list(request):
+    inquiries = Inquiry.objects.all().order_by('-inquiry_date')
+    return render(request, 'adminpanel/inquiry_list.html', {
+        'inquiries': inquiries
+    })
+
+# Admin reply function
+# def admin_reply_inquiry(request, inquiry_id):
+#     inquiry = get_object_or_404(Inquiry, pk=inquiry_id)
+
+#     if request.method == 'POST':
+#         reply_message = request.POST.get('reply_message')
+#         if reply_message:
+#             # Save reply (for simplicity, we update status)
+#             inquiry.status = 'Responded'
+#             inquiry.save()
+#             messages.success(request, f'Replied to "{inquiry.subject}" successfully!')
+#             # TODO: optional: send email to user
+#             return redirect('admin_inquiry_list')
+#         else:
+#             messages.error(request, "Reply message cannot be empty!")
+
+#     return render(request, 'adminpanel/reply_inquiry.html', {'inquiry': inquiry})
+
+def reply_inquiry(request, id):
+    #inquiry = Inquiry.objects.get(id=id)
+    inquiry = get_object_or_404(Inquiry, inquiry_id=id)
+
+
+    if request.method == "POST":
+        reply_msg = request.POST.get("reply")
+
+        inquiry.admin_reply = reply_msg
+        inquiry.status = "Responded"
+        inquiry.save()
+
+        return redirect('admin_inquiry_list')
+
+    return render(request, 'adminpanel/reply_inquiry.html', {
+        'inquiry': inquiry
+    })
+
+
+@login_required(login_url='login')
+def dashboard_view(request):
+    total_customers = Customer.objects.filter(isadmin=False).count()
+
+    total_inquiries = Inquiry.objects.count()
+    pending_inquiries = Inquiry.objects.filter(status='Pending').count()
+    responded_inquiries = Inquiry.objects.filter(status='Responded').count()
+
+    return render(request, 'dashboard/dashboard.html', {
+        'total_customers': total_customers,
+        'total_inquiries': total_inquiries,
+        'pending_inquiries': pending_inquiries,
+        'responded_inquiries': responded_inquiries,
+    })
+
+def get_pending_inquiry_count():
+    return Inquiry.objects.filter(status='Pending').count()

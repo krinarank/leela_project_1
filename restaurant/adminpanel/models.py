@@ -31,3 +31,4 @@ class FoodItemImage(models.Model):
         on_delete=models.CASCADE,
         related_name='images'   # 🔥 VERY IMPORTANT
     )
+

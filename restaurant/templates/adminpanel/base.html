@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">
+</head>
+<body>
+
+<div class="dashboard">
+
+    
+
+    <!-- LEFT SIDEBAR -->
+    <div class="dashboard-left">
+        <h2>Admin Panel</h2>
+
+        <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
+
+        <a href="javascript:void(0)" onclick="toggleMainMenu()">🍽 Menu ▾</a>
+
+        <div id="mainMenu" class="submenu">
+            <a href="javascript:void(0)" onclick="toggleGridMenu()">🍱 Menu Grid ▾</a>
+
+            <div id="gridMenu" class="submenu-inner">
+                <a href="{% url 'add_category' %}">Food Category</a>
+                <a href="{% url 'add_subcategory' %}">Food Subcategory</a>
+                <a href="{% url 'add_fooditem' %}">Food Item</a>
+                <a href="{% url 'add_foodimage' %}">Food Image</a>
+            </div>
+        </div>
+
+        <a href="#">📦 Orders</a>
+        <a href="#">👤 Customers</a>
+        <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
+
+        <div class="logout">
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+   
+    <!-- RIGHT CONTENT -->
+<div class="dashboard-right">
+
+   <div class="dashboard-header">
+    <div class="header-left">
+        <h2></h2>
+    </div>
+
+    <div class="header-right">
+        <a href="{% url 'admin_inquiry_list' %}" class="header-icon">
+            📩
+            {% if pending_inquiries > 0 %}
+                <span class="badge">{{ pending_inquiries }}</span>
+            {% endif %}
+        </a>
+
+        <span class="admin-name">Admin</span>
+    </div>
+</div>
+<!-- PAGE CONTENT -->
+    <div class="dashboard-content">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+function toggleMainMenu(){
+    let menu = document.getElementById("mainMenu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+function toggleGridMenu(){
+    let grid = document.getElementById("gridMenu");
+    grid.style.display = grid.style.display === "block" ? "none" : "block";
+}
+</script>
+
+</body>
+</html>
