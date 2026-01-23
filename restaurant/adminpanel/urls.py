@@ -22,6 +22,9 @@ urlpatterns = [
     path('add-foodimage/', views.add_foodimage, name='add_foodimage'),
     path('update-foodimage/<int:id>/', views.update_foodimage, name='update_foodimage'),
     path('delete-foodimage/<int:id>/', views.delete_foodimage, name='delete_foodimage_item'),
+    path('inquiries/', views.admin_inquiry_list, name='admin_inquiry_list'),
+   # path('inquiries/reply/<int:inquiry_id>/', views.admin_reply_inquiry, name='admin_reply_inquiry'),
+    path('inquiry/reply/<int:id>/', views.reply_inquiry, name='reply_inquiry'),
 
     
 ]

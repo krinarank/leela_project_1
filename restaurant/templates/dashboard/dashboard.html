@@ -1,68 +1,34 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">
-</head>
-<body>
+{% extends 'adminpanel/base.html' %}
 
-<div class="dashboard">
+{% block content %}
+<h2>Welcome to Dashboard</h2>
 
-    <!-- LEFT SIDEBAR -->
-    <div class="dashboard-left">
-        <h2>Admin Panel</h2>
-
-        <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
-
-        <!-- MENU -->
-        <a href="javascript:void(0)" onclick="toggleMenu()">🍽 Menu ▾</a>
-
-        <div id="menuBlock" class="submenu">
-
-            <a href="javascript:void(0)" onclick="toggleGrid()">🍱 Menu Grid ▾</a>
-
-            <div id="gridBlock" class="submenu-inner">
-                <a href="{% url 'add_category' %}">Food Category</a>
-                <a href="{% url 'add_subcategory' %}">Food Subcategory</a>
-                <a href="{% url 'add_fooditem' %}">Food Item</a>
-                <a href="{% url 'add_foodimage' %}">Food Image</a>
-            </div>
-
-        </div>
-
-        <a href="#">📦 Orders</a>
-        <a href="#">👤 Customers</a>
-
-        <div class="logout">
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-        </div>
-    </div>
-
-    <!-- RIGHT SIDE -->
-    <div class="dashboard-right">
-        <h2>Welcome to Dashboard</h2>
-
+<div class="dashboard-cards-wrapper">
+    <div class="dashboard-cards">
+        <!-- Total Customers Card -->
         <div class="admin-stat-card">
             <u><h4>Total Customers</h4></u>
             <h2>{{ total_customers }}</h2>
         </div>
+
+        <!-- Inquiry Card: single card with 3 stats -->
+        <div class="admin-stat-card inquiry-card">
+            <u><h4>Inquiries</h4></u>
+            <div class="inquiry-stats">
+                <div class="stat-item">
+                    <span class="stat-title">Total</span>
+                    <span class="stat-number">{{ total_inquiries }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-title">Pending</span>
+                    <span class="stat-number">{{ pending_inquiries }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-title">Responded</span>
+                    <span class="stat-number">{{ responded_inquiries }}</span>
+                </div>
+            </div>
+        </div>
     </div>
-
 </div>
-
-<script>
-function toggleMenu() {
-    let menu = document.getElementById("menuBlock");
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-function toggleGrid() {
-    let grid = document.getElementById("gridBlock");
-    grid.style.display = grid.style.display === "block" ? "none" : "block";
-}
-</script>
-
-</body>
-</html>
+{% endblock %}
