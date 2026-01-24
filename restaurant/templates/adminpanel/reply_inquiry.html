@@ -1,0 +1,41 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/inquiry.css' %}">
+
+<h2>Reply to Inquiry</h2>
+
+<div class="inquiry-detail-card">
+    <h3>Inquiry Details</h3>
+    <p><strong>Name:</strong> {{ inquiry.name }}</p>
+    <p><strong>Email:</strong> {{ inquiry.email }}</p>
+    <p><strong>Subject:</strong> {{ inquiry.subject }}</p>
+    <p><strong>Message:</strong> {{ inquiry.message }}</p>
+    <p><strong>Status:</strong>
+        {% if inquiry.status == "Pending" %}
+            <span class="status-pending">Pending</span>
+        {% else %}
+            <span class="status-responded">Responded</span>
+        {% endif %}
+    </p>
+    <p><strong>Date:</strong> {{ inquiry.inquiry_date }}</p>
+</div>
+
+{% if inquiry.status == "Pending" %}
+<div class="reply-form-card">
+    <h3>Write Your Reply</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="reply" placeholder="Type your reply here..." required></textarea>
+        <button type="submit" class="reply-btn">Send Reply</button>
+    </form>
+</div>
+{% else %}
+<div class="reply-form-card">
+    <h3>Already Replied</h3>
+    <p><strong>Admin Reply:</strong> {{ inquiry.admin_reply }}</p>
+</div>
+{% endif %}
+
+<a href="{% url 'admin_inquiry_list' %}" class="back-link">← Back to Inquiry List</a>
+{% endblock %}

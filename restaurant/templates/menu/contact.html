@@ -12,75 +12,81 @@
     </div>
 </section>
 
-<!-- Contact Form + Info -->
+<!-- Contact Section -->
 <section class="py-5">
     <div class="container">
         <div class="row g-5">
 
             <!-- Contact Form -->
             <div class="col-md-6">
+
+                <!-- ✅ SUCCESS MESSAGE (ONLY TEXT, TOP) -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <h4 class="text-success fw-semibold mb-3">
+                            {{ message }}
+                        </h4>
+                    {% endfor %}
+                {% endif %}
+
                 <h3 class="mb-4 fw-semibold">Send Us a Message</h3>
-                <form id="contactForm" onsubmit="submitForm(event)">
+
+                <form method="POST">
+                    {% csrf_token %}
+
                     <div class="mb-3">
                         <label class="form-label">Name</label>
-                        <input type="text" class="form-control" placeholder="Your Name" required>
+                        <input type="text" name="name" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="Your Email" required>
+                        <input type="email" name="email" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <input type="text" class="form-control" placeholder="Subject" required>
+                        <input type="text" name="subject" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Message</label>
-                        <textarea class="form-control" rows="5" placeholder="Your Message" required></textarea>
+                        <textarea name="message" class="form-control" rows="5" required></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-dark px-4">Send Message</button>
+                    <button type="submit" class="btn btn-dark px-4">
+                        Send Message
+                    </button>
                 </form>
             </div>
 
-            <!-- Contact Info -->
+            <!-- Contact Info + MAP -->
             <div class="col-md-6">
                 <h3 class="mb-4 fw-semibold">Contact Information</h3>
+
                 <ul class="list-unstyled fs-5 text-muted">
-                    <li class="mb-3"><strong>Address:</strong> Leela Restaurant, Dehgam Road, Opp. Cars24, Ahmedabad</li>
+                    <li class="mb-3"><strong>Address:</strong> Leela Restaurant, Ahmedabad</li>
                     <li class="mb-3"><strong>Email:</strong> leelarestaurant.official@gmail.com</li>
                     <li class="mb-3"><strong>Phone:</strong> +91 9876543210</li>
-                    <li class="mb-3"><strong>Website:</strong> www.foodorder.com</li>
                 </ul>
 
-                <!-- Google Map (Gujarat) -->
+                <!-- ✅ GOOGLE MAP (FIXED) -->
                 <div class="mt-4">
                     <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3670.083166792333!2d72.56401021543127!3d23.02250598496667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e84f55f2b6c2f%3A0x746eb7e0de7a74aa!2sAhmedabad%2C%20Gujarat%2C%20India!5e0!3m2!1sen!2sin!4v1698599800000!5m2!1sen!2sin"
-                        width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3670.083166792333!2d72.5640102!3d23.022506!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e84f55f2b6c2f%3A0x746eb7e0de7a74aa!2sAhmedabad%2C%20Gujarat%2C%20India!5e0!3m2!1sen!2sin!4v1700000000000"
+                        width="100%"
+                        height="250"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
+
             </div>
 
         </div>
     </div>
 </section>
-
-<!-- Form Validation + Popup Script -->
-<script>
-function submitForm(event) {
-    event.preventDefault(); // prevent default form submission
-
-    // Basic validation (HTML5 required handles most)
-    const form = document.getElementById('contactForm');
-    if (form.checkValidity()) {
-        alert('Thank you! Your message has been sent successfully.');
-        form.reset(); // clear form
-    } else {
-        alert('Please fill all required fields correctly.');
-    }
-}
-</script>
 
 {% endblock %}

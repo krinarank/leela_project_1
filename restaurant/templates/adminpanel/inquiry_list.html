@@ -1,0 +1,49 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/inquiry.css' %}">
+
+<h2>Customer Inquiries</h2>
+
+<table class="inquiry-table">
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Subject</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Action</th>
+    </tr>
+
+    {% for i in inquiries %}
+    <tr>
+        <td>{{ i.name }}</td>
+        <td>{{ i.email }}</td>
+        <td>{{ i.subject }}</td>
+
+        <td>
+            {% if i.status == "Pending" %}
+                <span class="status-pending">Pending</span>
+            {% else %}
+                <span class="status-responded">Responded</span>
+            {% endif %}
+        </td>
+
+        <td>{{ i.inquiry_date }}</td>
+
+        <td>
+            {% if i.status == "Pending" %}
+                <a href="{% url 'reply_inquiry' i.inquiry_id %}" class="reply-btn">Reply</a>
+            {% else %}
+                <span class="replied-label">Replied</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" style="text-align:center;">No inquiries yet</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
