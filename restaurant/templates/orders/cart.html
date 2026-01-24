@@ -1,0 +1,100 @@
+{% extends 'menu/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'menu/css/cart.css' %}">
+ <h2 class="cart-title">🛒 Cart ({{ cart_items|length }} items)</h2>
+<div class="cart-page">
+
+    <!-- LEFT : CART ITEMS -->
+    <div class="cart-left">
+
+        {% for item in cart_items %}
+        <div class="cart-card">
+
+            <div class="cart-img">
+                <img src="{{ item.food_item.images.first.img_url.url }}">
+            </div>
+
+<div class="cart-details">
+
+    <h4>{{ item.food_item.name }}</h4>
+
+    <!-- REMOVE ITEM -->
+    <a href="{% url 'remove_item' item.id %}" class="remove-item">
+        🗑 Remove Item
+    </a>
+
+    <!-- PRICE + QTY -->
+    <div class="price-qty-block">
+
+        <div class="qty-box">
+            <a href="{% url 'decrease_qty' item.id %}">−</a>
+            <span>{{ item.quantity }}</span>
+            <a href="{% url 'increase_qty' item.id %}">+</a>
+        </div>
+
+        <div class="item-price">₹ {{ item.total_price }}</div>
+
+    </div>
+
+</div>
+
+
+        </div>
+        {% empty %}
+        <p class="empty-cart">Your cart is empty 😔</p>
+        {% endfor %}
+
+    </div>
+
+    <!-- RIGHT : PRICE SUMMARY -->
+    <div class="cart-right">
+
+        <div class="summary-box">
+            <h3>The Total Amount Of</h3>
+
+            <div class="summary-row">
+                <span>Fooditem price</span>
+                <span>₹ {{ item_total }}</span>
+            </div>
+
+            <div class="summary-row">
+              <span>GST (5%)</span>
+              <span>₹ {{ tax }}</span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Delivery Charge</span>
+                <span>₹ 50</span>
+            </div>
+
+            <hr>
+
+            <div class="summary-total">
+                <span>Total (incl. tax & delivery)</span>
+                <span>₹ {{ grand_total|add:50 }}</span>
+            </div>
+
+            <a href="{% url 'checkout' %}" class="checkout-btn">CHECKOUT</a>
+            <a href="{% url 'menu_page' %}" class="back-btn">+ADD MORE ITEMS</a>
+        </div>
+        <!-- DISCOUNT BOX -->
+<div class="discount-box">
+    <h4>Add a discount code (optional)</h4>
+
+    <input type="text" placeholder="Enter the discount code">
+    <button>Apply</button>
+</div>
+
+<!-- DELIVERY TIME -->
+<div class="delivery-box">
+    <h4>Expected Delivery Time</h4>
+    <p>1 hour – 1½ hour</p>
+</div>
+
+
+    </div>
+
+</div>
+{% endblock %}

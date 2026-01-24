@@ -22,9 +22,37 @@ urlpatterns = [
     path('add-foodimage/', views.add_foodimage, name='add_foodimage'),
     path('update-foodimage/<int:id>/', views.update_foodimage, name='update_foodimage'),
     path('delete-foodimage/<int:id>/', views.delete_foodimage, name='delete_foodimage_item'),
+
     path('inquiries/', views.admin_inquiry_list, name='admin_inquiry_list'),
    # path('inquiries/reply/<int:inquiry_id>/', views.admin_reply_inquiry, name='admin_reply_inquiry'),
     path('inquiry/reply/<int:id>/', views.reply_inquiry, name='reply_inquiry'),
 
+   
+     path('states/', views.add_and_list_state, name='add_and_list_state'),
+     path('states/edit/<int:id>/', views.edit_state, name='edit_state'),
+    path('states/delete/<int:id>/', views.delete_state, name='delete_state'),
+     
+
+     # CITY
+path('cities/', views.add_and_list_city, name='add_and_list_city'),
+path('cities/edit/<int:id>/', views.edit_city, name='edit_city'),
+path('cities/delete/<int:id>/', views.delete_city, name='delete_city'),
+# AREA
+path('areas/', views.add_and_list_area, name='add_and_list_area'),
+path('areas/edit/<int:id>/', views.edit_area, name='edit_area'),
+path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
+
+
+    # path('cities/', views.city_list, name='city_list'),
+    # path('cities/add/', views.add_city, name='add_city'),
+    # path('cities/edit/<int:id>/', views.edit_city, name='edit_city'),
+    # path('cities/delete/<int:id>/', views.delete_city, name='delete_city'),
+
+    # # path('areas/', views.area_list, name='area_list'),
+    # # path('areas/add/', views.add_area, name='add_area'),
+    # path('areas/edit/<int:id>/', views.edit_area, name='edit_area'),
+    # path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
     
+
+     
 ]
