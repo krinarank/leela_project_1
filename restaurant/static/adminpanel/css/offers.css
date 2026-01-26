@@ -1,0 +1,212 @@
+/* ===== PAGE ===== */
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: #f4f6f9;
+}
+.main{
+     font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 8px 15px;
+     margin-top: 60px;
+    background-color: #108a35;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s;
+     position: absolute;  /* fixed position relative to parent */
+    top: 60px;           /* distance from top */
+    right: 140px;
+}
+
+.back-btn1 {
+    display: inline-block;
+    padding: 8px 15px;
+    margin-top: 100px;
+    background-color: #108a35;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s;
+     position: absolute;  /* fixed position relative to parent */
+    top: 20px;           /* distance from top */
+    right: 20px;
+}
+/* ===== MAIN WRAPPER ===== */
+.offer-page {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    align-items: stretch
+}
+
+/* ===== LEFT: CREATE OFFER ===== */
+.offer-form-box {
+    flex: 0.8;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    align-items: stretch
+}
+
+.offer-form-box h2 {
+    margin-bottom: 20px;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.offer-form-box label {
+    font-weight: 600;
+    margin-top: 12px;
+    display: block;
+}
+
+.offer-form-box input,
+.offer-form-box button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.offer-form-box button {
+    background: #007bff;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 15px;
+    border: none;
+}
+
+.offer-form-box button:hover {
+    background: #0056b3;
+}
+
+/* ===== OFFER CODE ROW ===== */
+.offer-code-row {
+    display: flex;
+    gap: 10px;
+}
+
+.offer-code-row input {
+    flex: 1;
+}
+
+.offer-code-row button {
+    width: auto;
+    padding: 0 15px;
+}
+
+/* ===== RIGHT: OFFER LIST ===== */
+.offer-list-box {
+    flex: 1.5;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    align-items: stretch
+}
+
+.offer-list-box h3 {
+    margin-bottom: 15px;
+}
+
+/* ===== TABLE ===== */
+.offer-list-box table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.offer-list-box th,
+.offer-list-box td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+.offer-list-box th {
+    background: #007bff;
+}
+
+/* ===== STATUS ===== */
+.status-active {
+    color: green;
+    font-weight: bold;
+}
+
+.status-expired {
+    color: red;
+    font-weight: bold;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .offer-page {
+        flex-direction: column;
+    }
+}
+
+/* Buttons common style */
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Edit button */
+.btn-edit {
+    background-color: #4CAF50; /* green */
+    color: white;
+    border: none;
+}
+
+.btn-edit:hover {
+    background-color: #45a049;
+}
+
+/* Delete button */
+.btn-delete {
+    background-color: #f44336; /* red */
+    color: white;
+    border: none;
+}
+
+.btn-delete:hover {
+    background-color: #da190b;
+}
+
+.status-active {
+    color: green;
+    font-weight: bold;
+}
+
+.status-upcoming {
+    color: orange;
+    font-weight: bold;
+}
+
+.status-inactive {
+    color: gray;
+    font-weight: bold;
+}
+
+.status-expired {
+    color: red;
+    font-weight: bold;
+}
+
+
+

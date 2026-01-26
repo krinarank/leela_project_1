@@ -1,0 +1,74 @@
+
+
+{%load static%}
+ <link rel="stylesheet" href="{% static 'adminpanel/css/current_offers.css' %}">
+<h2 class="offers-heading">🎁 Currently Active Offers</h2>
+ <a href="{% url 'apply_offer' %}" class="back-btn"> go to Apply Offer</a>
+ <a href="{% url 'create_offer' %}" class="back-btn1"> Back to create Offer</a>
+
+
+<h3 class="offers-subheading">Food Item Offers</h3>
+<table class="offer-table">
+    <tr>
+        <th>Offer Code</th>
+        <th>Item</th>
+        <th>Discount %</th>
+        <th>Valid From</th>
+        <th>Valid To</th>
+    </tr>
+    {% for f in food_item_offers %}
+    <tr>
+        <td>{{ f.offer.offer_code }}</td>
+        <td>{{ f.food_item.name }}</td>
+        <td>{{ f.offer.discount_percentage }}</td>
+        <td>{{ f.applied_date }}</td>
+        <td>{{ f.expiry_date }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="no-offers">No active item offers.</td></tr>
+    {% endfor %}
+</table>
+
+<h3 class="offers-subheading">Category Offers</h3>
+<table class="offer-table">
+    <tr>
+        <th>Offer Code</th>
+        <th>Category</th>
+        <th>Discount %</th>
+        <th>Valid From</th>
+        <th>Valid To</th>
+    </tr>
+    {% for c in category_offers %}
+    <tr>
+        <td>{{ c.offer.offer_code }}</td>
+        <td>{{ c.category.category_name }}</td>
+        <td>{{ c.offer.discount_percentage }}</td>
+        <td>{{ c.applied_date }}</td>
+        <td>{{ c.expiry_date }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="no-offers">No active category offers.</td></tr>
+    {% endfor %}
+</table>
+
+<h3 class="offers-subheading">Subcategory Offers</h3>
+<table class="offer-table">
+    <tr>
+        <th>Offer Code</th>
+        <th>Subcategory</th>
+        <th>Discount %</th>
+        <th>Valid From</th>
+        <th>Valid To</th>
+    </tr>
+    {% for s in subcategory_offers %}
+    <tr>
+        <td>{{ s.offer.offer_code }}</td>
+        <td>{{ s.subcategory.subcategory_name }}</td>
+        <td>{{ s.offer.discount_percentage }}</td>
+        <td>{{ s.applied_date }}</td>
+        <td>{{ s.expiry_date }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="no-offers">No active subcategory offers.</td></tr>
+    {% endfor %}
+</table>
