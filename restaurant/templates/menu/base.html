@@ -4,9 +4,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Restaurant</title>
+    <title>Taste Villa</title>
     <link rel="stylesheet" href="{% static 'menu/css/frontend.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
+    <link rel="stylesheet" href="{% static 'menu/css/home.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'menu/css/footer.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -36,7 +37,7 @@
     <!-- HEADER -->
     <header class="header">
         <div class="logo">
-            Restaurant
+            Taste Villa
         </div>
 
         <nav class="nav">
@@ -65,6 +66,7 @@
         </nav>
     </header>
 
+
     <!-- PAGE CONTENT -->
     <main class="content">
         {% block content %}
@@ -72,9 +74,33 @@
     </main>
 
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const cart = document.querySelector('.floating-cart');
+    const footer = document.getElementById('site-footer');
+
+    if (!cart || !footer) return;
+
+    function handleScroll() {
+        const footerRect = footer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // footer viewport ma enter kare tyare
+        if (footerRect.top < windowHeight) {
+            const overlap = windowHeight - footerRect.top;
+            cart.style.transform = `translateY(-${overlap}px)`;
+        } else {
+            cart.style.transform = 'translateY(0)';
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+});
+</script>
 
 <!-- ===== FOOTER ===== -->
-<footer>
+<footer id="site-footer">
 
     <div class="footer-container">
 

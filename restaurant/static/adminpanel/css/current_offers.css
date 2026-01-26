@@ -1,0 +1,198 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.offers-container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+.offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.offer-card {
+    background-color: #eaf2f8;
+    border-radius: 10px;
+    padding: 15px 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.offer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.offer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.offer-code {
+    font-weight: bold;
+    font-size: 16px;
+    color: #1a5276;
+}
+
+.offer-percentage {
+    font-weight: bold;
+    color: #c0392b;
+    font-size: 16px;
+}
+
+.offer-description {
+    margin: 5px 0 10px 0;
+    color: #34495e;
+}
+
+.offer-dates {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 10px;
+}
+
+.offer-section {
+    margin-top: 10px;
+}
+
+.offer-section ul {
+    margin: 5px 0 0 15px;
+    padding: 0;
+    list-style-type: disc;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.no-offers {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 8px 15px;
+    margin-top: 20px;
+    background-color: #108a35;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s;
+     position: absolute;  /* fixed position relative to parent */
+    top: 50px;           /* distance from top */
+    right: 200px;   
+}
+
+
+.back-btn1 {
+    display: inline-block;
+    padding: 8px 15px;
+    margin-top: 50px;
+    background-color: #108a35;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s;
+     position: absolute;  /* fixed position relative to parent */
+    top: 20px;           /* distance from top */
+    right: 20px;   
+}
+
+
+
+
+/* ================= GENERAL STYLING ================= */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.offers-heading {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    text-align: center;
+}
+
+.offers-subheading {
+    font-size: 22px;
+    margin: 15px 0 10px 0;
+    color: #34495e;
+}
+
+/* ================= TABLE STYLING ================= */
+.offer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.offer-table th,
+.offer-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.offer-table th {
+    background-color: #3498db;
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.offer-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.offer-table tr:hover {
+    background-color: #ecf0f1;
+}
+
+.no-offers {
+    text-align: center;
+    font-style: italic;
+    color: #7f8c8d;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .offer-table th,
+    .offer-table td {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .offers-heading {
+        font-size: 24px;
+    }
+
+    .offers-subheading {
+        font-size: 18px;
+    }
+}

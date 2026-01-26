@@ -174,3 +174,20 @@ body {
     color: #ff4d00;
     font-weight: bold;
 }
+
+
+.dashboard-right form input, 
+.dashboard-right form button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+.dashboard-right table {
+    border-collapse: collapse;
+}
+
+.dashboard-right table th, table td {
+    padding: 10px;
+    text-align: left;
+}

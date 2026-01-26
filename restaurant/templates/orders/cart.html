@@ -34,7 +34,18 @@
             <a href="{% url 'increase_qty' item.id %}">+</a>
         </div>
 
-        <div class="item-price">₹ {{ item.total_price }}</div>
+        <!-- <div class="item-price">₹ {{ item.total_price }}</div> -->
+         <div class="item-price">
+    {% if item.final_price < item.food_item.price %}
+        <del style="color:#999">₹ {{ item.original_total_price }}</del><br>
+        <strong style="color:green">
+            ₹ {{ item.total_price|floatformat:2 }}
+        </strong>
+    {% else %}
+     <strong style="color:green"> ₹ {{ item.total_price }} </strong>
+    {% endif %}
+</div>
+
 
     </div>
 
@@ -49,50 +60,56 @@
     </div>
 
     <!-- RIGHT : PRICE SUMMARY -->
-    <div class="cart-right">
+   
 
-        <div class="summary-box">
+<div class="cart-right">
+<div class="summary-box">
             <h3>The Total Amount Of</h3>
+       <div class="summary-row">
+            <span>Food Item Total</span>
+    <span>₹ {{ original_total|floatformat:2 }}</span>
+     </div>
 
-            <div class="summary-row">
-                <span>Fooditem price</span>
-                <span>₹ {{ item_total }}</span>
-            </div>
+{% if total_discount > 0 %}
+<div class="summary-row" style="color:green">
+    <span>Discount You Saved</span>
+    <span>- ₹ {{ total_discount|floatformat:2 }}</span>
+</div>
+{% endif %}<hr>
 
-            <div class="summary-row">
-              <span>GST (5%)</span>
-              <span>₹ {{ tax }}</span>
-            </div>
-            
-            <div class="summary-row">
-                <span>Delivery Charge</span>
-                <span>₹ 50</span>
-            </div>
+<div class="summary-row">
+    <span>Subtotal</span>
+    <span>₹ {{ item_total|floatformat:2 }}</span>
+</div>
 
-            <hr>
+<div class="summary-row">
+    <span>GST (5%)</span>
+    <span>₹ {{ tax|floatformat:2 }}</span>
+</div>
 
-            <div class="summary-total">
-                <span>Total (incl. tax & delivery)</span>
-                <span>₹ {{ grand_total|add:50 }}</span>
-            </div>
+<div class="summary-row">
+    <span>Delivery Charge</span>
+    <span>₹ 50</span>
+</div>
+
+<hr>
+
+<div class="summary-total">
+    <span>Total (incl. tax & delivery)</span>
+    <span>₹ {{ grand_total|floatformat:2 }}</span>
+</div>
 
             <a href="{% url 'checkout' %}" class="checkout-btn">CHECKOUT</a>
             <a href="{% url 'menu_page' %}" class="back-btn">+ADD MORE ITEMS</a>
         </div>
+        </div>
         <!-- DISCOUNT BOX -->
-<div class="discount-box">
+<!-- <div class="discount-box">
     <h4>Add a discount code (optional)</h4>
 
     <input type="text" placeholder="Enter the discount code">
     <button>Apply</button>
-</div>
-
-<!-- DELIVERY TIME -->
-<div class="delivery-box">
-    <h4>Expected Delivery Time</h4>
-    <p>1 hour – 1½ hour</p>
-</div>
-
+</div> -->
 
     </div>
 

@@ -35,7 +35,8 @@ urlpatterns = [
      path('', include('menu.urls')),
     path('logout/', admin_views.logout_view, name='logout'), 
     path('accounts/', include('accounts.urls')),
-     path('orders/', include('orders.urls')),  
+    path('orders/', include('orders.urls')),  
+    # path('adminpanel/', include('orders.urls')),  
 
 ]
 

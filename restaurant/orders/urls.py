@@ -12,5 +12,13 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('remove-item/<int:item_id>/', views.remove_item, name='remove_item'),
 
+    # path('offers/', views.create_and_list_offer, name='create_and_list_offer'),
+    path('offers/delete/<int:id>/', views.offer_delete, name='offer_delete'), 
+    path('offers/update/<int:offer_id>/', views.offer_update, name='offer_update'),
+    path('apply-offer/', views.apply_offer, name='apply_offer'),
+    path("offers/create/", views.create_offer, name="create_offer"),
+    path("offers/current/", views.current_offers, name="current_offer"),
+
+
 
 ]

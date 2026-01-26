@@ -39,6 +39,11 @@
             <a href="{% url 'add_and_list_area' %}">📌 Areas</a>
         </div>
 
+        <a href="{% url 'create_offer' %}" > 💰offer & discount </a>
+        <!-- <a href="{% url 'apply_offer' %}" > apply_offer </a>
+        <a href="{% url 'current_offer' %}" > current_offer </a>
+         -->
+
         <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
 
         <div class="logout">
@@ -123,6 +128,11 @@ function toggleGridMenu(){
 
 function toggleLocation(){
     let block = document.getElementById("locationBlock");
+    block.style.display = block.style.display === "block" ? "none" : "block";
+}
+
+function toggleoffer(){
+    let block = document.getElementById("offerBlock");
     block.style.display = block.style.display === "block" ? "none" : "block";
 }
 </script>
