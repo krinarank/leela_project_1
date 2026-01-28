@@ -1,0 +1,38 @@
+{% extends "adminpanel/base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Add Delivery Person</h2>
+
+<!-- {% if messages %}
+  {% for message in messages %}
+    <p style="color: green;">{{ message }}</p>
+  {% endfor %}
+{% endif %} -->
+
+<form method="POST">
+  {% csrf_token %}
+  <label>First Name:</label>
+  <input type="text" name="fname" required><br>
+
+  <label>Last Name:</label>
+  <input type="text" name="lname" required><br>
+
+  <label>Username:</label>
+  <input type="text" name="username" required><br>
+
+  <label>Email:</label>
+  <input type="email" name="email" required><br>
+
+  <label>Password:</label>
+  <input type="password" name="password" required><br>
+
+  <label>Contact No:</label>
+  <input type="text" name="contact" required><br>
+
+  <label>Address:</label>
+  <textarea name="address" required></textarea><br>
+
+  <button type="submit">Add Delivery Person</button>
+</form>
+{% endblock %}

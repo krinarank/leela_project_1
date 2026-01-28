@@ -1,0 +1,260 @@
+<!-- <form method="POST" action="{% url verify_url %}">
+    {% csrf_token %}
+    <input type="text" name="otp" placeholder="Enter OTP">
+    <button>Verify</button>
+</form> -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify OTP</title>
+    <style>
+        body {
+            background: #f4f6f8;
+            font-family: Arial;
+        }
+        .card {
+            width: 450px;
+            margin: 120px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 5px;
+            margin-top: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .error { color: red; margin-top: 10px; }
+        .resend {
+            margin-top: 15px;
+        }
+        .resend a {
+            text-decoration: none;
+            color: #555;
+        }
+
+        .otp-box {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.otp-input {
+    width: 35px;
+    height: 40px;
+    font-size: 22px;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+    transition: 0.2s;
+}
+
+.otp-input:focus {
+    border-color: #4caf50;
+}
+
+.otp-input.error {
+    border-color: red;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Verify OTP</h2>
+    <p>Enter the 6 digit OTP sent to your email</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- <form method="POST"  action="{% url verify_url %}">
+        {% csrf_token %}
+        <input type="text" name="otp" maxlength="6" placeholder="------" required>
+        <button type="submit">Verify OTP</button>
+    </form> -->
+
+    <!-- <div class="resend">
+        <a href="{% url 'delivery_forgot_password' %}">Resend OTP</a>
+    </div> -->
+
+    <form method="post" id="otpForm" action="{% url verify_url %}">
+  {% csrf_token %}
+
+  
+
+  <div class="otp-box">
+    <input type="text" maxlength="1" class="otp-input"
+       inputmode="numeric" pattern="[0-9]*">
+    <input type="text" maxlength="1" class="otp-input"
+       inputmode="numeric" pattern="[0-9]*">
+    <input type="text" maxlength="1" class="otp-input"
+       inputmode="numeric" pattern="[0-9]*">
+    <input type="text" maxlength="1" class="otp-input"
+       inputmode="numeric" pattern="[0-9]*">
+    <input type="text" maxlength="1" class="otp-input"
+       inputmode="numeric" pattern="[0-9]*">
+    <input type="text" maxlength="1" class="otp-input"
+       inputmode="numeric" pattern="[0-9]*">
+
+  </div>
+
+  <!-- Hidden field (real OTP goes here) -->
+  <input type="hidden" name="otp" id="otpValue">
+
+  <button type="submit">Verify OTP</button>
+
+  <!-- <p id="timer"></p> -->
+
+  <!-- <a href="{% url 'resend_otp' %}"
+   id="resendBtn"
+   style="pointer-events:none; color:gray;">
+   Resend OTP
+</a> -->
+<!-- <form method="post" action="{% url 'resend_otp' %}">
+    {% csrf_token %}
+    <button type="submit"
+            id="resendBtn"
+            style="pointer-events:none; color:gray;">
+        Resend OTP
+    </button>
+</form> -->
+
+
+<!-- <a href="{% url 'resend_otp' %}"
+   id="resendBtn"
+   style="
+      pointer-events:none;
+      color:gray;
+      display:inline-block;
+      margin-top:10px;
+   ">
+   Resend OTP
+</a> -->
+<!-- <form method="post" action="{% url 'resend_otp' %}">
+    {% csrf_token %}
+    <button type="submit" id="resendBtn" style="pointer-events:none; color:gray;">Resend OTP</button>
+</form> -->
+<p id="timer"></p>
+
+</form>
+<form method="post" action="{% url 'resend_otp' %}">
+{% csrf_token %}
+<button type="submit" id="resendBtn" disabled style="color:gray">
+Resend OTP
+</button>
+</form>
+
+
+
+</div>
+<!-- <script>
+const inputs = document.querySelectorAll(".otp-input");
+const hiddenOtp = document.getElementById("otpValue");
+const form = document.getElementById("otpForm");
+
+inputs.forEach((input, index) => {
+
+  input.addEventListener("input", () => {
+    // allow only numbers
+    input.value = input.value.replace(/[^0-9]/g, "");
+
+    if (input.value && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+    }
+
+    let otp = "";
+    inputs.forEach(i => otp += i.value);
+    hiddenOtp.value = otp;
+
+    if (otp.length === 6 ) {
+      form.submit(); // 🚀 auto submit
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Backspace" && !input.value && index > 0) {
+      inputs[index - 1].focus();
+    }
+  });
+
+});
+</script>
+
+<script>
+let timeLeft = 60;
+const timer = document.getElementById("timer");
+const resendBtn = document.getElementById("resendBtn");
+
+const countdown = setInterval(() => {
+    timer.innerText = "Resend OTP in " + timeLeft + "s";
+    timeLeft--;
+
+    if (timeLeft < 0) {
+        clearInterval(countdown);
+        timer.innerText = "You can resend OTP now";
+        resendBtn.style.pointerEvents = "auto";
+        resendBtn.style.color = "#4caf50";
+    }
+}, 1000);
+</script> -->
+
+<script>
+const inputs = document.querySelectorAll(".otp-input");
+const hiddenOtp = document.getElementById("otpValue");
+
+inputs.forEach((input, i) => {
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/[^0-9]/g, "");
+
+    if (input.value && i < inputs.length - 1) {
+      inputs[i + 1].focus();
+    }
+
+    hiddenOtp.value = [...inputs].map(i => i.value).join("");
+  });
+});
+</script>
+
+<script>
+let timeLeft = 60;
+const timer = document.getElementById("timer");
+const resendBtn = document.getElementById("resendBtn");
+
+const interval = setInterval(() => {
+  timer.innerText = `Resend OTP in ${timeLeft}s`;
+  timeLeft--;
+
+  if (timeLeft < 0) {
+    clearInterval(interval);
+    timer.innerText = "You can resend OTP";
+    resendBtn.disabled = false;
+    resendBtn.style.color = "green";
+  }
+}, 1000);
+</script>
+
+
+
+</body>
+</html>

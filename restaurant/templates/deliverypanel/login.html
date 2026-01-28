@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Login</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    /* background: linear-gradient(135deg, #ff24de, #1fd1c3); */
+    background-image: url("/static/accounts/b2.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CARD */
+.login-container {
+    width: 360px;
+    background: #f4f6f8;
+    border-radius: 30px;
+    padding: 35px 30px 40px;
+    text-align: center;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+}
+
+.user-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    background:
+        linear-gradient(#f4f6f8, #f4f6f8) padding-box,
+        linear-gradient(135deg, #245bff, #1fd1c3) border-box;
+    position: relative;
+}
+
+/* HEAD */
+.user-icon .head {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #245bff, #1fd1c3);
+}
+
+/* BODY */
+.user-icon .body {
+    width: 36px;
+    height: 20px;
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 10px 10px;
+    background: linear-gradient(135deg, #245bff, #1fd1c3);
+}
+
+/* TITLE */
+.login-container h2 {
+    margin: 15px 0 25px;
+    font-weight: 700;
+    font-size: 24px;
+
+    background: linear-gradient(135deg, #245bff, #1fd1c3);
+
+    -webkit-background-clip: text;   /* Chrome / Edge */
+    -webkit-text-fill-color: transparent;
+
+    background-clip: text;           /* future support */
+    color: transparent;
+}
+
+
+/* INPUT BOX */
+.input-box {
+    position: relative;
+    margin: 15px 0;
+}
+
+.input-box span {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #fff;
+}
+
+.input-box input {
+    width: 100%;
+    box-sizing:border-box;
+    padding: 14px 15px 14px 45px;
+    border-radius: 30px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: #fff;
+    background: linear-gradient(135deg, #d040af, #1fd1c3);
+}
+
+.input-box input::placeholder {
+    color: #eaffff;
+}
+
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #245bff, #1fd1c3);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:hover {
+    box-shadow: 0 10px 25px rgba(36,91,255,0.6);
+}
+
+/* ERROR */
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="user-icon">
+        <div class="head"></div>
+        <div class="body"></div>
+    </div>
+    <h2>Delivery Person Login</h2>
+
+    <!-- {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %} -->
+
+    {% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-danger">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- <div class="input-box">
+            <span>👤</span>
+            <input type="text" name="username" placeholder="Username" required>
+        </div> -->
+        <!-- <div class="input-box">
+            <label class="input-label">👤 Username</label>
+            <input type="text" name="username" placeholder="Enter username" required>
+        </div>
+
+         <span>🔒Password</span>
+        <div class="input-box">
+             -->
+            <div class="input-box">
+            <span>👤</span>
+            <input type="text" name="username" placeholder="Enter Username" required>
+        </div>
+
+        <div class="input-box">
+            <span>🔒</span>
+            <input type="password" name="password" placeholder="Enter Password" required>
+        </div>
+            <!-- <input type="password" name="password" placeholder=" Enter Password" required>
+        </div> -->
+
+
+        <button type="submit">Login</button>
+        <br><br>
+        <a href="{% url 'delivery_forgot_password' %}">
+    Forgot Password?
+</a>
+
+    </form>
+
+</div>
+
+</body>
+</html>
+
+   

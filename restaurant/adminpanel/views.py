@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from accounts.models import Customer
+from deliverypanel.models import DeliveryPerson
+
 from django.contrib.auth.decorators import login_required
 from .models import (
     FoodItemCategory,
@@ -354,3 +356,51 @@ def dashboard_view(request):
 
 def get_pending_inquiry_count():
     return Inquiry.objects.filter(status='Pending').count()
+
+def add_delivery_person(request):
+    # ⚠️ OPTIONAL: agar admin login session use kar rahi ho
+    # if 'admin_id' not in request.session:
+    #     return redirect('/adminpanel/login/')
+
+    if request.method == "POST":
+        fname = request.POST.get('fname')
+        lname = request.POST.get('lname')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        contact = request.POST.get('contact')
+        address = request.POST.get('address')
+
+        # ---- validation (basic) ----
+       
+        if Customer.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists")
+            return redirect('/adminpanel/add-delivery-person/')
+
+        # ---- create CUSTOMER (login holder) ----
+        customer = Customer.objects.create(
+            username=username,
+            firstname=fname,
+            lastname=lname,
+            email=email,
+            password=password,   # (plain for now – hashing later)
+            contactno=contact,
+            address=address,
+            is_delivery_person=True
+        )
+
+        # ---- create DELIVERY PERSON ----
+        DeliveryPerson.objects.create(
+            user=customer,
+            fname=fname,
+            lname=lname,
+            email=email,
+            contact_no=contact,
+            address=address
+            # joining_date auto set
+        )
+
+        messages.success(request, "Delivery Person added successfully")
+        return redirect('add_delivery_person')
+
+    return render(request, 'adminpanel/add_delivery_person.html')

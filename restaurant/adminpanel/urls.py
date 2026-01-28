@@ -25,6 +25,6 @@ urlpatterns = [
     path('inquiries/', views.admin_inquiry_list, name='admin_inquiry_list'),
    # path('inquiries/reply/<int:inquiry_id>/', views.admin_reply_inquiry, name='admin_reply_inquiry'),
     path('inquiry/reply/<int:id>/', views.reply_inquiry, name='reply_inquiry'),
-
+    path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
     
 ]
