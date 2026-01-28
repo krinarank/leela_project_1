@@ -4,12 +4,20 @@ from django.contrib.auth.decorators import login_required
 from adminpanel.models import *
 from .models import Cart
 from decimal import Decimal
+
 from django.utils import timezone
 from datetime import datetime
 from .utils import generate_offer_code
 from django.contrib import messages
 from orders.models import *
 from .utils import get_discounted_price
+
+from django.views.decorators.csrf import csrf_exempt
+from .models import Wishlist
+from accounts.models import Customer
+import json
+
+
 
 
 
@@ -104,6 +112,7 @@ def get_cart(request):
 
     return JsonResponse({'items': items})
 
+
 # @login_required(login_url='/accounts/customer_login/')
 # def cart_page(request):
 #     cart_items = Cart.objects.filter(user=request.user)
@@ -130,6 +139,104 @@ def get_cart(request):
 #     }
 #     return render(request, 'orders/cart.html', context)
 
+
+# @login_required(login_url='/accounts/customer_login/')
+# def cart_page(request):
+#     cart_items = Cart.objects.filter(user=request.user)
+#     today = timezone.now().date()
+
+#     item_total = Decimal('0.00')
+#     total_discount = Decimal('0.00')
+#     original_total = Decimal('0.00')
+
+
+#     for item in cart_items:
+#         food = item.food_item
+#         base_price = food.price
+#         final_price = base_price
+         
+#         food_offer = None
+#         category_offer = None
+#         subcategory_offer = None
+#         # 1️⃣ Food Item Offer
+#         food_offer = FoodItemOfferDiscount.objects.filter(
+#             food_item=food,
+#             is_active=True,
+#             applied_date__lte=today,
+#             expiry_date__gte=today
+#         ).first()
+
+#         if food_offer:
+#             if food_offer.discount_type == 'percentage':
+#                 final_price = base_price - (base_price * food_offer.discount_value / 100)
+#             else:
+#                 final_price = base_price - food_offer.discount_value
+
+#         # 2️⃣ Subcategory Offer
+#         elif SubCategoryOfferDiscount.objects.filter(
+#             subcategory=food.sub_cat,
+#             is_active=True,
+#             applied_date__lte=today,
+#             expiry_date__gte=today
+#         ).exists():
+
+#             sub_offer = SubCategoryOfferDiscount.objects.filter(
+#                  subcategory=food.sub_cat,
+#                  is_active=True,
+#                  applied_date__lte=today,
+#                  expiry_date__gte=today
+#                     ).select_related('offer').first()
+
+#             if sub_offer:
+#                 discount = sub_offer.offer.discount_percentage
+#                 final_price = base_price - (base_price * discount / 100)
+
+
+#         # 3️⃣ Category Offer
+#         elif CategoryOfferDiscount.objects.filter(
+#             category=food.sub_cat.food_item_cat,
+#             is_active=True,
+#             applied_date__lte=today,
+#             expiry_date__gte=today
+#         ).exists():
+
+#            category_offer = CategoryOfferDiscount.objects.filter(
+#                 category=food.sub_cat.food_item_cat,
+#                 is_active=True,
+#                 applied_date__lte=today,
+#                 expiry_date__gte=today
+#                  ).select_related('offer').first()
+
+#         if category_offer:
+#                  discount = category_offer.offer.discount_percentage
+#                  final_price = base_price - (base_price * discount / 100)
+
+#         # attach to item
+#         item.final_price = final_price
+#         item.total_price = final_price * item.quantity
+#         item.original_total_price = food.price * item.quantity
+
+
+#         item_discount = item.original_total_price - item.total_price
+#         total_discount += item_discount
+#         original_total += item.original_total_price
+#         tax = (item_total * Decimal('0.05')).quantize(Decimal('0.01'))
+#         grand_total = item_total + tax + Decimal('50')
+
+
+#         item_total += item.total_price
+
+#     tax = (item_total * Decimal('0.05')).quantize(Decimal('0.01'))
+#     grand_total = item_total + tax
+
+#     return render(request, 'orders/cart.html', {
+#         'cart_items': cart_items,
+#         'original_total': original_total,
+#         'total_discount': total_discount,
+#         'item_total': item_total,
+#         'tax': tax,
+#         'grand_total': grand_total
+# })
 @login_required(login_url='/accounts/customer_login/')
 def cart_page(request):
     cart_items = Cart.objects.filter(user=request.user)
@@ -139,28 +246,22 @@ def cart_page(request):
     total_discount = Decimal('0.00')
     original_total = Decimal('0.00')
 
-
     for item in cart_items:
         food = item.food_item
         base_price = food.price
         final_price = base_price
-         
-        food_offer = None
-        category_offer = None
-        subcategory_offer = None
+
         # 1️⃣ Food Item Offer
         food_offer = FoodItemOfferDiscount.objects.filter(
             food_item=food,
             is_active=True,
             applied_date__lte=today,
             expiry_date__gte=today
-        ).first()
+        ).select_related('offer').first()
 
-        if food_offer:
-            if food_offer.discount_type == 'percentage':
-                final_price = base_price - (base_price * food_offer.discount_value / 100)
-            else:
-                final_price = base_price - food_offer.discount_value
+        if food_offer and food_offer.offer.is_currently_active():
+            discount = food_offer.offer.discount_percentage
+            final_price = base_price - (base_price * discount / 100)
 
         # 2️⃣ Subcategory Offer
         elif SubCategoryOfferDiscount.objects.filter(
@@ -171,16 +272,15 @@ def cart_page(request):
         ).exists():
 
             sub_offer = SubCategoryOfferDiscount.objects.filter(
-                 subcategory=food.sub_cat,
-                 is_active=True,
-                 applied_date__lte=today,
-                 expiry_date__gte=today
-                    ).select_related('offer').first()
+                subcategory=food.sub_cat,
+                is_active=True,
+                applied_date__lte=today,
+                expiry_date__gte=today
+            ).select_related('offer').first()
 
-            if sub_offer:
+            if sub_offer and sub_offer.offer.is_currently_active():
                 discount = sub_offer.offer.discount_percentage
                 final_price = base_price - (base_price * discount / 100)
-
 
         # 3️⃣ Category Offer
         elif CategoryOfferDiscount.objects.filter(
@@ -190,30 +290,26 @@ def cart_page(request):
             expiry_date__gte=today
         ).exists():
 
-           category_offer = CategoryOfferDiscount.objects.filter(
+            category_offer = CategoryOfferDiscount.objects.filter(
                 category=food.sub_cat.food_item_cat,
                 is_active=True,
                 applied_date__lte=today,
                 expiry_date__gte=today
-                 ).select_related('offer').first()
+            ).select_related('offer').first()
 
-        if category_offer:
-                 discount = category_offer.offer.discount_percentage
-                 final_price = base_price - (base_price * discount / 100)
+            if category_offer and category_offer.offer.is_currently_active():
+                discount = category_offer.offer.discount_percentage
+                final_price = base_price - (base_price * discount / 100)
 
-        # attach to item
+        # Attach calculated values
         item.final_price = final_price
         item.total_price = final_price * item.quantity
-        item.original_total_price = food.price * item.quantity
-
+        item.original_total_price = base_price * item.quantity
 
         item_discount = item.original_total_price - item.total_price
+
         total_discount += item_discount
         original_total += item.original_total_price
-        tax = (item_total * Decimal('0.05')).quantize(Decimal('0.01'))
-        grand_total = item_total + tax + Decimal('50')
-
-
         item_total += item.total_price
 
     tax = (item_total * Decimal('0.05')).quantize(Decimal('0.01'))
@@ -225,8 +321,8 @@ def cart_page(request):
         'total_discount': total_discount,
         'item_total': item_total,
         'tax': tax,
-        'grand_total': grand_total
-})
+        'grand_total': grand_total,
+    })
 
 @login_required
 def increase_qty(request, id):
@@ -301,6 +397,7 @@ def remove_item(request, item_id):
     cart_item = get_object_or_404(Cart, id=item_id, user=request.user)
     cart_item.delete()
     return redirect('cart_page')
+
 
 def create_offer(request):
     offers = OfferDiscount.objects.all()
@@ -477,4 +574,141 @@ def current_offers(request):
 
     return render(request, "adminpanel/offers/current_offers.html", context)
 
+
+
+
+
+# Toggle wishlist (logged in users only)
+
+@csrf_exempt
+def toggle_wishlist(request, food_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    food_id = int(food_id)   # 🔥 IMPORTANT FIX
+
+    # ===============================
+    # 🔹 LOGGED-IN USER → DATABASE
+    # ===============================
+    if request.user.is_authenticated:
+        food_item = get_object_or_404(FoodItem, id=food_id)
+
+        wishlist_item = Wishlist.objects.filter(
+            user=request.user,
+            food_item=food_item
+        ).first()
+
+        if wishlist_item:
+            wishlist_item.delete()
+            return JsonResponse({"is_wishlisted": False})
+
+        Wishlist.objects.create(
+            user=request.user,
+            food_item=food_item
+        )
+        return JsonResponse({"is_wishlisted": True})
+
+    # ===============================
+    # 🔹 GUEST USER → SESSION
+    # ===============================
+    wishlist = request.session.get("wishlist", [])
+
+    if food_id in wishlist:          # ✅ NOW MATCHES
+        wishlist.remove(food_id)     # ✅ REMOVE FROM SESSION
+        is_wishlisted = False
+    else:
+        wishlist.append(food_id)
+        is_wishlisted = True
+
+    request.session["wishlist"] = wishlist
+    request.session.modified = True
+
+    return JsonResponse({"is_wishlisted": is_wishlisted})
+
+# @csrf_exempt
+# def toggle_wishlist(request, food_id):
+#     if request.method != "POST":
+#         return JsonResponse({"error": "Invalid request"}, status=400)
+    
+
+#     # 🔹 LOGGED-IN USER
+#     if request.user.is_authenticated:
+#         food_item = get_object_or_404(FoodItem, id=food_id)
+
+#         wishlist_item = Wishlist.objects.filter(
+#             user=request.user,
+#             food_item=food_item
+#         ).first()
+
+#         if wishlist_item:
+#             wishlist_item.delete()
+#             return JsonResponse({"is_wishlisted": False})
+
+#         Wishlist.objects.create(user=request.user, food_item=food_item)
+#         return JsonResponse({"is_wishlisted": True})
+
+#     # 🔹 GUEST USER → SESSION
+#     wishlist = request.session.get("wishlist", [])
+
+#     if food_id in wishlist:
+#         wishlist.remove(food_id)
+#         is_wishlisted = False
+#     else:
+#         wishlist.append(food_id)
+#         is_wishlisted = True
+
+#     request.session["wishlist"] = wishlist
+#     request.session.modified = True
+
+#     return JsonResponse({"is_wishlisted": is_wishlisted})
+
+
+
+def add_to_wishlist(request, food_id):
+    if request.user.is_authenticated:
+        # Logged-in user → DB
+        Wishlist.objects.get_or_create(user=request.user, food_item_id=food_id)
+    else:
+        # Guest user → session
+        wishlist = request.session.get('wishlist', [])
+        if food_id not in wishlist:
+            wishlist.append(food_id)
+            request.session['wishlist'] = wishlist
+            request.session.modified = True  # 💡 important
+    return redirect('my_wishlist')
+
+
+def remove_from_wishlist(request, food_id):
+    if request.user.is_authenticated:
+        Wishlist.objects.filter(user=request.user, food_item_id=food_id).delete()
+    else:
+        wishlist = request.session.get('wishlist', [])
+        if food_id in wishlist:
+            wishlist.remove(food_id)
+            request.session['wishlist'] = wishlist
+            request.session.modified = True  # 💡 important
+    return redirect('my_wishlist')
+
+
+def my_wishlist(request):
+    """
+    Wishlist page – menu jeva cards sathe
+    """
+
+    # 🔹 Logged-in user
+    if request.user.is_authenticated:
+        wishlist_items = FoodItem.objects.filter(
+            wishlist__user=request.user   # Wishlist FK
+        ).prefetch_related('images')
+
+    # 🔹 Guest user
+    else:
+        wishlist_ids = request.session.get('wishlist', [])
+        wishlist_items = FoodItem.objects.filter(
+            id__in=wishlist_ids
+        ).prefetch_related('images')
+
+    return render(request, 'orders/wishlist.html', {
+        'wishlist_items': wishlist_items
+    })
 

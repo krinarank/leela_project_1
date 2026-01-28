@@ -1,0 +1,126 @@
+{% extends 'menu/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
+<link rel="stylesheet" href="{% static 'orders/css/wishlist.css' %}">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div class="container mt-5">
+    <h2 id="wishlist-count">
+        ❤️ My Wishlist ({{ wishlist_items|length }})
+    </h2>
+
+    <div class="row mt-4" id="wishlist-container">
+
+        {% for item in wishlist_items %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3 wishlist-card">
+
+            <div class="card food-card shadow-sm h-100">
+
+                {% if item.images.first %}
+                <div class="image-box"
+                     style="--bg-img: url('{{ item.images.first.img_url.url }}');">
+                    <img src="{{ item.images.first.img_url.url }}">
+                </div>
+                {% endif %}
+
+                <div class="card-body position-relative">
+
+                    <h6 class="card-title">{{ item.name }}</h6>
+
+                    <div class="price">₹ {{ item.price }}</div>
+                    <div class="calories">{{ item.calories }} cal</div>
+
+                    <!-- ❤️ remove wishlist -->
+                    <span class="wishlist-btn position-absolute top-0 end-0 m-2"
+                          data-food-id="{{ item.id }}">
+                        <i class="fa-solid fa-heart text-danger"></i>
+                    </span>
+
+                    <!-- ✅ MESSAGE UNDER ITEM (ONLY CHANGE) -->
+                    <div class="wishlist-msg mt-2 small" style="display:none;"></div>
+
+                </div>
+            </div>
+        </div>
+
+        {% empty %}
+        <p class="text-center text-muted">
+            Your wishlist is empty 💔
+        </p>
+        {% endfor %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function () {
+
+    $('#wishlist-container').on('click', '.wishlist-btn', function (e) {
+        e.preventDefault();
+
+        let btn = $(this);
+        let foodId = btn.data('food-id');
+        let card = btn.closest('.wishlist-card');
+        let msgBox = card.find('.wishlist-msg');
+
+        $.ajax({
+            url: "/orders/wishlist/toggle/" + foodId + "/",
+            type: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            success: function (response) {
+
+                msgBox.hide().removeClass('text-success text-danger');
+
+                if (response.is_wishlisted) {
+
+                    // ❤️ ADDED
+                    msgBox
+                        .text("❤️ Item added to your wishlist")
+                        .addClass('text-success')
+                        .fadeIn();
+
+                } else {
+
+                    // 💔 REMOVED
+                    msgBox
+                        .text("💔 Item removed from your wishlist")
+                        .addClass('text-danger')
+                        .fadeIn();
+
+                    setTimeout(() => {
+                        card.fadeOut(300, function () {
+                            $(this).remove();
+
+                            let count = $('#wishlist-container .wishlist-card').length;
+                            $('#wishlist-count').text(`❤️ My Wishlist (${count})`);
+
+                            if (count === 0) {
+                                $('#wishlist-container').html(
+                                    '<p class="text-center text-muted">Your wishlist is empty 💔</p>'
+                                );
+                            }
+                        });
+                    }, 1200);
+                }
+
+                setTimeout(() => {
+                    msgBox.fadeOut();
+                }, 2000);
+            }
+        });
+    });
+
+});
+</script>
+{% endblock %}

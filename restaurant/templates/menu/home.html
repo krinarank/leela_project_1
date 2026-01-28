@@ -18,41 +18,35 @@
 </div>
 <!-- ===== HERO SECTION END ===== -->
 
+
+
 <!-- ===== SPECIAL ITEMS SECTION ===== -->
 <div class="container my-5">
-
     <h2 class="text-center mb-4">Special Items</h2>
-
     <div class="row justify-content-center">
-
         {% for item in special_items %}
         <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
             <div class="card shadow-sm h-100">
-
-                {% if item.images.first %}
-                <img src="{{ item.images.first.img_url.url }}"
-                     class="card-img-top"
-                     style="height:180px; object-fit:cover;">
-                {% endif %}
-
+               {% if item.images.first %}
+<div class="image-box"
+     style="--bg-img: url('{{ item.images.first.img_url.url }}');">
+    <img src="{{ item.images.first.img_url.url }}">
+</div>
+{% endif %}
                 <div class="card-body text-center">
                     <h6 class="card-title">{{ item.name }}</h6>
                     <p class="mb-1">₹ {{ item.price }}</p>
                     <small class="text-muted">{{ item.calories }} cal</small>
                 </div>
-
                 <div class="card-footer text-center bg-white">
                     <span class="badge bg-danger">Special Item</span>
                 </div>
-
             </div>
         </div>
         {% empty %}
         <p class="text-center">No special items available</p>
         {% endfor %}
-
     </div>
-
 </div>
 
 {% endblock %}

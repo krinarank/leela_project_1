@@ -1,17 +1,20 @@
-from django.shortcuts import render,render
-from adminpanel.models import FoodItemCategory, FoodItemSubCategory, FoodItem, FoodItemImage
+from django.shortcuts import render, redirect
 from django.contrib import messages
+
 from adminpanel.models import (
     FoodItemCategory,
     FoodItemSubCategory,
-    FoodItem
+    FoodItem,
+    FoodItemImage
 )
+
 from .models import Inquiry
 from orders.utils import get_best_offer
 from decimal import Decimal
 
 
-
+from orders.models import Wishlist
+from .models import Inquiry
 
 
 def home(request):
@@ -23,6 +26,7 @@ def home(request):
     return render(request, 'menu/home.html', {
         'special_items': special_items
     })
+
 
 
 # def menu_page(request):
@@ -78,15 +82,71 @@ def home(request):
 #     }
 
 #     return render(request, 'menu/menu.html', context)
+# def menu_page(request):
+
+#     categories = FoodItemCategory.objects.prefetch_related(
+#         'fooditemsubcategory_set__fooditem_set__images'
+#     )
+
+#     all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
+
+#     # 🔁 helper function
+#     def apply_offer(item):
+#         offer = get_best_offer(item)
+#         if offer:
+#             discount = offer.offer.discount_percentage
+#             item.offer_percent = discount
+#             item.discounted_price = round(
+#                 item.price - (item.price * discount / 100), 2
+#             )
+#             item.has_offer = True
+#         else:
+#             item.has_offer = False
+
+#     # ✅ MAIN ALL ITEMS
+#     for item in all_items:
+#         apply_offer(item)
+
+#     # ✅ CATEGORY + SUBCATEGORY ITEMS
+#     for category in categories:
+#         for sub in category.fooditemsubcategory_set.all():
+#             for item in sub.fooditem_set.all():
+#                 apply_offer(item)
+
+#     context = {
+#         'categories': categories,
+#         'all_items': all_items
+#     }
+
+#     return render(request, 'menu/menu.html', context)
+
+
+# def menu_page(request):
+#     categories = FoodItemCategory.objects.all()
+
+#     if request.user.is_authenticated:
+#         wishlist_items = list(
+#             Wishlist.objects.filter(user=request.user)
+#             .values_list('food_item_id', flat=True)
+#         )
+#     else:
+#         wishlist_items = request.session.get('wishlist', [])
+
+#     return render(request, 'menu/menu.html', {
+#         'categories': categories,
+#         'wishlist_items': wishlist_items
+#     })
 def menu_page(request):
 
     categories = FoodItemCategory.objects.prefetch_related(
         'fooditemsubcategory_set__fooditem_set__images'
     )
 
-    all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
+    all_items = FoodItem.objects.filter(
+        is_available=True
+    ).prefetch_related('images')
 
-    # 🔁 helper function
+    # 🔁 OFFER HELPER
     def apply_offer(item):
         offer = get_best_offer(item)
         if offer:
@@ -99,19 +159,28 @@ def menu_page(request):
         else:
             item.has_offer = False
 
-    # ✅ MAIN ALL ITEMS
+    # ✅ Apply offers to all items
     for item in all_items:
         apply_offer(item)
 
-    # ✅ CATEGORY + SUBCATEGORY ITEMS
     for category in categories:
         for sub in category.fooditemsubcategory_set.all():
             for item in sub.fooditem_set.all():
                 apply_offer(item)
 
+    # ❤️ WISHLIST DATA
+    if request.user.is_authenticated:
+        wishlist_items = list(
+            Wishlist.objects.filter(user=request.user)
+            .values_list('food_item_id', flat=True)
+        )
+    else:
+        wishlist_items = request.session.get('wishlist', [])
+
     context = {
         'categories': categories,
-        'all_items': all_items
+        'all_items': all_items,
+        'wishlist_items': wishlist_items
     }
 
     return render(request, 'menu/menu.html', context)
@@ -119,12 +188,15 @@ def menu_page(request):
 def about(request):
     return render(request, 'menu/about.html')
 
+
 def contact(request):
     return render(request, 'menu/contact.html')
+
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Inquiry
+
 
 def contact_view(request):
     if request.method == "POST":
