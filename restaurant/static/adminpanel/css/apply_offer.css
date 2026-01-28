@@ -1,0 +1,211 @@
+body {
+    background: #f4f6f9;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.offer-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.offer-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Labels */
+.offer-container label {
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+    color: #444;
+}
+
+/* Select & Inputs */
+.offer-container select,
+.offer-container input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: 0.2s;
+}
+
+.offer-container select:focus,
+.offer-container input:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(79,70,229,0.15);
+}
+
+/* Radio Buttons */
+.apply-type {
+    display: flex;
+    gap: 30px;
+    margin-top: 10px;
+}
+
+.apply-type label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Item / Category box */
+.select-box {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+/* Checkbox style */
+.select-box input[type="checkbox"] {
+    accent-color: #4f46e5;
+    margin-right: 8px;
+}
+
+/* Dates section */
+.date-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Submit Button */
+.apply-btn {
+    margin-top: 30px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(79,70,229,0.3);
+}
+
+.success-msg {
+    background: #e8fff1;
+    color: #0a7c3a;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* ===== OPTION 3 ACCORDION STYLE ===== */
+
+.offer-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+    font-family: sans-serif;
+}
+
+.form-label {
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
+}
+
+.apply-type {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.radio-box {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.select-card {
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.category-block {
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #aaa;
+    padding-bottom: 5px;
+}
+
+.subcategory-block {
+    margin-left: 15px;
+    margin-bottom: 5px;
+}
+
+.apply-btn {
+    padding: 10px 20px;
+    background-color: #2a9d8f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.apply-btn:hover {
+    background-color: #21867a;
+}
+
+.success-msg {
+    color: green;
+    font-weight: bold;
+}
+
+.offer-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fdfdfd;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+h2 { text-align: center; margin-bottom: 20px; }
+
+.form-label { font-weight: bold; margin-top: 15px; display: block; }
+.apply-type { display: flex; gap: 20px; margin: 10px 0; }
+.radio-box span { margin-left: 5px; }
+
+.select-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.select-card { display: flex; align-items: center; padding: 5px 10px; background: #f7f7f7; border-radius: 5px; cursor: pointer; }
+.select-card input { margin-right: 8px; }
+
+.apply-btn { margin-top: 20px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+.apply-btn:hover { background: #218838; }
+
+.success-msg { color: green; font-weight: bold; }

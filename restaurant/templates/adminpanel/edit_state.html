@@ -1,0 +1,26 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/location.css' %}">
+
+
+
+<div class="page-wrapper">
+    <h2 class="page-title">✏️ Edit State</h2>
+
+    <div class="edit-form-container">
+        <form method="POST" class="edit-form">
+            {% csrf_token %}
+                 {% if updated %}
+<div style="padding: 20px; border-radius: 10px; background-color: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; margin-bottom: 20px; text-align: center;">
+    <strong>✔ State updated successfully!</strong>
+    <br>
+</div>
+{% endif %}
+            <label for="name">State Name</label>
+            <input type="text" name="name" value="{{ state.name }}" required>
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-save">Update</button><br><br>
+                <a href="{% url 'add_and_list_state' %}" class="btn btn-cancel">back to list</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,167 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/offers.css' %}">
+<br>
+<h1 class="main">Create and List Offer</h1>
+<br>
+<a href="{% url 'apply_offer' %}" class="back-btn1">Apply Offer</a>
+<a href="{% url 'current_offer' %}" class="back-btn">view all applied Offer</a>
+
+<div class="offer-page">
+
+    <!-- LEFT SIDE : CREATE OFFER -->
+    <div class="offer-form-box">
+
+        <h2>Create Offer</h2>
+
+        {% if error %}
+        <p style="color:red">{{ error }}</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Description</label>
+            <input type="text" name="description" required>
+
+            <label>Discount %</label>
+            <input type="number" step="0.01" name="discount_percentage" required>
+
+            <label>Offer Code</label>
+            <div class="offer-code-row">
+                <input type="text" name="offer_code" id="offer_code" readonly required>
+                <button type="button" onclick="generateOfferCode()">Generate</button>
+            </div>
+
+            <label>Valid From</label>
+            <input type="date" name="valid_from" id="start_date">
+
+            <label>Valid To</label>
+            <input type="date" name="valid_to" id="end_date">
+
+            <p id="dateError" style="color:red; display:none;"></p>
+
+            <label>
+                <input type="checkbox" name="isactive" checked>
+                Active
+            </label>
+
+            <button type="submit">Save Offer</button>
+        </form>
+
+    </div>
+     
+    
+
+    <!-- RIGHT SIDE : OFFER LIST -->
+    <div class="offer-list-box">
+
+        <h3>Offer List</h3>
+
+        <table>
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Discount</th>
+                <th>Valid From</th>
+                <th>Valid To</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+
+            {% for o in offers %}
+            <tr>
+                <td>{{ o.offer_code }}</td>
+                <td>{{ o.description }}</td>
+                <td>{{ o.discount_percentage }}%</td>
+                <td>{{ o.valid_from }}</td>
+                <td>{{ o.valid_to }}</td>
+                <td>
+    {% with status=o.get_status %}
+        {% if status == "Active" %}
+            <span class="status-active">Active</span>
+
+        {% elif status == "Upcoming" %}
+            <span class="status-upcoming">Upcoming</span>
+
+        {% elif status == "Inactive" %}
+            <span class="status-inactive">Inactive</span>
+
+        {% else %}
+            <span class="status-expired">Expired</span>
+        {% endif %}
+    {% endwith %}
+</td>
+
+                <td>
+                    <a href="{% url 'offer_update' o.id %}" class="btn btn-edit">Edit</a>
+                    <a href="{% url 'offer_delete' o.id %}" class="btn btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+</div>
+<a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
+<script>
+function generateOfferCode() {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const digits = "0123456789";
+
+    let letterPart = "";
+    let digitPart = "";
+
+    // First 3 letters
+    for (let i = 0; i < 3; i++) {
+        letterPart += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+
+    // Last 3 digits
+    for (let i = 0; i < 3; i++) {
+        digitPart += digits.charAt(Math.floor(Math.random() * digits.length));
+    }
+
+    document.getElementById("offer_code").value = letterPart + digitPart;
+}
+</script>
+
+<script>
+const startDate = document.getElementById("start_date");
+const endDate = document.getElementById("end_date");
+const errorMsg = document.getElementById("dateError");
+
+const today = new Date().toISOString().split("T")[0];
+
+// block past date selection
+startDate.min = today;
+endDate.min = today;
+
+function validateDates() {
+    errorMsg.style.display = "none";
+
+    if (!startDate.value || !endDate.value) return;
+
+    if (startDate.value < today) {
+        errorMsg.innerText = "❌ Start date cannot be before today";
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    if (endDate.value <= startDate.value) {
+        errorMsg.innerText = "❌ End date must be after start date";
+        errorMsg.style.display = "block";
+        return;
+    }
+}
+
+// input event
+startDate.addEventListener("input", () => {
+    endDate.min = startDate.value;
+    validateDates();
+});
+
+endDate.addEventListener("input", validateDates);
+</script>
+
+
+ 

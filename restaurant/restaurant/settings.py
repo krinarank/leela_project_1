@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'menu',
     'accounts',
     'deliverypanel',
+    'orders',
+    'location',
 
 ]
 
@@ -68,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'orders.context_processors.cart_count',
             ],
         },
     },
@@ -105,6 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'accounts.Customer'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

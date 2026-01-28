@@ -36,6 +36,9 @@ urlpatterns = [
     path('logout/', admin_views.logout_view, name='logout'), 
     path('accounts/', include('accounts.urls')),
     path('delivery/',include('deliverypanel.urls')),
+    path('orders/', include('orders.urls')),  
+    # path('adminpanel/', include('orders.urls')),  
+
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Offer</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/offer_update.css' %}">
+</head>
+<body>
+
+<div class="offer-container">
+
+    <h2>Update Offer</h2>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if request.GET.success %}
+        <p class="success">Offer updated successfully!</p>
+    {% endif %}
+
+    <div class="form-wrapper">
+        <form method="post" id="updateOfferForm">
+            {% csrf_token %}
+            
+            <label>Description</label>
+            <input type="text" name="description" value="{{ offer.description }}" required>
+
+            <label>Discount Percentage</label>
+            <input type="number" step="0.01" name="discount_percentage" value="{{ offer.discount_percentage }}" required>
+
+            <label>Valid From</label>
+            <input type="date" name="valid_from" id="start_date" value="{{ offer.valid_from|date:'Y-m-d' }}" required>
+
+            <label>Valid To</label>
+            <input type="date" name="valid_to" id="end_date" value="{{ offer.valid_to|date:'Y-m-d' }}" required>
+
+            <p id="dateError" style="color:red; display:none;"></p>
+
+            <label>Offer Code</label>
+            <input type="text" name="offer_code" value="{{ offer.offer_code }}" required>
+
+            <label>
+                <input type="checkbox" name="isactive" {% if offer.isactive %}checked{% endif %}>
+                Active
+            </label>
+
+            <button type="submit" class="btn-update">Update Offer</button>
+        </form>
+    </div>
+
+    <div class="back-link">
+        <a href="{% url 'create_offer' %}">&larr; Back to Offers List</a>
+    </div>
+
+</div>
+
+<script>
+const startDate = document.getElementById("start_date");
+const endDate = document.getElementById("end_date");
+const errorMsg = document.getElementById("dateError");
+
+const today = new Date().toISOString().split("T")[0];
+
+// block past date selection
+startDate.min = today;
+endDate.min = today;
+
+function validateDates() {
+    errorMsg.style.display = "none";
+
+    if (!startDate.value || !endDate.value) return true;
+
+    if (startDate.value < today) {
+        errorMsg.innerText = "❌ Start date cannot be before today";
+        errorMsg.style.display = "block";
+        return false;
+    }
+
+    if (endDate.value <= startDate.value) {
+        errorMsg.innerText = "❌ End date must be after start date";
+        errorMsg.style.display = "block";
+        return false;
+    }
+
+    return true;
+}
+
+// attach input events
+startDate.addEventListener("input", () => {
+    endDate.min = startDate.value;
+    validateDates();
+});
+
+endDate.addEventListener("input", validateDates);
+
+// form submit validation
+document.getElementById("updateOfferForm").addEventListener("submit", function(e) {
+    if (!validateDates()) {
+        e.preventDefault(); // stop form submission if invalid
+    }
+});
+</script>
+
+</body>
+</html>
+

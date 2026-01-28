@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apply Offer</title>
+    <link rel="stylesheet" href="{% static 'adminpanel/css/apply_offer.css' %}">
+</head>
+<body>
+
+<div class="offer-container">
+
+    <h2>🎯 Apply Offer</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="success-msg">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- OFFER SELECT -->
+        <label class="form-label">Select Offer</label>
+        <select name="offer" class="form-select" required>
+            <option value="">-- Select Offer --</option>
+            {% for offer in offers %}
+                <option value="{{ offer.id }}">
+                    {{ offer.offer_code }} - {{ offer.description }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- APPLY TYPE -->
+        <label class="form-label">Apply On</label>
+        <div class="apply-type">
+            <label class="radio-box">
+                <input type="radio" name="apply_type" value="item" checked>
+                <span>🍔 Food Item</span>
+            </label>
+
+            <label class="radio-box">
+                <input type="radio" name="apply_type" value="subcategory">
+                <span>📂 Sub Category</span>
+            </label>
+
+            <label class="radio-box">
+                <input type="radio" name="apply_type" value="category">
+                <span>📦 Category</span>
+            </label>
+        </div>
+
+        <!-- ================= ITEM BOX ================= -->
+        <div id="itemBox" class="nested-grid">
+            <label class="form-label full-width">Select Items</label>
+
+            <!-- DROPDOWN FILTER FOR ITEMS -->
+            <div class="dropdown-filter">
+                <label>Category:
+                    <select id="categoryDropdown">
+                        <option value="">-- Select Category --</option>
+                        {% for c in categories %}
+                            <option value="{{ c.id }}">{{ c.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>Subcategory:
+                    <select id="subcategoryDropdown" disabled>
+                        <option value="">-- Select Subcategory --</option>
+                    </select>
+                </label>
+            </div>
+
+            <!-- ITEMS GRID -->
+            <div id="foodItemsContainer" class="select-grid">
+                {% for i in items %}
+                    <label class="select-card">
+                        <input type="checkbox" name="items" value="{{ i.id }}">
+                        <span>{{ i.name }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ================= CATEGORY BOX ================= -->
+        <div id="categoryBox" class="nested-grid" style="display:none;">
+            <label class="form-label full-width">Select Categories</label>
+            {% for c in categories %}
+                <label class="select-card">
+                    <input type="checkbox" name="categories" value="{{ c.id }}">
+                    <span>{{ c.category_name }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <!-- ================= SUBCATEGORY BOX ================= -->
+        <div id="subcategoryBox" class="nested-grid" style="display:none;">
+            <label class="form-label full-width">Select Sub Categories</label>
+
+            <!-- CATEGORY DROPDOWN -->
+            <div class="dropdown-filter compact">
+                <label>Category:
+                    <select id="subcatCategoryDropdown">
+                        <option value="">-- Select Category --</option>
+                        {% for c in categories %}
+                            <option value="{{ c.id }}">{{ c.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+
+            <!-- SUBCATEGORY CHECKBOXES -->
+            <div id="subcatCheckboxContainer" class="select-grid"></div>
+        </div>
+
+        <button type="submit" class="apply-btn">✅ Apply Offer</button>
+    </form>
+
+    <br>
+    <a href="{% url 'create_offer' %}">⬅ Back to create offer</a>
+
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+// ===== SHOW/HIDE BOXES =====
+const itemRadio = document.querySelector("input[value='item']");
+const categoryRadio = document.querySelector("input[value='category']");
+const subcategoryRadio = document.querySelector("input[value='subcategory']");
+
+const itemBox = document.getElementById("itemBox");
+const categoryBox = document.getElementById("categoryBox");
+const subcategoryBox = document.getElementById("subcategoryBox");
+
+function hideAll() {
+    itemBox.style.display = "none";
+    categoryBox.style.display = "none";
+    subcategoryBox.style.display = "none";
+}
+
+itemRadio.addEventListener("change", () => {
+    hideAll();
+    itemBox.style.display = "grid";
+});
+categoryRadio.addEventListener("change", () => {
+    hideAll();
+    categoryBox.style.display = "grid";
+});
+subcategoryRadio.addEventListener("change", () => {
+    hideAll();
+    subcategoryBox.style.display = "grid";
+});
+
+// ===== NESTED DROPDOWN LOGIC FOR ITEM BOX =====
+const categoriesData = JSON.parse(`{
+        {% for c in categories %}
+        "{{ c.id }}": {
+            "subcategories": {
+                {% for sub in c.fooditemsubcategory_set.all %}
+                "{{ sub.id }}": {
+                    "name": "{{ sub.subcategory_name|escapejs }}",
+                    "items": [
+                        {% for item in sub.fooditem_set.all %}
+                        {"id": "{{ item.id }}", "name": "{{ item.name|escapejs }}"}{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    }`);
+
+const categoryDropdown = document.getElementById("categoryDropdown");
+const subcategoryDropdown = document.getElementById("subcategoryDropdown");
+const foodItemsContainer = document.getElementById("foodItemsContainer");
+
+categoryDropdown.addEventListener("change", () => {
+    subcategoryDropdown.innerHTML = '<option value="">-- Select Subcategory --</option>';
+    foodItemsContainer.innerHTML = '';
+
+    const catId = categoryDropdown.value;
+    if (!catId) { subcategoryDropdown.disabled = true; return; }
+
+    subcategoryDropdown.disabled = false;
+    const subs = categoriesData[catId].subcategories;
+    for (const subId in subs) {
+        const opt = document.createElement("option");
+        opt.value = subId;
+        opt.text = subs[subId].name;
+        subcategoryDropdown.appendChild(opt);
+    }
+});
+
+subcategoryDropdown.addEventListener("change", () => {
+    foodItemsContainer.innerHTML = '';
+    const catId = categoryDropdown.value;
+    const subId = subcategoryDropdown.value;
+    if (!catId || !subId) return;
+
+    const items = categoriesData[catId].subcategories[subId].items;
+    items.forEach(item => {
+        const label = document.createElement("label");
+        label.className = "select-card";
+        label.innerHTML = `<input type="checkbox" name="items" value="${item.id}"> <span>${item.name}</span>`;
+        foodItemsContainer.appendChild(label);
+    });
+});
+
+// ===== SUBCATEGORY RADIO LOGIC =====
+const subcatCategoryDropdown = document.getElementById("subcatCategoryDropdown");
+const subcatCheckboxContainer = document.getElementById("subcatCheckboxContainer");
+
+subcatCategoryDropdown.addEventListener("change", () => {
+    subcatCheckboxContainer.innerHTML = '';
+    const catId = subcatCategoryDropdown.value;
+    if (!catId) return;
+
+    const subs = categoriesData[catId].subcategories;
+    for (const subId in subs) {
+        const label = document.createElement("label");
+        label.className = "select-card";
+        label.innerHTML = `<input type="checkbox" name="subcategories" value="${subId}"> <span>${subs[subId].name}</span>`;
+        subcatCheckboxContainer.appendChild(label);
+    }
+});
+</script>
+
+</body>
+</html>

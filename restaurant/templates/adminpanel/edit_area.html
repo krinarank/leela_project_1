@@ -1,0 +1,34 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/location.css' %}">
+
+<div class="page-wrapper">
+    <h2 class="page-title">✏️ Edit Area</h2>
+
+    <div class="edit-form-container">
+        <form method="POST" class="edit-form">
+            {% csrf_token %}
+            
+            {% if updated %}
+            <div style="padding: 20px; border-radius: 10px; background-color: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; margin-bottom: 20px; text-align: center;">
+                <strong>✔ Area updated successfully!</strong>
+                <br>
+            </div>
+            {% endif %}
+
+            <label for="name">Area Name</label>
+            <input type="text" name="name" value="{{ area.name }}" required>
+
+            <label for="city">Select City</label>
+            <select name="city" required>
+                {% for c in cities %}
+                    <option value="{{ c.id }}" {% if area.city.id == c.id %}selected{% endif %}>{{ c.name }} ({{ c.state.name }})</option>
+                {% endfor %}
+            </select>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-save">Update</button><br><br>
+                <a href="{% url 'add_and_list_area' %}" class="btn btn-cancel">Back to list</a>
+            </div>
+        </form>
+    </div>
+</div>

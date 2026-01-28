@@ -15,7 +15,7 @@ class FoodItemSubCategory(models.Model):
 
 class FoodItem(models.Model):
     name = models.CharField(max_length=100)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=8, decimal_places=2)
     is_available = models.BooleanField(default=True)
     is_special = models.BooleanField(default=True)
     calories = models.IntegerField()
