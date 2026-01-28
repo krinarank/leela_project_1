@@ -29,6 +29,9 @@ class Customer(AbstractUser):
     address = models.TextField()
     isadmin = models.BooleanField(default=False)
 
+    password = models.CharField(max_length=100)
+    is_delivery_person = models.BooleanField(default=False)  # ⭐ MAIN FLAG
+    
     creationdate = models.DateTimeField(auto_now_add=True)
     updationdate = models.DateTimeField(auto_now=True)
 

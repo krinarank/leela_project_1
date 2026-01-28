@@ -52,6 +52,7 @@ path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
     # # path('areas/add/', views.add_area, name='add_area'),
     # path('areas/edit/<int:id>/', views.edit_area, name='edit_area'),
     # path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
+    path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
     
 
      

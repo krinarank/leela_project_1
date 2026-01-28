@@ -1,0 +1,103 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+.main-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+}
+/* HEADER */
+.header {
+    height: 60px;
+    background: #0a1a0a;
+    color: white;
+    padding: px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LAYOUT */
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 230px;
+    background: #39523a;
+    padding: 20px;
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.sidebar h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    margin-bottom: 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.sidebar a:hover {
+    background: #388e3c;
+}
+
+.logout {
+    margin-top: auto;   /* 🔥 ye hi secret hai */
+}
+
+.logout a {
+    display: block;
+    padding: 12px;
+    background: #d32f2f;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.logout a:hover {
+    background: #b71c1c;
+    transform: scale(1.03);
+}
+
+
+
+/* CONTENT */
+.content {
+    flex: 1;
+    padding: 40px;
+    background: #f5f6f7;
+}
+
+/* PROFILE CARD */
+.profile-card {
+    background: white;
+    padding: 25px;
+    width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.profile-card h2 {
+    margin-bottom: 15px;
+}
+
+.profile-card .info p {
+    margin: 8px 0;
+    color: #333;
+}

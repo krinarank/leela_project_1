@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'accounts',
     'orders',
     'location',
+    'deliverypanel',
+
 ]
 
 MIDDLEWARE = [
@@ -141,3 +143,11 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # store sessions in DB
 SESSION_COOKIE_NAME = 'sessionid'  # default cookie name
 SESSION_COOKIE_HTTPONLY = True
 SESSION_SAVE_EVERY_REQUEST = True  # saves session on every request, important for wishlist
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'leelarestaurant.official@gmail.com'
+EMAIL_HOST_PASSWORD = 'iuumwztdbuvwwpza'

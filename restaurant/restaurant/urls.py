@@ -38,6 +38,7 @@ urlpatterns = [
     path('orders/', include('orders.urls')),  
     # path('adminpanel/', include('orders.urls')),  
 
+    path('delivery/',include('deliverypanel.urls')),
 ]
 
 if settings.DEBUG:
