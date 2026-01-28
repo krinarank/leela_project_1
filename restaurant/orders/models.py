@@ -1,11 +1,17 @@
-from django.db import models
+
 
 # Create your models here.
 from django.db import models
 from accounts.models import Customer  
+
 from adminpanel.models import *
 from django.utils import timezone
 import uuid
+
+from adminpanel.models import FoodItem
+from django.contrib.auth import get_user_model
+from django.conf import settings
+
 
 
 class Cart(models.Model):
@@ -25,6 +31,7 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.food_item} ({self.quantity})"
+
 
  
 class OfferDiscount(models.Model):
@@ -59,7 +66,8 @@ class OfferDiscount(models.Model):
 
     def __str__(self):
         return f"{self.offer_code} ({self.discount_percentage}%)"
-    
+
+  
 class FoodItemOfferDiscount(models.Model):
     offer = models.ForeignKey(
         OfferDiscount,
@@ -107,5 +115,32 @@ class SubCategoryOfferDiscount(models.Model):
     def is_valid(self):
         today = timezone.now().date()
         return self.is_active and self.applied_date <= today <= self.expiry_date
+
+
+
+# class Wishlist(models.Model):
+#     customer = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE
+#     )
+#     food_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE)
+#     added_on = models.DateTimeField(auto_now_add=True)
+
+#     class Meta:
+#         unique_together = ('customer', 'food_item')
+
+#     def __str__(self):
+User = get_user_model()
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    food_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE)
+    added_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'food_item')  # Prevent duplicates
+
+    def __str__(self):
+        return f"{self.user.username} - {self.food_item.name}"
 
 

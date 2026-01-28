@@ -2,11 +2,55 @@
    HOME PAGE / HERO SECTION
 ================================ */
 
-/* HERO SECTION */
+/* General Home Menu */
+.home-menu{
+    text-align:center;
+    padding:80px 20px;
+}
+
+/* Feature boxes (reused) */
+.home-boxes{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-bottom:40px;
+    flex-wrap: wrap;
+}
+
+.box{
+    background: rgba(255, 255, 255, 0.15);
+    padding: 14px 24px;
+    border-radius: 10px;
+    backdrop-filter: blur(6px);
+    font-weight: 500;
+    color: #fff;
+    min-width: 150px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Button style */
+.order-btn{
+    display:inline-block;
+    padding:14px 40px;
+    background:#ff4d4d;
+    color:white;
+    border-radius:30px;
+    text-decoration:none;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.order-btn:hover{
+    background:#e63946;
+}
+
+/* ===============================
+   HERO SECTION
+================================ */
 .hero-section {
     height: 100vh;
     width: 100%;
-    background-image: url("/static/menu/icons/home.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -21,8 +65,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1;
+    background: rgba(0, 0, 0, 0.6); /* transparency */
 }
 
 /* Content above overlay */
@@ -50,48 +93,16 @@
     color: #f1f1f1;
 }
 
-/* Feature boxes */
-.home-boxes {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.box {
-    background: rgba(255, 255, 255, 0.15);
-    padding: 14px 24px;
-    border-radius: 10px;
-    backdrop-filter: blur(6px);
-    font-weight: 500;
-    color: #fff;
-    min-width: 150px;
-    text-align: center;
-    font-size: 16px;
-}
-
-/* Button style */
-.order-btn {
-    display: inline-block;
-    padding: 14px 40px;
-    background: #ff4d4d;
-    color: white;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.order-btn:hover {
-    background: #e63946;
-}
-
-/* Special Items Section */
+/* ===============================
+   SPECIAL ITEMS SECTION
+================================ */
 .container.my-5 {
-    margin-top: 0 !important;
+    margin-top: 0 !important; /* remove red top gap */
 }
 
-/* Small animation for hero image (optional) */
+/* ===============================
+   SMALL ANIMATION FOR HERO IMAGE
+================================ */
 .hero-image img {
     max-width: 100%;
     height: auto;
@@ -125,4 +136,34 @@
         padding: 12px 30px;
         font-size: 14px;
     }
+}
+/* ===== IMAGE WITH BLUR BACKGROUND (FROM MENU) ===== */
+.image-box {
+    position: relative;
+    height: 180px;
+    width: 100%;
+    overflow: hidden;
+    background: #fff;
+}
+
+.image-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--bg-img);
+    background-size: cover;
+    background-position: center;
+    filter: blur(12px);
+    transform: scale(1.2);
+    z-index: 1;
+}
+
+.image-box img {
+    position: relative;
+    z-index: 2;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: auto;
 }
