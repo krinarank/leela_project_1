@@ -1,0 +1,30 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'purchase/css/ingredient.css' %}">
+
+<div class="ingredient-container">
+
+    <div class="ingredient-form">
+        <h3>Edit Ingredient</h3>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="name" value="{{ ingredient.name }}" required>
+            <input type="text" name="unit_of_measure" value="{{ ingredient.unit_of_measure }}" required>
+            <!-- <input type="number" step="0.01" name="price_per_unit" value="{{ ingredient.price_per_unit }}" required>
+            <input type="number" name="available_qty" value="{{ ingredient.available_qty }}" required> -->
+            <input type="number" name="price_per_unit" value="{{ ingredient.price_per_unit }}" readonly>
+            <input type="number" name="available_qty" value="{{ ingredient.available_qty }}" readonly>
+
+            <textarea name="description">{{ ingredient.description }}</textarea>
+
+            <button type="submit" class="btn">Update Ingredient</button>
+        </form>
+        <!-- <a href="{% url 'ingredient_page' %}" style="display:block; margin-top:10px;">⬅ Back to Ingredients</a> -->
+    </div>
+
+</div>
+{% endblock %}
