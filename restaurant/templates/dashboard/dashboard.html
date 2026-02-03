@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Panel</title>
-    <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">\
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 
@@ -31,6 +33,12 @@
 
         <a href="#">📦 Orders</a>
         <a href="#">👤 Customers</a>
+        <a href="{% url 'supplier_page' %}">🚚 Supplier</a>
+        <a href="{% url 'purchase_add' %}">💳 Purchase</a>
+        <a href="{% url 'purchase_return_add' %}">↩️ Purchase Return</a>
+        <a href="{% url 'ingredient_page' %}">🧂 Ingredients</a>
+        <a href="{% url 'prepared_item_add' %}">🍳 Prepared Items</a>
+        
 
         <a href="javascript:void(0)" onclick="toggleLocation()">📍 Location ▾</a>
         <div id="locationBlock" class="submenu">
@@ -81,6 +89,10 @@
                     <u><h4>Total Customers</h4></u>
                     <h2>{{ total_customers }}</h2>
                 </div>
+                <div class="admin-stat-card">
+                    <u><h4>Total Suppliers</h4></u>
+                    <h2>{{ total_suppliers }}</h2>
+                </div>
 
                 <div class="admin-stat-card inquiry-card">
                     <u><h4>Inquiries</h4></u>
@@ -101,6 +113,56 @@
                 </div>
 
             </div>
+       <div style="background:#fff; padding:2px; margin-top:10px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); max-width:700px;">
+    <h4>📊 Recent Purchases</h4>
+    <canvas id="purchaseChart" height="200"></canvas>
+</div>
+
+
+            <!-- {% if low_stock_ingredients %}
+<div class="alert error" style="margin-bottom:15px;">
+    ⚠️ <strong>Low Stock Alert!</strong><br>
+
+    {% for ing in low_stock_ingredients %}
+        🧂 {{ ing.name }} — Only {{ ing.available_qty }} left<br>
+    {% endfor %}
+</div>
+{% endif %} -->
+{% if low_stock_ingredients %}
+<div id="lowStockTopPopup" style="
+    position:fixed;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff3cd;
+    border:1px solid #ffeeba;
+    color:#856404;
+    padding:15px 25px;
+    border-radius:6px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    z-index:9999;
+    min-width:400px;
+">
+    <strong style="color:#dc3545;">⚠️ Low Stock Alert!</strong>
+    <ul style="margin:8px 0 0 18px;">
+        {% for ing in low_stock_ingredients %}
+            <li>
+                {{ ing.name }} — 
+                <strong style="color:red;">{{ ing.available_qty }}</strong>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div style="text-align:right; margin-top:8px;">
+        <button onclick="document.getElementById('lowStockTopPopup').style.display='none'"
+                style="padding:4px 10px; border:none; background:#dc3545; color:white; border-radius:4px; cursor:pointer;">
+            Close
+        </button>
+    </div>
+</div>
+{% endif %}
+
+
 
             {% block content %}{% endblock %}
         </div>
@@ -126,6 +188,12 @@ function toggleGridMenu(){
     grid.style.display = grid.style.display === "block" ? "none" : "block";
 }
 
+function toggleSupplier(){
+    let block = document.getElementById("supplierBlock");
+    block.style.display = block.style.display === "block" ? "none" : "block";
+}
+
+
 function toggleLocation(){
     let block = document.getElementById("locationBlock");
     block.style.display = block.style.display === "block" ? "none" : "block";
@@ -136,6 +204,35 @@ function toggleoffer(){
     block.style.display = block.style.display === "block" ? "none" : "block";
 }
 </script>
+    <script>
+    const purchaseLabels = {{ purchase_labels|safe }};
+    const purchaseTotals = {{ purchase_totals|safe }};
+
+    const ctx = document.getElementById('purchaseChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: purchaseLabels,
+            datasets: [{
+                label: 'Purchase Amount',
+                data: purchaseTotals,
+                backgroundColor: '#0d6efd'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script>
 
 </body>
 </html>

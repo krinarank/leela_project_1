@@ -3,14 +3,18 @@ from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from accounts.models import Customer
 from location.models import State, City, Area
+from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from .models import (
     FoodItemCategory,
     FoodItemSubCategory,
     FoodItem,
-    FoodItemImage
+    FoodItemImage,
+    
 )
 from menu.models import Inquiry
+from purchase.models import Ingredient
+from purchase.models import Purchase 
 
 
 def login_view(request):
@@ -303,20 +307,87 @@ def reply_inquiry(request, id):
     })
 
 
+# @login_required(login_url='login')
+# def dashboard_view(request):
+#     total_customers = Customer.objects.filter(isadmin=False).count()
+#     # total_suppliers = Customer.objects.filter(isadmin=False).count()
+#     total_inquiries = Inquiry.objects.count()
+#     pending_inquiries = Inquiry.objects.filter(status='Pending').count()
+#     responded_inquiries = Inquiry.objects.filter(status='Responded').count()
+
+#     return render(request, 'dashboard/dashboard.html', {
+#         'total_customers': total_customers,
+#         # 'total_suppliers': total_suppliers,
+#         'total_inquiries': total_inquiries,
+#         'pending_inquiries': pending_inquiries,
+#         'responded_inquiries': responded_inquiries,
+#     })
+
+
+# LOW_STOCK_LIMIT = 5  # 🔥 tamari requirement pramane change kari sako
+
+# @login_required(login_url='login')
+# def dashboard_view(request):
+#     total_customers = Customer.objects.filter(isadmin=False).count()
+#     total_inquiries = Inquiry.objects.count()
+#     pending_inquiries = Inquiry.objects.filter(status='Pending').count()
+#     responded_inquiries = Inquiry.objects.filter(status='Responded').count()
+
+#     # 🔥 LOW STOCK INGREDIENTS
+#     low_stock_ingredients = Ingredient.objects.filter(
+#         available_qty__lte=LOW_STOCK_LIMIT
+#     )
+
+#     return render(request, 'dashboard/dashboard.html', {
+#         'total_customers': total_customers,
+#         'total_inquiries': total_inquiries,
+#         'pending_inquiries': pending_inquiries,
+#         'responded_inquiries': responded_inquiries,
+
+#         # 🔥 NEW FOR ALERT
+#         'low_stock_ingredients': low_stock_ingredients,
+#         'low_stock_limit': LOW_STOCK_LIMIT,
+#     })
+  # app name pramane adjust karo
+
 @login_required(login_url='login')
 def dashboard_view(request):
     total_customers = Customer.objects.filter(isadmin=False).count()
-
     total_inquiries = Inquiry.objects.count()
     pending_inquiries = Inquiry.objects.filter(status='Pending').count()
     responded_inquiries = Inquiry.objects.filter(status='Responded').count()
+
+    # 🔴 LOW STOCK
+    LOW_STOCK_LIMIT = 5
+    low_stock_ingredients = Ingredient.objects.filter(available_qty__lte=LOW_STOCK_LIMIT)
+
+    # 📊 DAILY PURCHASE TOTAL (Last 7 days)
+    daily_purchases = (
+        Purchase.objects
+        .values('purchase_date')
+        .annotate(total=Sum('total_amount'))
+        .order_by('-purchase_date')[:7]
+    )
+
+    # reverse for chart (old → new)
+    daily_purchases = list(daily_purchases)[::-1]
+
+    purchase_labels = [str(p['purchase_date']) for p in daily_purchases]
+    purchase_totals = [float(p['total'] or 0) for p in daily_purchases]
 
     return render(request, 'dashboard/dashboard.html', {
         'total_customers': total_customers,
         'total_inquiries': total_inquiries,
         'pending_inquiries': pending_inquiries,
         'responded_inquiries': responded_inquiries,
+
+        'low_stock_ingredients': low_stock_ingredients,
+
+        # 📊 CHART
+        'purchase_labels': purchase_labels,
+        'purchase_totals': purchase_totals,
     })
+
 
 def get_pending_inquiry_count():
     return Inquiry.objects.filter(status='Pending').count()

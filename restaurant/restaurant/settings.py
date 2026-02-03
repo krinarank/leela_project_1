@@ -37,11 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',  # ✅ required for sessions
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'purchase.apps.PurchaseConfig', 
     'adminpanel',
     'menu',
     'accounts',
     'orders',
     'location',
+    # 'purchase',
 ]
 
 MIDDLEWARE = [

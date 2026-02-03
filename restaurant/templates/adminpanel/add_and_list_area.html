@@ -1,4 +1,7 @@
+{% extends 'adminpanel/base.html' %}
 {% load static %}
+{% block content %}
+
 <link rel="stylesheet" href="{% static 'adminpanel/css/location.css' %}">
 
 <div class="page-wrapper">
@@ -51,3 +54,4 @@
     </div>
 <a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
 </div>
+{% endblock %}

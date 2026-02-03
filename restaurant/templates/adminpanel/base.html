@@ -33,6 +33,14 @@
 
         <a href="#">📦 Orders</a>
         <a href="#">👤 Customers</a>
+        <a href="{% url 'supplier_page' %}">🚚 Supplier</a>
+         <a href="{% url 'purchase_add' %}">💳 Purchase</a>
+         <a href="{% url 'purchase_return_add' %}">↩️ Purchase Return</a>
+        <a href="{% url 'ingredient_page' %}">🧂 Ingredients</a>
+        <a href="{% url 'prepared_item_add' %}">🍳 Prepared Items</a>
+        
+
+
         <a href="javascript:void(0)" onclick="toggleLocation()">📍 Location ▾</a>
 
 <div id="locationBlock" class="submenu">
@@ -42,6 +50,8 @@
     <a href="{% url 'add_and_list_area' %}">📌 Areas</a>
 
 </div>
+        <a href="{% url 'create_offer' %}" > 💰offer & discount </a>
+
         <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
 
         <div class="logout">
@@ -108,6 +118,14 @@ function toggleLocation() {
     block.style.display = block.style.display === "block" ? "none" : "block";
 }
 </script>
+<!-- ✅ ADD SUPPLIER TOGGLE HERE -->
+<script>
+function toggleSupplier(){
+    let block = document.getElementById("supplierBlock");
+    block.style.display = block.style.display === "block" ? "none" : "block";
+}
+</script>
+
 
 </body>
 </html>
