@@ -1,0 +1,128 @@
+/* Checkout Page Container */
+.checkout-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 40px auto;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Left and Right Panels */
+.checkout-left, .checkout-right {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.checkout-left {
+    flex: 1 1 400px;
+}
+
+.checkout-right {
+    flex: 1 1 400px;
+}
+
+/* Headings */
+.checkout-left h2, .checkout-right h2 {
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+/* Input Fields */
+.checkout-left input, .checkout-left textarea, .checkout-left select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.checkout-left input:focus, .checkout-left textarea:focus, .checkout-left select:focus {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 5px rgba(255,107,107,0.3);
+    outline: none;
+}
+
+/* Checkout Right Summary */
+.summary-box {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    color: #555;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+}
+
+/* Buttons */
+.checkout-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ff6b6b;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.checkout-btn:hover {
+    background: #ff4b4b;
+}
+
+/* Wallet input toggle */
+#wallet_input input {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .checkout-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 0 20px;
+    }
+}
+
+/* Error messages */
+.error {
+    color: red;
+    font-size: 13px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Invalid input field */
+input.invalid, textarea.invalid {
+    border-color: red !important;
+    box-shadow: 0 0 5px rgba(255,0,0,0.5);
+}
+
+/* Valid input field */
+input.valid, textarea.valid {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 5px rgba(40,167,69,0.3);
+}
+

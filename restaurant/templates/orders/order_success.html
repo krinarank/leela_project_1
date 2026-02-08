@@ -1,0 +1,46 @@
+{% extends "menu/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'orders/order_success.css' %}">
+
+<div class="order-success-container">
+
+    <div class="success-card">
+        <div class="success-icon">✅</div>
+
+        <h2>Order Placed Successfully!</h2>
+        <p class="success-msg">
+            Thank you for your order. Your food is being prepared 🍽️
+        </p>
+
+        <div class="order-info">
+            <div class="info-row">
+                <span>Order ID</span>
+                <strong>#{{ order.id }}</strong>
+            </div>
+
+            <div class="info-row">
+                <span>Total Amount</span>
+                <strong>₹ {{  order.total_amount    |floatformat:2 }}</strong>
+            </div>
+
+            <div class="info-row">
+                <span>Order Status</span>
+                <strong>{{ order.order_status }}</strong>
+            </div>
+        </div>
+
+        <div class="success-actions">
+            <a href="{% url 'menu_page' %}" class="btn primary">
+                🍕 Order More
+            </a>
+
+            <a href="{% url 'my_orders' %}" class="btn secondary">
+                📦 View Orders
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

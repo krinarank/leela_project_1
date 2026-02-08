@@ -1,0 +1,172 @@
+/* ================= COMMON ================= */
+body {
+    background-color: #f7f7f7;
+}
+
+h2 {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* ================= ORDER CARD ================= */
+.order-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.order-card p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+.order-card strong {
+    font-size: 15px;
+}
+
+/* View Details Button */
+.order-card .btn-primary {
+    background: linear-gradient(135deg, #ff6a00, #ff3d00);
+    border: none;
+    border-radius: 25px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.order-card .btn-primary:hover {
+    opacity: 0.9;
+}
+
+/* ================= ITEM PREVIEW ================= */
+.order-items-preview {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.item-preview {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    overflow: hidden;              /* 🔥 FIXES BIG IMAGE ISSUE */
+    background: #f2f2f2;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px #e5e5e5;
+    text-align: center;
+}
+
+.item-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;             /* 🔥 PERFECT CROP */
+    display: block;
+}
+
+.item-preview p {
+    font-size: 11px;
+    margin-top: 6px;
+    color: #555;
+}
+
+/* + More Items Box */
+.more-items {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    background: #ececec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: #333;
+}
+
+/* ================= ORDER DETAILS PAGE ================= */
+.order-item-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.order-item-card:hover {
+    transform: scale(1.01);
+}
+
+/* Item Image */
+.item-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Item Info */
+.item-info p {
+    margin: 3px 0;
+    font-size: 14px;
+}
+
+.item-info strong {
+    font-size: 15px;
+    color: #222;
+}
+
+/* ================= ORDER SUMMARY ================= */
+.order-summary {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.order-summary p {
+    font-size: 15px;
+    margin: 6px 0;
+}
+
+/* ================= BUTTONS ================= */
+.btn-secondary {
+    border-radius: 25px;
+    padding: 8px 18px;
+    font-weight: 600;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 576px) {
+    .order-card {
+        padding: 14px;
+    }
+
+    .item-img {
+        width: 65px;
+        height: 65px;
+    }
+
+    .order-card p {
+        font-size: 13px;
+    }
+}
