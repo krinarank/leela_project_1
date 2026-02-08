@@ -27,10 +27,13 @@ urlpatterns = [
    # path('inquiries/reply/<int:inquiry_id>/', views.admin_reply_inquiry, name='admin_reply_inquiry'),
     path('inquiry/reply/<int:id>/', views.reply_inquiry, name='reply_inquiry'),
     path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
+    path('edit_delivery_person/<int:id>/', views.edit_delivery_person, name='edit_delivery_person'),
+    path('delete_delivery_person/<int:id>/', views.delete_delivery_person, name='delete_delivery_person'),
+    path('toggle-delivery-status/<int:id>/', views.toggle_delivery_status, name='toggle_delivery_status'),
 
-   
-     path('states/', views.add_and_list_state, name='add_and_list_state'),
-     path('states/edit/<int:id>/', views.edit_state, name='edit_state'),
+
+    path('states/', views.add_and_list_state, name='add_and_list_state'),
+    path('states/edit/<int:id>/', views.edit_state, name='edit_state'),
     path('states/delete/<int:id>/', views.delete_state, name='delete_state'),
      
 

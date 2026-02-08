@@ -2,37 +2,209 @@
 {% load static %}
 
 {% block content %}
-<h2>Add Delivery Person</h2>
 
-<!-- {% if messages %}
-  {% for message in messages %}
-    <p style="color: green;">{{ message }}</p>
-  {% endfor %}
-{% endif %} -->
 
-<form method="POST">
-  {% csrf_token %}
-  <label>First Name:</label>
-  <input type="text" name="fname" required><br>
+<div class="container-fluid">
+  <div class="row">
 
-  <label>Last Name:</label>
-  <input type="text" name="lname" required><br>
+    <!-- LEFT : ADD FORM -->
+    <div class="col-md-4">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+          <h5>Add Delivery Person</h5>
+        </div>
 
-  <label>Username:</label>
-  <input type="text" name="username" required><br>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
 
-  <label>Email:</label>
-  <input type="email" name="email" required><br>
+            <input type="text" name="fname" class="form-control mb-2" placeholder="First Name" required>
+            <input type="text" name="lname" class="form-control mb-2" placeholder="Last Name" required>
+            <input type="text" name="username" class="form-control mb-2" placeholder="Username" required>
+            <input type="email" name="email" class="form-control mb-2" placeholder="Email" required>
+            <input type="password" name="password" class="form-control mb-2" placeholder="Password" required>
+            <input type="text" name="contact" class="form-control mb-2" placeholder="Contact No" required>
 
-  <label>Password:</label>
-  <input type="password" name="password" required><br>
+            <textarea name="address" class="form-control mb-3" placeholder="Address" required></textarea>
 
-  <label>Contact No:</label>
-  <input type="text" name="contact" required><br>
+            <button class="btn btn-success w-100">Add Delivery Person</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
-  <label>Address:</label>
-  <textarea name="address" required></textarea><br>
+    <!-- RIGHT : LIST -->
+     
+    <div class="col-md-8">
 
-  <button type="submit">Add Delivery Person</button>
+        <!--search -->
+  <form method="get" class="mb-3 d-flex">
+  <input type="text" name="search" value="{{ search }}" class="form-control me-2" placeholder="Search delivery person">
+  <button type="submit" class="btn btn-primary">
+    🔍 Search
+  </button>
 </form>
+
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+          <h5>Delivery Person List</h5>
+        </div>
+
+
+        <div class="card-body">
+          <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in delivery_list %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ d.fname }} {{ d.lname }}</td>
+                <td>{{ d.email }}</td>
+                <td>{{ d.contact_no }}</td>
+                <td>
+                  <a href="{% url 'edit_delivery_person' d.id %}" class="btn btn-sm btn-primary">Edit</a>
+                  <button class="btn btn-sm btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#deleteModal{{ d.id }}">
+                    Delete
+                  </button>
+                  <button class="btn btn-sm toggle-btn
+{% if d.is_active %}btn-success{% else %}btn-secondary{% endif %}"
+data-id="{{ d.id }}">
+{% if d.is_active %}Active{% else %}Inactive{% endif %}
+</button>
+
+                </td>
+              </tr>
+
+              
+  
+
+
+              <!-- DELETE MODAL -->
+              <div class="modal fade" id="deleteModal{{ d.id }}">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                      <h5>Confirm Delete</h5>
+                    </div>
+                    <div class="modal-body">
+                      Are you sure you want to delete <b>{{ d.fname }}</b>?
+                    </div>
+                    <div class="modal-footer">
+                      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <a href="{% url 'delete_delivery_person' d.id %}" class="btn btn-danger">
+                        Delete
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center">No delivery person found</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+<!--pagging -->
+<nav aria-label="Page navigation">
+  <ul class="pagination pagination-sm justify-content-end mb-0">
+    {% if delivery_list.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ delivery_list.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">&laquo;</span>
+      </li>
+    {% endif %}
+
+    {% for i in delivery_list.paginator.page_range %}
+      {% if delivery_list.number == i %}
+        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if search %}&search={{ search }}{% endif %}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+
+    {% if delivery_list.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ delivery_list.next_page_number }}{% if search %}&search={{ search }}{% endif %}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">&raquo;</span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    let id = this.dataset.id;
+    let button = this;
+
+    fetch(`/dashboard/toggle-delivery-status/${id}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrftoken,
+        'Accept': 'application/json',
+      },
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status) {
+        button.classList.remove('btn-secondary');
+        button.classList.add('btn-success');
+        button.innerText = 'Active';
+      } else {
+        button.classList.remove('btn-success');
+        button.classList.add('btn-secondary');
+        button.innerText = 'Inactive';
+      }
+    });
+  });
+});
+</script>
+
 {% endblock %}
+

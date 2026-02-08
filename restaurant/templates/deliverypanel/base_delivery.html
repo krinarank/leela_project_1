@@ -9,10 +9,31 @@
 </head>
 <body>
 
+
+
 <div class="header">
-    <h2>Taste Villa 🍴</h2>
-    <div class="header-right">
-        👤 Delivery Partner
+    <h2 class="logo">Taste Villa 🍴</h2>
+
+    <div class="header-right dropdown">
+        <button class="profile-circle" data-bs-toggle="dropdown">
+            👤
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li>
+                <a class="dropdown-item" href="{% url 'delivery_profile' %}">
+                    👤 My Profile
+                </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item text-danger"
+                   data-bs-toggle="modal"
+                   data-bs-target="#logoutModal">
+                    🚪 Logout
+                </a>
+            </li>
+        </ul>
     </div>
 </div>
 
@@ -21,8 +42,11 @@
         <!-- <h3>Menu</h3> -->
         <a href="/delivery/dashboard/">🏠 Dashboard</a>
         <a href="#">📦 My Orders</a>
+        
 
-        <div class="logout mt-auto">
+
+
+      <div class="logout mt-auto">
     <a href="#" 
        class="text-danger fw-bold"
        data-bs-toggle="modal"
