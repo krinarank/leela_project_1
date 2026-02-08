@@ -1,0 +1,98 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'purchase/css/purchase.css' %}">
+
+
+<div class="purchase-container">
+<div class="purchase-form">
+<h3>Add Prepared Item</h3>
+<form method="POST">
+{% csrf_token %}
+<label>Product Name:</label>
+<input type="text" name="product_name" required>
+
+
+<label>Production Date:</label>
+<input type="date" name="production_date" required>
+
+
+<label>Quantity Produced:</label>
+<input type="number" name="quantity_produced" min="1" required>
+
+
+<h4>Ingredient Usage</h4>
+<table id="ingredient-table" border="1" cellpadding="5" cellspacing="0">
+<tr>
+<th>Ingredient</th>
+<th>Qty Used</th>
+<th>Unit</th>
+<th>Action</th>
+</tr>
+<tr class="usage-row">
+<td>
+<select name="raw[]" required>
+<option value="">Select Ingredient</option>
+{% for ing in ingredients %}
+<option value="{{ ing.id }}">{{ ing.name }} (Stock: {{ ing.available_qty }})</option>
+{% endfor %}
+</select>
+</td>
+<td><input type="number" name="qty_used[]" min="0.01" step="0.01" required></td>
+<td><input type="text" name="unit[]" placeholder="kg, pcs, liter"></td>
+<td><button type="button" onclick="removeRow(this)">❌</button></td>
+</tr>
+</table>
+<button type="button" onclick="addRow()">➕ Add Row</button>
+<button type="submit" class="btn" style="margin-top:10px;">Add Prepared Item</button>
+</form>
+</div>
+
+
+<div class="purchase-table">
+<h3>All Prepared Items</h3>
+<table>
+<tr>
+<th>Product</th>
+<th>Date</th>
+<th>Quantity</th>
+<th>Ingredients Used</th>
+<th>Actions</th>
+</tr>
+{% for p in prepared_items %}
+<tr>
+<td>{{ p.product_name }}</td>
+<td>{{ p.production_date }}</td>
+<td>{{ p.quantity_produced }}</td>
+<td>
+{% for u in p.items.all %}
+{{ u.raw.name }} ({{ u.qty_used }} {{ u.unit }}){% if not forloop.last %}, {% endif %}
+{% empty %}-{% endfor %}
+</td>
+<td>
+<a href="{% url 'prepared_item_edit' p.id %}" class="icon-edit"><span class="material-icons">edit</span></a>
+<a href="{% url 'prepared_item_delete' p.id %}" class="icon-delete" onclick="return confirm('Are you sure?')"><span class="material-icons">delete</span></a>
+</td>
+</tr>
+{% empty %}
+<tr><td colspan="5" style="text-align:center;">No Prepared Items Found</td></tr>
+{% endfor %}
+</table>
+</div>
+</div>
+
+
+<script>
+function addRow() {
+let table = document.getElementById('ingredient-table');
+let row = table.rows[1].cloneNode(true);
+row.querySelectorAll('select,input').forEach(i => i.value = '');
+table.appendChild(row);
+}
+function removeRow(btn) {
+let rows = document.querySelectorAll('#ingredient-table .usage-row');
+if (rows.length > 1) btn.closest('tr').remove();
+}
+</script>
+{% endblock %}

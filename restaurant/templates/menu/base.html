@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'menu/css/frontend.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'menu/css/notification.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'menu/css/footer.css' %}">
 
@@ -25,7 +26,9 @@
         </div>
 
         <nav class="nav">
-           
+             <a href="{% url 'my_orders' %}">
+                📦 Your Orders
+            </a>
             <a href="{% url 'home' %}">Home</a>
             <a href="{% url 'menu_page' %}">Menu</a>
             <a href="{% url 'about' %}">About Us</a>
@@ -40,19 +43,25 @@
             </button>
 
             <div class="dropdown-content">
-
-    {% if user.is_authenticated %}
-        <a href="{% url 'customer_logout' %}">Logout</a>
-    {% else %}
-        <a href="{% url 'customer_login' %}">Login</a>
-        <a href="{% url 'customer_register' %}">Register</a>
-    {% endif %}
-
-
-</div>
-   
+                {% if user.is_authenticated %}
+                  <a href="{% url 'customer_logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'customer_login' %}">Login</a>
+                    <a href="{% url 'customer_register' %}">Register</a>
+                {% endif %}
+            </div>
         </div>
- <a href="{% url 'my_wishlist' %}">❤️</a>
+         <a href="{% url 'my_wishlist' %}">❤️</a>
+
+         
+    <a href="{% url 'customer_notifications' %}" class="notification-bell">
+    🔔
+    {% if notification_count > 0 %}
+        <span class="badge">{{ notification_count }}</span>
+    {% endif %}
+</a>
+
+
         </nav>
     </header>
 

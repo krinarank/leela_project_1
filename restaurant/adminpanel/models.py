@@ -32,3 +32,19 @@ class FoodItemImage(models.Model):
         related_name='images'   # 🔥 VERY IMPORTANT
     )
 
+
+class Notification(models.Model):
+    RECIPIENT_CHOICES = [
+        ('customer', 'Customer'),
+        ('delivery_person', 'Delivery Person'),
+    ]
+    
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)
+    recipient_type = models.CharField(max_length=20, choices=RECIPIENT_CHOICES)
+    send_datetime = models.DateTimeField(auto_now_add=True)
+    read_status = models.BooleanField(default=False)
+    user_id = models.IntegerField(null=True, blank=True)  # FK optional
+    
+    def __str__(self):
+        return f"{self.title} - {self.recipient_type}"

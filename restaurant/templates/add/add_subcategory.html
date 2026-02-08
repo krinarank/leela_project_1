@@ -1,18 +1,21 @@
-
+{% extends 'adminpanel/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
+{% block content %}
+
     <title>Add Subcategory</title>
     <link rel="stylesheet" href="{% static 'adminpanel/css/category.css' %}">
-</head>
-<body>
+
 
 <div class="container">
 
     <!-- LEFT SIDE : TABLE -->
     <div class="left">
-        <u><h3>Added Subcategories</h3></u>
+        <u><h3>Added Subcategories</h3></u><br>
+
+          <!-- SEARCH BAR -->
+    <div class="search-container">
+        <input type="text" id="subcategorySearch" placeholder="🔍 Search subcategory...">
+    </div>
 
         <table>
             <tr>
@@ -41,17 +44,9 @@
 
     <!-- RIGHT SIDE : FORM -->
     <div class="right">
-        <u><h3>Add Subcategory</h3></u>
+        <u><h3>Add Subcategory</h3></u><br>
 
-        <!-- MESSAGE -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
+      
         <form method="post">
             {% csrf_token %}
 
@@ -73,5 +68,30 @@
 
 </div>
 <a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
-</body>
-</html>
+
+
+<script>
+    const searchInput = document.getElementById('subcategorySearch');
+    const table = document.querySelector('.left table');
+    const rows = table.getElementsByTagName('tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const filter = searchInput.value.toLowerCase();
+
+        for (let i = 1; i < rows.length; i++) {
+            const subName = rows[i].getElementsByTagName('td')[0];
+            const catName = rows[i].getElementsByTagName('td')[1];
+
+            if (
+                subName.textContent.toLowerCase().includes(filter) ||
+                catName.textContent.toLowerCase().includes(filter)
+            ){
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+    });
+</script>
+
+{% endblock %}

@@ -96,7 +96,7 @@ h2 {
     text-decoration: none;
     transition: background 0.2s;
      position: absolute;  /* fixed position relative to parent */
-    top: 50px;           /* distance from top */
+    top: 140px;           /* distance from top */
     right: 200px;   
 }
 
@@ -111,7 +111,7 @@ h2 {
     text-decoration: none;
     transition: background 0.2s;
      position: absolute;  /* fixed position relative to parent */
-    top: 20px;           /* distance from top */
+    top: 110px;           /* distance from top */
     right: 20px;   
 }
 

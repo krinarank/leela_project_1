@@ -1,4 +1,6 @@
+{% extends 'adminpanel/base.html' %}
 {% load static %}
+{% block content %}
 <link rel="stylesheet" href="{% static 'adminpanel/css/offers.css' %}">
 <br>
 <h1 class="main">Create and List Offer</h1>
@@ -163,5 +165,5 @@ startDate.addEventListener("input", () => {
 endDate.addEventListener("input", validateDates);
 </script>
 
-
+{% endblock %}
  

@@ -1,0 +1,126 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'purchase/css/purchase_return.css' %}">
+
+<div class="purchase-container">
+
+    <div class="purchase-form">
+        <h3>Purchase Return</h3>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Purchase:</label>
+            <select name="purchase" required onchange="location='?purchase=' + this.value;">
+                <option value="">Select Purchase</option>
+                {% for p in purchases %}
+                <option value="{{ p.id }}" {% if selected_purchase_id == p.id|stringformat:"s" %}selected{% endif %}>
+                    Purchase #{{ p.id }} - {{ p.supplier.fname }} {{ p.supplier.lname }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label>Reason:</label>
+            <input type="text" name="reason" placeholder="Return reason">
+
+            <h4>Return Details</h4>
+            <table id="purchase-details-table">
+                <tr>
+                    <th>Ingredient</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+
+                <tr class="detail-row">
+                    <td>
+                        <select name="raw[]" required onchange="updatePrice(this)">
+    <option value="">Select Ingredient</option>
+    {% for ing in ingredients %}
+        <option value="{{ ing.id }}" data-price="{{ ing.price_per_unit|default:0 }}">
+            {{ ing.name }}
+        </option>
+    {% endfor %}
+</select>
+                    </td>
+                    <td><input type="number" name="qty[]" value="1" min="1" oninput="updateTotal(this)"></td>
+                    <td><input type="number" name="price_per_unit[]" step="0.01" readonly></td>
+                    <td><input type="number" name="total_price[]" readonly></td>
+                    <td><button type="button" onclick="removeRow(this)">❌</button></td>
+                </tr>
+            </table>
+
+            <button type="button" onclick="addRow()">➕ Add Row</button>
+            <button type="submit" class="btn" style="margin-top:10px;">Save Return</button>
+        </form>
+    </div>
+
+    <div class="purchase-table" style="margin-top:30px;">
+        <h3>All Purchase Returns</h3>
+        <table>
+            <tr>
+                <th>Purchase</th>
+                <th>Date</th>
+                <th>Reason</th>
+                <th>Total Return</th>
+            </tr>
+            {% for r in returns %}
+            <tr>
+                <td>Purchase #{{ r.purchase.id }}</td>
+                <td>{{ r.return_date }}</td>
+                <td>{{ r.reason }}</td>
+                <td>{{ r.total_return_amount }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div>
+
+<script>
+function addRow() {
+    let table = document.getElementById("purchase-details-table");
+    let row = table.rows[1].cloneNode(true);
+    row.querySelectorAll("select, input").forEach(i => {
+        if(i.tagName === "SELECT") i.selectedIndex = 0;
+        else i.value = i.hasAttribute('readonly') ? '' : '1';
+    });
+    table.appendChild(row);
+}
+
+function removeRow(btn) {
+    let rows = document.querySelectorAll("#purchase-details-table .detail-row");
+    if (rows.length > 1) {
+        btn.closest("tr").remove();
+    }
+}
+
+function updatePrice(select) {
+    let row = select.closest("tr");
+    let priceInput = row.querySelector("input[name='price_per_unit[]']");
+    let totalInput = row.querySelector("input[name='total_price[]']");
+    let price = parseFloat(select.selectedOptions[0].dataset.price || 0);
+    priceInput.value = price.toFixed(2);
+
+    let qty = parseFloat(row.querySelector("input[name='qty[]']").value) || 0;
+    totalInput.value = (qty * price).toFixed(2);
+}
+
+function updateTotal(input) {
+    let row = input.closest("tr");
+    let qty = parseFloat(row.querySelector("input[name='qty[]']").value) || 0;
+    let price = parseFloat(row.querySelector("input[name='price_per_unit[]']").value) || 0;
+    row.querySelector("input[name='total_price[]']").value = (qty * price).toFixed(2);
+}
+
+document.addEventListener('input', function(e) {
+    if(e.target.matches("input[name='qty[]']")) {
+        updateTotal(e.target);
+    }
+});
+</script>
+
+{% endblock %}

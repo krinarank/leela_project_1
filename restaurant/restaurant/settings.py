@@ -37,13 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',  # ✅ required for sessions
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'purchase.apps.PurchaseConfig', 
     'adminpanel',
     'menu',
     'accounts',
     'orders',
     'location',
     'deliverypanel',
-
+    # 'purchase',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'orders.context_processors.cart_count',
+                'menu.context_processors.notification_count',
             ],
         },
     },
@@ -119,6 +121,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+TIME_ZONE = 'Asia/Kolkata'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -151,3 +154,6 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = 'leelarestaurant.official@gmail.com'
 EMAIL_HOST_PASSWORD = 'iuumwztdbuvwwpza'
+
+
+GOOGLE_MAPS_API_KEY = "AIzaSyCSzJJO79GrFQB-Uzupviy4--COLE6Aozo"

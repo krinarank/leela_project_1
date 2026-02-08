@@ -8,30 +8,6 @@ import time
 import re
 from django.core.mail import send_mail
 
-# ---------------- DELIVERY LOGIN ----------------
-# def delivery_login(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-
-#         try:
-#             customer = Customer.objects.get(
-#                 email=email,
-#                 password=password,
-#                 is_delivery_person=True
-#             )
-
-#             delivery = DeliveryPerson.objects.get(user=customer)
-
-#             request.session['delivery_id'] = delivery.id
-#             request.session['delivery_name'] = delivery.fname
-
-#             return redirect('/delivery/dashboard/')
-#         except:
-#             messages.error(request, "Invalid credentials")
-
-#     return render(request, 'deliverypanel/login.html')
-
 
 def delivery_login(request):
     if request.method == 'POST':
@@ -113,95 +89,6 @@ def add_delivery_person(request):
         return redirect('/delivery/add/')
 
     return render(request, 'deliverypanel/add_delivery_person.html')
-
-# def delivery_forgot_password(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-
-#         try:
-#             user = Customer.objects.get(
-#                 email=email,
-#                 is_delivery_person=True
-#             )
-
-#             otp = random.randint(100000, 999999)
-
-#             request.session['reset_email'] = email
-#             request.session['otp'] = otp
-
-#             send_mail(
-#                 'Your OTP for Password Reset',
-#                 f'Your OTP is {otp}',
-#                 'leelarestaurant.official@gmail.com',
-#                 [email],
-#                 fail_silently=False
-#             )
-
-#             return redirect('verify_otp')
-
-#         except Customer.DoesNotExist:
-#             messages.error(request, "Email not found")
-
-#     return render(request, 'deliverypanel/forgot_password.html')
-
-# def verify_otp(request):
-#     if request.method == 'POST':
-#         entered_otp = request.POST.get('otp')
-#         session_otp = request.session.get('otp')
-
-#         print("Entered OTP:", entered_otp)
-#         print("Session OTP:", session_otp)
-
-#         if session_otp and entered_otp == str(session_otp):
-#             return redirect('reset_password')
-#         else:
-#             messages.error(request, "Invalid OTP")
-
-#     return render(request, 'deliverypanel/verify_otp.html')
-
-# # def reset_password(request):
-# #     if request.method == 'POST':
-# #         new_pass = request.POST.get('password')
-# #         confirm_pass = request.POST.get('confirm_password')
-
-# #         if new_pass == confirm_pass:
-# #             user_id = request.session.get('forgot_user')
-# #             user = Customer.objects.get(id=user_id)
-# #             user.password = new_pass
-# #             user.save()
-
-# #             request.session.flush()
-# #             messages.success(request, "Password reset successful")
-# #             return redirect('delivery_login')
-# #         else:
-# #             messages.error(request, "Passwords do not match")
-
-# #     return render(request, 'deliverypanel/reset_password.html')
-
-
-# def reset_password(request):
-#     if request.method == 'POST':
-#         new_pass = request.POST.get('password')
-#         confirm_pass = request.POST.get('confirm_password')
-
-#         if new_pass == confirm_pass:
-#             user_id = request.session.get('reset_user_id')
-
-#             if not user_id:
-#                 messages.error(request, "Session expired. Try again.")
-#                 return redirect('delivery_forgot_password')
-
-#             user = Customer.objects.get(id=user_id)
-#             user.set_password(new_pass)
-#             user.save()
-
-#             request.session.flush()
-#             messages.success(request, "Password reset successful")
-#             return redirect('delivery_login')
-#         else:
-#             messages.error(request, "Passwords do not match")
-
-#     return render(request, 'deliverypanel/reset_password.html')
 
 def delivery_forgot_password(request):
     if request.method == 'POST':
@@ -423,3 +310,19 @@ def resend_otp(request):
 
     messages.success(request, "New OTP sent to your email.")
     return redirect('verify_otp')
+
+
+from orders.models import Notification
+from django.utils import timezone
+from django.db.models import Q
+
+def delivery_dashboard(request):
+    delivery_person = request.user.deliveryperson
+    notifications = Notification.objects.filter(
+        recipient_type='delivery_person',
+        send_datetime__lte=timezone.now(),
+        read_status=False
+    ).filter(
+        Q(user_id__isnull=True) | Q(user_id=delivery_person.id)
+    )
+    return render(request, 'deliverypanel/dashboard.html', {'notifications': notifications})

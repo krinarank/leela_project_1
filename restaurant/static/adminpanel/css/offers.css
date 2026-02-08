@@ -21,7 +21,7 @@ body {
     text-decoration: none;
     transition: background 0.2s;
      position: absolute;  /* fixed position relative to parent */
-    top: 60px;           /* distance from top */
+    top: 120px;           /* distance from top */
     right: 140px;
 }
 
@@ -35,7 +35,7 @@ body {
     text-decoration: none;
     transition: background 0.2s;
      position: absolute;  /* fixed position relative to parent */
-    top: 20px;           /* distance from top */
+    top: 80px;           /* distance from top */
     right: 20px;
 }
 /* ===== MAIN WRAPPER ===== */
@@ -48,7 +48,7 @@ body {
 
 /* ===== LEFT: CREATE OFFER ===== */
 .offer-form-box {
-    flex: 0.8;
+    flex: 0.5;
     background: #ffffff;
     padding: 25px;
     border-radius: 12px;
@@ -90,23 +90,26 @@ body {
 }
 
 /* ===== OFFER CODE ROW ===== */
+/* ===== FORCE FIX FOR OFFER CODE ===== */
 .offer-code-row {
     display: flex;
     gap: 10px;
 }
 
 .offer-code-row input {
-    flex: 1;
+    flex: 1 !important;
+    width: auto !important;
 }
 
-.offer-code-row button {
-    width: auto;
-    padding: 0 15px;
+.offer-code-row .generate-btn {
+    width: auto !important;
+    padding: 10px 18px;
+    white-space: nowrap;
 }
 
 /* ===== RIGHT: OFFER LIST ===== */
 .offer-list-box {
-    flex: 1.5;
+    flex: 2;
     background: #ffffff;
     padding: 25px;
     border-radius: 12px;
@@ -209,4 +212,22 @@ body {
 }
 
 
+/* ===== OFFER CODE ROW ===== */
+.offer-code-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.offer-code-row input {
+    flex: 1;          /* textbox motu */
+    width: auto;     /* override 100% */
+}
+
+.offer-code-row button {
+    width: auto;     /* override 100% */
+    padding: 10px 18px;
+    margin-top: 6px;
+    white-space: nowrap;
+}
 

@@ -1,11 +1,9 @@
+{% extends 'adminpanel/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
+{% block content %}
+
     <title>Update Food Image</title>
     <link rel="stylesheet" href="{% static 'adminpanel/css/update_foodimage.css' %}">
-</head>
-<body>
 
 <div class="container">
 
@@ -13,11 +11,9 @@
     <div class="left card">
         <h3><u>Update Food Image</u></h3>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+            {% if request.GET.success %}
+<p class="success-msg">Image Updated Successfully!</p>
+{% endif %}
 
         <form method="post" enctype="multipart/form-data" class="form">
             {% csrf_token %}
@@ -70,5 +66,5 @@
 
 
 
-</body>
-</html>
+
+{% endblock %}

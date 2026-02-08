@@ -2,73 +2,264 @@
 {% load static %}
 {% block content %}
 
-<link rel="stylesheet" href="{% static 'menu/css/checkout.css' %}">
+<link rel="stylesheet" href="{% static 'orders/checkout.css' %}">
 
-<h2 class="checkout-title">🧾 Checkout</h2>
+<div class="checkout-container">
 
-<div class="checkout-page">
-
-    <!-- LEFT SIDE -->
+    <!-- ================= LEFT : CUSTOMER DETAILS ================= -->
     <div class="checkout-left">
+        <h2>Customer Details</h2>
 
-        <div class="card">
-            <h3>Delivery Details</h3>
+        <form id="checkoutForm" method="post" action="{% url 'place_order' %}">
+            {% csrf_token %}
 
-            <input type="text" placeholder="Full Name">
-            <input type="text" placeholder="Mobile Number">
-            <textarea placeholder="Complete Address"></textarea>
-        </div>
+            <input type="text" id="name" name="name" placeholder="Full Name" required>
+            <small class="error" id="nameError"></small>
 
-        <div class="card">
-            <h3>Payment Method</h3>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <small class="error" id="emailError"></small>
 
-            <label>
-                <input type="radio" checked>
-                Cash on Delivery
-            </label>
-            <label>
-                <input type="radio" disabled>
-                Online Payment (Coming Soon)
-            </label>
-        </div>
+            <input type="tel" id="phone" name="phone" placeholder="Phone Number" maxlength="10" required>
+            <small class="error" id="phoneError"></small>
+
+            <textarea id="address" name="address" placeholder="Delivery Address" rows="3" required></textarea>
+            <small class="error" id="addressError"></small>
+
+            <input type="text" id="city" name="city" placeholder="City" required>
+            <small class="error" id="cityError"></small>
+
+            <input type="text" id="state" name="state" placeholder="State" required>
+            <small class="error" id="stateError"></small>
+
+            <input type="text" id="pincode" name="pincode" placeholder="Pincode" maxlength="6" required>
+            <small class="error" id="pincodeError"></small>
+
+            <!-- AREA -->
+            <select name="area_id" required>
+                <option value="">-- Select Delivery Area --</option>
+                {% for area in areas %}
+                <option value="{{ area.id }}">
+                    {{ area.name }} ({{ area.city.name }}, {{ area.city.state.name }})
+                </option>
+                {% endfor %}
+            </select>
+            <small class="error" id="areaError"></small>
+
+            <input type="hidden" name="final_subtotal" value="{{ subtotal }}">
+<input type="hidden" name="final_tax" value="{{ tax }}">
+<input type="hidden" name="final_delivery" value="{{ delivery_charge }}">
+<input type="hidden" name="final_grand_total" value="{{ grand_total }}">
+<input type="hidden" name="final_discount" value="{{ total_discount }}">
 
     </div>
 
-    <!-- RIGHT SIDE -->
+    <!-- ================= RIGHT : ORDER SUMMARY ================= -->
     <div class="checkout-right">
+        <h2>Order Summary</h2>
 
         <div class="summary-box">
-            <h3>Order Summary</h3>
 
-            <div class="row">
-                <span>Items Total</span>
-                <span>₹ {{ item_total }}</span>
+            <!-- ✅ SAME AS CART -->
+            <div class="summary-row">
+                <span>Food Item Total</span>
+                <span>₹ {{ original_total|floatformat:2 }}</span>
             </div>
 
-            <div class="row">
+            {% if total_discount > 0 %}
+            <div class="summary-row" style="color:green;">
+                <span>Discount You Saved</span>
+                <span>- ₹ {{ total_discount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>₹ {{ item_total|floatformat:2 }}</span>
+            </div>
+
+            <div class="summary-row">
                 <span>GST (5%)</span>
-                <span>₹ {{ tax }}</span>
+                <span>₹ {{ tax|floatformat:2 }}</span>
             </div>
 
-            <div class="row">
-                <span>Delivery Charge</span>
-                <span>₹ {{ delivery_charge }}</span>
+            <div class="summary-row">
+                <span>Delivery Charges</span>
+                <span>₹ {{ delivery_charge|floatformat:2 }}</span>
             </div>
 
             <hr>
 
-            <div class="total">
-                <span>Total Payable</span>
-                <span>₹ {{ grand_total }}</span>
+            <div class="summary-total">
+                <span>Total (incl. tax & delivery)</span>
+                <span>₹ {{ grand_total|floatformat:2 }}</span>
             </div>
 
-            <button class="place-order-btn">
-                PLACE ORDER
-            </button>
-        </div>
+            <hr>
 
+            <!-- ================= WALLET ================= -->
+            <h4>Wallet Balance</h4>
+            <p>Available: ₹ {{ wallet_balance|floatformat:2 }}</p>
+
+            <h4>Payment Method</h4>
+
+            <label>
+                <input type="radio" name="payment_method" value="COD" required>
+                Cash on Delivery
+            </label><br>
+
+            <label>
+                <input type="radio" name="payment_method" value="UPI">
+                UPI
+            </label><br>
+
+            <label>
+                <input type="radio" name="payment_method" value="WALLET">
+                Wallet Only
+            </label><br>
+
+            <label>
+                <input type="checkbox" id="use_wallet" onclick="toggleWalletInput()">
+                Use Wallet (Partial allowed)
+            </label>
+
+            <div id="wallet_input" style="display:none; margin-top:10px;">
+                <input type="number"
+                       name="wallet_amount"
+                       placeholder="Enter wallet amount"
+                       min="1"
+                       max="{{ wallet_balance }}">
+            </div>
+
+            <br><br>
+            <button type="submit" class="checkout-btn">PLACE ORDER</button>
+        </div>
+        </form>
     </div>
 
 </div>
+
+<!-- ================= JS ================= -->
+
+<script>
+document.getElementById("checkoutForm").addEventListener("submit", function () {
+
+    // 👇 aa values UI mathi aavva joiye
+    const subtotal = "{{ item_total }}";
+    const tax = "{{ tax }}";
+    const delivery = "{{ delivery_charge }}";
+    const discount = "{{ total_discount }}";
+    const grandTotal = "{{ grand_total }}";
+
+    document.getElementById("final_subtotal").value = subtotal;
+    document.getElementById("final_tax").value = tax;
+    document.getElementById("final_delivery").value = delivery;
+    document.getElementById("final_discount").value = discount;
+    document.getElementById("final_grand_total").value = grandTotal;
+
+    console.log("✅ FINAL TOTAL SENT:", grandTotal);
+});
+</script>
+
+
+<script>
+function toggleWalletInput() {
+    const box = document.getElementById("wallet_input");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("checkoutForm");
+
+    const fields = {
+        name: document.getElementById("name"),
+        email: document.getElementById("email"),
+        phone: document.getElementById("phone"),
+        address: document.getElementById("address"),
+        city: document.getElementById("city"),
+        state: document.getElementById("state"),
+        pincode: document.getElementById("pincode")
+    };
+
+    const errors = {
+        name: document.getElementById("nameError"),
+        email: document.getElementById("emailError"),
+        phone: document.getElementById("phoneError"),
+        address: document.getElementById("addressError"),
+        city: document.getElementById("cityError"),
+        state: document.getElementById("stateError"),
+        pincode: document.getElementById("pincodeError")
+    };
+
+    const nameRegex = /^[A-Za-z\s]+$/;
+    const digitRegex = /^\d+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function validateField(fieldName) {
+        const field = fields[fieldName];
+        const error = errors[fieldName];
+        const value = field.value.trim();
+
+        switch (fieldName) {
+            case "name":
+            case "city":
+            case "state":
+                if (!nameRegex.test(value)) {
+                    error.innerText = `You can't enter digits in ${fieldName}`;
+                    return false;
+                }
+                break;
+
+            case "phone":
+                if (!digitRegex.test(value) || value.length !== 10) {
+                    error.innerText = "Phone must be 10 digits";
+                    return false;
+                }
+                break;
+
+            case "pincode":
+                if (!digitRegex.test(value) || value.length !== 6) {
+                    error.innerText = "Pincode must be 6 digits";
+                    return false;
+                }
+                break;
+
+            case "email":
+                if (!emailRegex.test(value)) {
+                    error.innerText = "Enter a valid email";
+                    return false;
+                }
+                break;
+
+            case "address":
+                if (value === "") {
+                    error.innerText = "Address cannot be empty";
+                    return false;
+                }
+                break;
+        }
+
+        error.innerText = "";
+        return true;
+    }
+
+    Object.keys(fields).forEach(fieldName => {
+        fields[fieldName].addEventListener("input", () => validateField(fieldName));
+    });
+
+    form.addEventListener("submit", function (e) {
+        let valid = true;
+        Object.keys(fields).forEach(fieldName => {
+            if (!validateField(fieldName)) valid = false;
+        });
+
+        if (!valid) {
+            e.preventDefault();
+            alert("Please fix all errors before submitting!");
+        }
+    });
+});
+</script>
 
 {% endblock %}

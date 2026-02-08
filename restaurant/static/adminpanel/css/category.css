@@ -4,12 +4,6 @@
     font-family: Arial, sans-serif;
 }
 
-body {
-    margin: 0;
-    padding: 20px;
-    background: #f4f6f8;
-}
-
 /* CONTAINER */
 .container {
     display: flex !important;
@@ -52,7 +46,7 @@ table td {
 }
 
 table th {
-    background: #4b82bd;
+    background: #2c3e50;
     color: #fff;
 }
 
@@ -83,3 +77,36 @@ button {
         order: unset !important;
     }
 }
+
+/* CATEGORY SEARCH BAR - notification style */
+.left .search-container {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: right;   /* right corner like notification page */
+    display: flex;
+    justify-content: flex-end; 
+}
+
+#categorySearch {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: 2px solid #3498db;   /* blue border */
+    border-radius: 5px;           /* rounded corners */
+    width: 250px;                  /* fixed width */
+    transition: 0.3s all ease;
+}
+
+#categorySearch:focus {
+    outline: none;
+    border-color: #2c3e50;        /* dark border on focus */
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+#subcategorySearch{
+    padding: 10px 15px;
+    font-size: 14px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    width: 250px;
+}
+

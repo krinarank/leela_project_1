@@ -1,0 +1,95 @@
+{% extends "adminpanel/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<h2>Edit Prepared Item</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div>
+        <label for="product_name">Product Name:</label>
+        <input type="text" name="product_name" id="product_name" value="{{ prepared_item.product_name }}" required>
+    </div>
+
+    <div>
+        <label for="production_date">Production Date:</label>
+        <input type="date" name="production_date" id="production_date" value="{{ prepared_item.production_date|date:'Y-m-d' }}" required>
+    </div>
+
+    <div>
+        <label for="quantity_produced">Quantity Produced:</label>
+        <input type="number" name="quantity_produced" id="quantity_produced" value="{{ prepared_item.quantity_produced }}" min="1" required>
+    </div>
+
+    <hr>
+
+    <h3>Ingredient Usage</h3>
+    <table id="ingredients-table" border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Ingredient</th>
+                <th>Quantity Used</th>
+                <th>Unit</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usage in item_usages %}
+            <tr>
+                <td>
+                    <select name="raw[]">
+                        <option value="">-- Select Ingredient --</option>
+                        {% for ing in ingredients %}
+                        <option value="{{ ing.id }}" {% if usage.raw.id == ing.id %}selected{% endif %}>
+                            {{ ing.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="number" name="qty_used[]" step="0.01" value="{{ usage.qty_used }}" required></td>
+                <td>
+                    <input type="text" name="unit[]" value="{{ usage.unit }}" required>
+                </td>
+                <td><button type="button" class="remove-row">Remove</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="button" id="add-row">Add Ingredient</button>
+
+    <hr>
+    <button type="submit">Update Prepared Item</button>
+</form>
+
+<script>
+document.getElementById('add-row').addEventListener('click', function() {
+    const table = document.getElementById('ingredients-table').getElementsByTagName('tbody')[0];
+    const newRow = document.createElement('tr');
+
+    let ingredientOptions = `{% for ing in ingredients %}<option value="{{ ing.id }}">{{ ing.name }}</option>{% endfor %}`;
+
+    newRow.innerHTML = `
+        <td>
+            <select name="raw[]">
+                <option value="">-- Select Ingredient --</option>
+                ${ingredientOptions}
+            </select>
+        </td>
+        <td><input type="number" name="qty_used[]" step="0.01" required></td>
+        <td><input type="text" name="unit[]" required></td>
+        <td><button type="button" class="remove-row">Remove</button></td>
+    `;
+    table.appendChild(newRow);
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('remove-row')) {
+        e.target.closest('tr').remove();
+    }
+});
+</script>
+
+{% endblock %}

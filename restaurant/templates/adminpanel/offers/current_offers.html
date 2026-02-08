@@ -1,6 +1,6 @@
-
-
-{%load static%}
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+{% block content %}
  <link rel="stylesheet" href="{% static 'adminpanel/css/current_offers.css' %}">
 <h2 class="offers-heading">🎁 Currently Active Offers</h2>
  <a href="{% url 'apply_offer' %}" class="back-btn"> go to Apply Offer</a>
@@ -72,3 +72,4 @@
     <tr><td colspan="5" class="no-offers">No active subcategory offers.</td></tr>
     {% endfor %}
 </table>
+{% endblock %}

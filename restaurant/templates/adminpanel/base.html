@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="dashboard">
-
-    
 
     <!-- LEFT SIDEBAR -->
     <div class="dashboard-left">
@@ -19,10 +18,8 @@
         <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
 
         <a href="javascript:void(0)" onclick="toggleMainMenu()">🍽 Menu ▾</a>
-
         <div id="mainMenu" class="submenu">
             <a href="javascript:void(0)" onclick="toggleGridMenu()">🍱 Menu Grid ▾</a>
-
             <div id="gridMenu" class="submenu-inner">
                 <a href="{% url 'add_category' %}">Food Category</a>
                 <a href="{% url 'add_subcategory' %}">Food Subcategory</a>
@@ -31,83 +28,122 @@
             </div>
         </div>
 
-        <a href="#">📦 Orders</a>
-        <a href="#">👤 Customers</a>
+        <a href="{% url 'admin_customers' %}">👤 Customers</a>
+        <a href="{% url 'supplier_page' %}">🚚 Supplier</a>
+        <a href="{% url 'purchase_add' %}">💳 Purchase</a>
+        <a href="{% url 'purchase_return_add' %}">↩️ Purchase Return</a>
+        <a href="{% url 'ingredient_page' %}">🧂 Ingredients</a>
+        <a href="{% url 'prepared_item_add' %}">🍳 Prepared Items</a>
+        
         <a href="javascript:void(0)" onclick="toggleLocation()">📍 Location ▾</a>
-
-<div id="locationBlock" class="submenu">
-
-    <a href="{% url 'add_and_list_state' %}">🌍 States</a>
-    <a href="{% url 'add_and_list_city' %}">🏙 Cities</a>
-    <a href="{% url 'add_and_list_area' %}">📌 Areas</a>
-
-</div>
+        <div id="locationBlock" class="submenu">
+            <a href="{% url 'add_and_list_state' %}">🌍 States</a>
+            <a href="{% url 'add_and_list_city' %}">🏙 Cities</a>
+            <a href="{% url 'add_and_list_area' %}">📌 Areas</a>
+        </div>
+         <a href="{% url 'create_offer' %}" > 💰offer & discount </a>
         <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
-
+        <a href="{% url 'order_heatmap' %}">📊Heatmap</a>
+       
         <div class="logout">
             <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
         </div>
     </div>
 
-   
-    <!-- RIGHT CONTENT -->
-<div class="dashboard-right">
+    <!-- RIGHT SIDE -->
+    <div class="dashboard-right">
 
-   <div class="dashboard-header">
-    <div class="header-left">
-        <h2></h2>
-    </div>
+        <!-- HEADER -->
 
-    <div class="header-right">
-        <a href="{% url 'admin_inquiry_list' %}" class="header-icon">
-            📩
-            {% if pending_inquiries > 0 %}
-                <span class="badge">{{ pending_inquiries }}</span>
+        <div class="dashboard-header">
+            {% if is_dashboard %}
+            <div><h2>Welcome to Dashboard</h2></div>
             {% endif %}
-        </a>
+            <div class="header-right">
+                <a href="{% url 'admin_inquiry_list' %}" class="header-icon">
+                    📩
+                    {% if pending_inquiries > 0 %}
+                        <span class="badge">{{ pending_inquiries }}</span>
+                    {% endif %}
+                </a>
+                <span class="admin-name">Admin</span>
+                 <a href="{% url 'admin_notifications' %}">🔔</a>
 
-        <span class="admin-name">Admin</span>
-    </div>
-</div>
-<!-- PAGE CONTENT -->
-    <div class="dashboard-content">
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="alert {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
+
+            </div>
         </div>
-        {% endif %}
 
-        {% block content %}{% endblock %}
+        <!-- PAGE CONTENT -->
+        <div class="dashboard-content">
+               <!-- MESSAGES -->
+    {% if messages %}
+    <div class="messages-wrapper">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>  
+        {% endfor %}
     </div>
-
+    {% endif %}
+            {% block content %}{% endblock %}
+        </div>
 
     </div>
-
-
 </div>
 
-
+  
 
 <script>
 function toggleMainMenu(){
     let menu = document.getElementById("mainMenu");
+    let grid = document.getElementById("gridMenu");
     menu.style.display = menu.style.display === "block" ? "none" : "block";
+    grid.style.display = "none";
 }
 function toggleGridMenu(){
     let grid = document.getElementById("gridMenu");
     grid.style.display = grid.style.display === "block" ? "none" : "block";
 }
-</script>
-<script>
-function toggleLocation() {
+function toggleLocation(){
     let block = document.getElementById("locationBlock");
     block.style.display = block.style.display === "block" ? "none" : "block";
 }
 </script>
+
+{% block extra_js %}{% endblock %}
+{% if low_stock_ingredients %}
+<div id="lowStockTopPopup" style="
+    position:fixed;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff3cd;
+    border:1px solid #ffeeba;
+    color:#856404;
+    padding:15px 25px;
+    border-radius:6px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    z-index:9999;
+    min-width:400px;
+">
+    <strong style="color:#dc3545;">⚠️ Low Stock Alert!</strong>
+    <ul style="margin:8px 0 0 18px;">
+        {% for ing in low_stock_ingredients %}
+            <li>
+                {{ ing.name }} —
+                <strong style="color:red;">{{ ing.available_qty }}</strong>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div style="text-align:right; margin-top:8px;">
+        <button onclick="document.getElementById('lowStockTopPopup').style.display='none'"
+                style="padding:4px 10px; border:none; background:#dc3545; color:white; border-radius:4px;">
+            Close
+        </button>
+    </div>
+</div>
+{% endif %}
 
 </body>
 </html>

@@ -14,31 +14,6 @@ def generate_offer_code():
     return f"{prefix}{random_part}"
 
 
-# def get_best_offer(item):
-
-#     today = now().date()
-
-#     # 1️⃣ ITEM LEVEL OFFER (highest priority)
-#     item_offer = FoodItemOfferDiscount.objects.filter(
-#         food_item=item,
-#         is_active=True,
-#         applied_date__lte=today,
-#         expiry_date__gte=today
-#     ).select_related('offer').first()
-
-#     if item_offer:
-#         return item_offer
-
-#     # 2️⃣ CATEGORY LEVEL OFFER
-#     category_offer = CategoryOfferDiscount.objects.filter(
-#         category=item.sub_cat.food_item_cat,  # ⚠️ VERY IMPORTANT
-#         is_active=True,
-#         applied_date__lte=today,
-#         expiry_date__gte=today
-#     ).select_related('offer').first()
-
-#     return category_offer
-
  
 def get_best_offer(item):
     today = timezone.now().date()
@@ -82,49 +57,61 @@ def get_best_offer(item):
     return None
 
 
+
 # def get_discounted_price(food_item):
 #     today = timezone.now().date()
-#     original_price = food_item.price
-#     discount = 0
+#     original_price = Decimal(food_item.price)
+#     discount = Decimal('0.00')
 
-#     # Food item offer
+#     # 1️⃣ Food item level offer
 #     food_offer = FoodItemOfferDiscount.objects.filter(
 #         food_item=food_item,
 #         is_active=True,
 #         applied_date__lte=today,
 #         expiry_date__gte=today
-#     ).first()
+#     ).select_related('offer').first()
 
 #     if food_offer:
-#         discount = food_offer.offer.discount_percentage
+#         discount = Decimal(food_offer.offer.discount_percentage)
 
-#     # Subcategory offer
-#     elif food_item.sub_cat.food_item_cat:
-#         sub_offer = SubCategoryOfferDiscount.objects.filter(
-#             subcategory=food_item.food_item_cat,
-#             is_active=True,
-#             applied_date__lte=today,
-#             expiry_date__gte=today
-#         ).first()
-#         if sub_offer:
-#             discount = sub_offer.offer.discount_percentage
-
-#     # Category offer
+#     # 2️⃣ Sub category level offer
 #     elif food_item.sub_cat:
-#         cat_offer = CategoryOfferDiscount.objects.filter(
-#             category=food_item.category,
+#         sub_offer = SubCategoryOfferDiscount.objects.filter(
+#             subcategory=food_item.sub_cat,
 #             is_active=True,
 #             applied_date__lte=today,
 #             expiry_date__gte=today
-#         ).first()
+#         ).select_related('offer').first()
+
+#         if sub_offer:
+#             discount = Decimal(sub_offer.offer.discount_percentage)
+
+#     # 3️⃣ Category level offer
+#     elif food_item.sub_cat and food_item.sub_cat.food_item_cat:
+#         cat_offer = CategoryOfferDiscount.objects.filter(
+#             category=food_item.sub_cat.food_item_cat,
+#             is_active=True,
+#             applied_date__lte=today,
+#             expiry_date__gte=today
+#         ).select_related('offer').first()
+
 #         if cat_offer:
-#             discount = cat_offer.offer.discount_percentage
+#             discount = Decimal(cat_offer.offer.discount_percentage)
 
 #     if discount > 0:
-#         discounted_price = original_price - (original_price * discount / 100)
-#         return discounted_price
+#         discounted_price = original_price - (original_price * discount / Decimal('100'))
+#         return discounted_price.quantize(Decimal('0.01'))
 
-#     return original_price
+#     return original_price.quantize(Decimal('0.01'))
+
+# from decimal import Decimal
+# from django.utils import timezone
+# from .models import (
+#     Cart,
+#     FoodItemOfferDiscount,
+#     CategoryOfferDiscount,
+#     SubCategoryOfferDiscount,
+# )
 
 def get_discounted_price(food_item):
     today = timezone.now().date()
@@ -136,31 +123,34 @@ def get_discounted_price(food_item):
         food_item=food_item,
         is_active=True,
         applied_date__lte=today,
-        expiry_date__gte=today
+        expiry_date__gte=today,
+        offer__isactive=True
     ).select_related('offer').first()
 
     if food_offer:
         discount = Decimal(food_offer.offer.discount_percentage)
 
     # 2️⃣ Sub category level offer
-    elif food_item.sub_cat:
+    if discount == 0 and food_item.sub_cat:
         sub_offer = SubCategoryOfferDiscount.objects.filter(
             subcategory=food_item.sub_cat,
             is_active=True,
             applied_date__lte=today,
-            expiry_date__gte=today
+            expiry_date__gte=today,
+            offer__isactive=True
         ).select_related('offer').first()
 
         if sub_offer:
             discount = Decimal(sub_offer.offer.discount_percentage)
 
     # 3️⃣ Category level offer
-    elif food_item.sub_cat and food_item.sub_cat.food_item_cat:
+    if discount == 0 and food_item.sub_cat and food_item.sub_cat.food_item_cat:
         cat_offer = CategoryOfferDiscount.objects.filter(
             category=food_item.sub_cat.food_item_cat,
             is_active=True,
             applied_date__lte=today,
-            expiry_date__gte=today
+            expiry_date__gte=today,
+            offer__isactive=True
         ).select_related('offer').first()
 
         if cat_offer:
@@ -171,3 +161,4 @@ def get_discounted_price(food_item):
         return discounted_price.quantize(Decimal('0.01'))
 
     return original_price.quantize(Decimal('0.01'))
+

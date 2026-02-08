@@ -35,10 +35,12 @@ urlpatterns = [
      path('', include('menu.urls')),
     path('logout/', admin_views.logout_view, name='logout'), 
     path('accounts/', include('accounts.urls')),
-    path('orders/', include('orders.urls')),  
+    path('orders/', include('orders.urls')),
+    path('purchase/', include('purchase.urls')),   
     # path('adminpanel/', include('orders.urls')),  
 
     path('delivery/',include('deliverypanel.urls')),
+    path('location/',include('location.urls')),
 ]
 
 if settings.DEBUG:
