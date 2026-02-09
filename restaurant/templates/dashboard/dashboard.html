@@ -53,6 +53,17 @@
          -->
 
         <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
+        
+       <!-- DELIVERY MENU --><!-- DELIVERY MENU -->
+<a href="javascript:void(0)" onclick="toggleDelivery()">
+    🚚 Delivery
+</a>
+
+<div class="submenu" id="deliveryMenu">
+    <a href="{% url 'add_delivery_person' %}">
+        ➕ Add Delivery Person
+ 
+</div>
 
         <div class="logout">
             <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
@@ -233,6 +244,13 @@ function toggleoffer(){
         }
     });
     </script>
+<script>
+function toggleDelivery() {
+    let menu = document.getElementById("deliveryMenu");
+    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+</script>
+
 
 </body>
 </html>

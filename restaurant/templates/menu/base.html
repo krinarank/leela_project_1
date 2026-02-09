@@ -1,139 +1,90 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Taste Villa</title>
+
     <link rel="stylesheet" href="{% static 'menu/css/frontend.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/home.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'menu/css/footer.css' %}">
 
-    <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- <link rel="stylesheet" href="{% static 'orders/css/wishlist.css' %}"> -->
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body>
 
-    <!-- HEADER -->
-    <header class="header">
-        <div class="logo">
-            Taste Villa
-        </div>
+<!-- ================= HEADER ================= -->
+<header class="header">
+    <div class="logo">Taste Villa</div>
 
-        <nav class="nav">
-           
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'menu_page' %}">Menu</a>
-            <a href="{% url 'about' %}">About Us</a>
-            <a href="{% url 'contact' %}">Contact Us</a>
-           
+    <nav class="nav">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'menu_page' %}">Menu</a>
+        <a href="{% url 'about' %}">About Us</a>
+        <a href="{% url 'contact' %}">Contact Us</a>
+        <a href="{% url 'my_wishlist' %}">❤️</a>
 
-       <!-- Account Dropdown -->
-        <div class="account-dropdown">
-            <button class="dropbtn">
-                Account
-                <i class="fa fa-caret-down"></i>
-            </button>
+        <!-- ===== ACCOUNT MENU ===== -->
+        <div class="account-menu">
 
-            <div class="dropdown-content">
+{% if user.is_authenticated %}
+    <a href="{% url 'customer_profile' %}" class="profile-avatar" title="My Profile">
+        <i class="fa-solid fa-user"></i>
+    </a>
 
-    {% if user.is_authenticated %}
-        <a href="{% url 'customer_logout' %}">Logout</a>
-    {% else %}
-        <a href="{% url 'customer_login' %}">Login</a>
-        <a href="{% url 'customer_register' %}">Register</a>
-    {% endif %}
-
+    <a href="{% url 'customer_logout' %}" class="logout-icon" title="Logout">
+        <i class="fa-solid fa-right-from-bracket"></i>
+    </a>
+{% else %}
+    <a href="{% url 'customer_login' %}" class="login-text">Login</a>
+{% endif %}
 
 </div>
-   
-        </div>
- <a href="{% url 'my_wishlist' %}">❤️</a>
-        </nav>
-    </header>
 
 
-    <!-- PAGE CONTENT -->
-    <main class="content">
-        {% block content %}
-        {% endblock %}
-    </main>
+    </nav>
+</header>
 
+<!-- ================= PAGE CONTENT ================= -->
+<main class="content">
+    {% block content %}{% endblock %}
+</main>
 
-
-</body>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const cart = document.querySelector('.floating-cart');
-    const footer = document.getElementById('site-footer');
-
-    if (!cart || !footer) return;
-
-    function handleScroll() {
-        const footerRect = footer.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-
-        // footer viewport ma enter kare tyare
-        if (footerRect.top < windowHeight) {
-            const overlap = windowHeight - footerRect.top;
-            cart.style.transform = `translateY(-${overlap}px)`;
-        } else {
-            cart.style.transform = 'translateY(0)';
-        }
-    }
-
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-});
-</script>
-
-<!-- ===== FOOTER ===== -->
+<!-- ================= FOOTER ================= -->
 <footer id="site-footer">
 
     <div class="footer-container">
 
-        <!-- Contact Info -->
         <div class="footer-column">
             <h4>Contact Us</h4>
-            <p>📍 Leela Restaurant, Dehgam Road, Opp. Cars24, Ahmedabad</p>
+            <p>📍 Leela Restaurant, Dehgam Road, Ahmedabad</p>
             <p>📞 +91 9876543210</p>
             <p>✉️ leelarestaurant.official@gmail.com</p>
         </div>
 
-        <!-- Useful Links -->
         <div class="footer-column">
             <h4>Useful Links</h4>
             <a href="/">Home</a>
             <a href="/menu/">Menu</a>
             <a href="/about/">About</a>
             <a href="/contact/">Contact</a>
-            <a href="/cart/">Cart</a>
-            <a href="/wishlist/">Wishlist</a>
-            <a href="/login/">Login</a>
         </div>
 
     </div>
 
-    <!-- ===== COPYRIGHT + ICONS ===== -->
     <div class="footer-bottom">
-
-        <span class="copyright">
-            © 2026 Your Restaurant | All rights reserved
-        </span>
+        <span>© 2026 Taste Villa | All rights reserved</span>
 
         <div class="footer-social">
-            <a href="#"><img src="{% static 'menu/icons/fb.svg' %}" alt="Facebook"></a>
-            <a href="#"><img src="{% static 'menu/icons/insta.svg' %}" alt="Instagram"></a>
-            <a href="#"><img src="{% static 'menu/icons/wp.svg' %}" alt="WhatsApp"></a>
+            <a href="#"><img src="{% static 'menu/icons/fb.svg' %}"></a>
+            <a href="#"><img src="{% static 'menu/icons/insta.svg' %}"></a>
+            <a href="#"><img src="{% static 'menu/icons/wp.svg' %}"></a>
         </div>
-
     </div>
-
 </footer>
 
-
+</body>
 </html>

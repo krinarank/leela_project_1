@@ -1,0 +1,91 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+/* ===== HEADER ===== */
+.header {
+    height: 60px;
+    background: #111827;
+    color: white;
+    padding: 0 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.header-right {
+    position: relative;
+}
+
+.profile-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: #eee8cf;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.profile-circle:hover {
+    background: #e9e7dc;
+}
+
+/* ===== LAYOUT ===== */
+.main-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    width: 220px;
+    background: #39523a;
+    padding: 20px;
+    color: white;
+
+    display: flex;           /* make sidebar a flex container */
+    flex-direction: column;  /* stack items vertically */
+    height: calc(100vh - 60px); /* full height minus header */
+}
+    
+
+.sidebar a {
+    display: block;
+    padding: 12px;
+    margin-bottom: 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+
+
+.sidebar a:hover {
+    background: #388e3c;
+}
+
+/* ===== CONTENT ===== */
+.content {
+    flex: 1;
+    padding: 30px;
+    background: #f5f6f7;
+}
+
+/* ===== PROFILE CARD ===== */
+.profile-card {
+    background: white;
+    padding: 25px;
+    width: 420px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}

@@ -1,0 +1,33 @@
+{% extends 'deliverypanel/base_delivery.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>My Vehicle</h3>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Vehicle Type</label>
+            <select name="vehicle_type" class="form-control" required>
+                <option value="">Select</option>
+                <option value="Bike" {% if vehicle and vehicle.vehicle_type == 'Bike' %}selected{% endif %}>Bike</option>
+                <option value="Scooter" {% if vehicle and vehicle.vehicle_type == 'Scooter' %}selected{% endif %}>Scooter</option>
+                <option value="Cycle" {% if vehicle and vehicle.vehicle_type == 'Cycle' %}selected{% endif %}>Cycle</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Vehicle Number</label>
+            <input type="text" name="vehicle_number"
+                   class="form-control"
+                   value="{{ vehicle.vehicle_number|default:'' }}"
+                   required>
+        </div>
+
+        <button class="btn btn-success">
+            {% if vehicle %}Update{% else %}Save{% endif %}
+        </button>
+    </form>
+</div>
+{% endblock %}

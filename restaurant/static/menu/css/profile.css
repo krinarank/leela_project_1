@@ -1,0 +1,76 @@
+/* ===== PROFILE PAGE ===== */
+
+.profile-wrapper {
+    background: #f4f6f8;
+}
+
+.card {
+    border-radius: 14px;
+    border: none;
+}
+
+.profile-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #eaeaea;
+}
+
+.progress {
+    background: #e9ecef;
+    border-radius: 20px;
+}
+
+.progress-bar {
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.list-group-item {
+    border: none;
+    padding: 6px 0;
+    background: transparent;
+}
+
+.list-group-item.text-danger {
+    color: #dc3545 !important;
+}
+
+.profile-details p {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed #e0e0e0;
+    padding: 8px 0;
+    margin-bottom: 6px;
+}
+
+.profile-details strong {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.profile-details span {
+    color: #212529;
+    font-weight: 600;
+}
+
+.modal-content {
+    border-radius: 14px;
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-footer {
+    border-top: none;
+}
+
+.btn-outline-primary {
+    border-radius: 20px;
+}
+
+.btn-success {
+    border-radius: 20px;
+}

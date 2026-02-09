@@ -1,0 +1,14 @@
+{% extends "deliverypanel/base_delivery.html" %}
+
+{% block content %}
+<div class="profile-card">
+    <h2>Welcome, {{ delivery.fname }} 👋</h2>
+
+    <div class="info">
+        <p><strong>Email:</strong> {{ delivery.email }}</p>
+        <p><strong>Contact:</strong> {{ delivery.contact_no }}</p>
+        <p><strong>Address:</strong> {{ delivery.address }}</p>
+        <p><strong>Joining Date:</strong> {{ delivery.joining_date }}</p>
+    </div>
+</div>
+{% endblock %}

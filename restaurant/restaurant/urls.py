@@ -37,6 +37,8 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('orders/', include('orders.urls')),
     path('purchase/', include('purchase.urls')),   
+    path('delivery/',include('deliverypanel.urls')),
+    path('orders/', include('orders.urls')),  
     # path('adminpanel/', include('orders.urls')),  
 
 ]
