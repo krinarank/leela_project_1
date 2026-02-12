@@ -153,3 +153,50 @@
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+/* SEARCH BAR - CATEGORY STYLE (PURCHASE) */
+.purchase-table .search-container {
+    width: 100%;
+    margin: 15px 15px 0 15px;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.purchase-table #Search {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    width: 250px;
+    transition: 0.3s all ease;
+}
+
+.purchase-table #Search:focus {
+    outline: none;
+    border-color: #2c3e50;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+/* SEARCH BAR - CATEGORY STYLE (PREPARED ITEMS) */
+.purchase-table .search-container {
+    width: 95%;
+    margin: 15px 15px 0 15px;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.purchase-table #preparedItemSearch {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    width: 250px;
+    transition: 0.3s all ease;
+}
+
+.purchase-table #preparedItemSearch:focus {
+    outline: none;
+    border-color: #2c3e50;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+    

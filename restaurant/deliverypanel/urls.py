@@ -3,10 +3,19 @@ from . import views
 
 urlpatterns = [
     path('login/', views.delivery_login,name='delivery_login'),        # /delivery/login
-    path('dashboard/', views.delivery_dashboard,name='delivery_dashboard'),# /delivery/dashboard
+    # path('dashboard/', views.delivery_dashboard,name='delivery_dashboard'),# /delivery/dashboard
+    # path('accept-order/<int:assign_id>/', views.delivery_accept_order, name='delivery_accept_order'),
+    # path('reject-order/<int:assign_id>/', views.delivery_reject_order, name='delivery_reject_order'),
+    path('dashboard/', views.delivery_dashboard, name='delivery_dashboard'),
+    path('accept/<int:assign_id>/', views.delivery_accept_order, name='delivery_accept_order'),
+    path('reject/<int:assign_id>/', views.delivery_reject_order, name='delivery_reject_order'),
     path('logout/', views.delivery_logout,name='delivery_logout'),
-                # /delivery/logout
-    path('add/',views.add_delivery_person),
+    path(
+        'mark-delivered/<int:order_id>/',
+        views.delivery_mark_delivered,
+        name='delivery_mark_delivered'
+    ),
+    
     path('forgot-password/', views.delivery_forgot_password, name='delivery_forgot_password'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('reset-password/', views.reset_password, name='reset_password'),

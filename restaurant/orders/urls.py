@@ -40,6 +40,13 @@ urlpatterns = [
 
     path("my-orders/", views.my_orders, name="my_orders"),
     path("order/<int:order_id>/", views.order_detail, name="order_detail"),
+    # path('admin/orders/', views.all_orders, name='admin_orders'),
+    # path('admin/orders/<int:order_id>/', views.admin_order_detail, name='admin_order_detail'),
+    path('admin/orders/', views.admin_orders, name='admin_orders'),
+    path('admin/orders/<int:order_id>/', views.admin_order_detail, name='admin_order_detail'),
+    path('admin/orders/<int:order_id>/confirm/', views.admin_order_confirm, name='admin_order_confirm'),
+    path('admin/orders/<int:order_id>/update-status/', views.admin_order_update_status, name='admin_order_update_status'),
+    path('admin/orders/assign-delivery/<int:order_id>/', views.admin_assign_delivery, name='admin_assign_delivery'),
 
 ]
    

@@ -18,7 +18,7 @@
         {% for item in wishlist_items %}
         <div class="col-lg-3 col-md-4 col-sm-6 mb-3 wishlist-card">
 
-            <div class="card food-card shadow-sm h-100">
+            <div class="card food-card shadow-sm h-100" data-food-id="{{ item.id }}">
 
                 {% if item.images.first %}
                 <div class="image-box"
@@ -27,21 +27,52 @@
                 </div>
                 {% endif %}
 
-                <div class="card-body position-relative">
+                <div class="card-body position-relative d-flex flex-column justify-content-between">
 
                     <h6 class="card-title">{{ item.name }}</h6>
 
-                    <div class="price">₹ {{ item.price }}</div>
+                    <!-- 💰 PRICE + OFFER (MENU JEVA) -->
+                    {% if item.has_offer %}
+                        <div class="price">
+                            <span style="text-decoration:line-through;color:#999;">
+                                ₹ {{ item.price }}
+                            </span>
+                            <span style="color:#28a745;font-weight:600;">
+                                ₹ {{ item.discounted_price }}
+                            </span>
+                        </div>
+                        <small class="text-danger">
+                            {{ item.offer_percent }}% OFF
+                        </small>
+                    {% else %}
+                        <div class="price">₹ {{ item.price }}</div>
+                    {% endif %}
+
                     <div class="calories">{{ item.calories }} cal</div>
 
-                    <!-- ❤️ remove wishlist -->
+                    <!-- ❤️ Wishlist Button -->
                     <span class="wishlist-btn position-absolute top-0 end-0 m-2"
                           data-food-id="{{ item.id }}">
                         <i class="fa-solid fa-heart text-danger"></i>
                     </span>
 
-                    <!-- ✅ MESSAGE UNDER ITEM (ONLY CHANGE) -->
-                    <div class="wishlist-msg mt-2 small" style="display:none;"></div>
+                    <!-- ✅ INLINE MESSAGE -->
+                    <div class="wishlist-msg small mt-1" style="display:none;"></div>
+
+                    <!-- 🛒 ADD TO CART (MENU JEVA) -->
+                    <div class="cart-action mt-2">
+                        {% if user.is_authenticated %}
+                            <button class="add-cart-btn btn btn-success btn-sm"
+                                    data-food-id="{{ item.id }}">
+                                🛒 Add
+                            </button>
+                        {% else %}
+                            <button class="btn btn-success btn-sm"
+                                    onclick="alert('Please login first!')">
+                                🛒 Add
+                            </button>
+                        {% endif %}
+                    </div>
 
                 </div>
             </div>
@@ -55,72 +86,97 @@
 
     </div>
 </div>
-
-{% endblock %}
-
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="{% static 'menu/js/cart.js' %}"></script>
 
 <script>
-$(document).ready(function () {
+function getCookie(name) {
+    let cookieValue = null;
+    document.cookie.split(';').forEach(cookie => {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        }
+    });
+    return cookieValue;
+}
 
-    $('#wishlist-container').on('click', '.wishlist-btn', function (e) {
-        e.preventDefault();
+document.addEventListener("DOMContentLoaded", function () {
 
-        let btn = $(this);
-        let foodId = btn.data('food-id');
-        let card = btn.closest('.wishlist-card');
-        let msgBox = card.find('.wishlist-msg');
+    // ================= ❤️ WISHLIST TOGGLE =================
+    document.querySelectorAll(".wishlist-btn").forEach(btn => {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
 
-        $.ajax({
-            url: "/orders/wishlist/toggle/" + foodId + "/",
-            type: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            success: function (response) {
+            const foodId = btn.dataset.foodId;
+            const card = btn.closest(".wishlist-card");
+            const msgBox = card.querySelector(".wishlist-msg");
 
-                msgBox.hide().removeClass('text-success text-danger');
+            fetch(`/orders/wishlist/toggle/${foodId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
 
-                if (response.is_wishlisted) {
+                msgBox.style.display = "block";
+                msgBox.classList.remove("text-success","text-danger");
 
-                    // ❤️ ADDED
-                    msgBox
-                        .text("❤️ Item added to your wishlist")
-                        .addClass('text-success')
-                        .fadeIn();
-
+                if (data.is_wishlisted) {
+                    msgBox.innerText = "❤️ Item added to wishlist";
+                    msgBox.classList.add("text-success");
                 } else {
-
-                    // 💔 REMOVED
-                    msgBox
-                        .text("💔 Item removed from your wishlist")
-                        .addClass('text-danger')
-                        .fadeIn();
+                    msgBox.innerText = "💔 Item removed from wishlist";
+                    msgBox.classList.add("text-danger");
 
                     setTimeout(() => {
-                        card.fadeOut(300, function () {
-                            $(this).remove();
+                        card.remove();
 
-                            let count = $('#wishlist-container .wishlist-card').length;
-                            $('#wishlist-count').text(`❤️ My Wishlist (${count})`);
+                        let count = document.querySelectorAll(".wishlist-card").length;
+                        document.getElementById("wishlist-count")
+                            .innerText = `❤️ My Wishlist (${count})`;
 
-                            if (count === 0) {
-                                $('#wishlist-container').html(
-                                    '<p class="text-center text-muted">Your wishlist is empty 💔</p>'
-                                );
-                            }
-                        });
-                    }, 1200);
+                        if (count === 0) {
+                            document.getElementById("wishlist-container").innerHTML =
+                                '<p class="text-center text-muted">Your wishlist is empty 💔</p>';
+                        }
+                    }, 800);
                 }
 
-                setTimeout(() => {
-                    msgBox.fadeOut();
-                }, 2000);
-            }
+                setTimeout(() => msgBox.style.display="none", 2000);
+            });
         });
     });
 
+    // 🛒 ADD TO CART (REDIRECT TO CART)
+document.querySelectorAll(".add-cart-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+
+        const foodId = btn.dataset.foodId;
+
+        fetch(`/orders/add-to-cart/${foodId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                // 🔥 EXACT MENU JEVI FEEL
+                window.location.href = "{% url 'cart_page' %}";
+            }
+        });
+    });
+});
+
+
 });
 </script>
+
+{% endblock %}
+
 {% endblock %}

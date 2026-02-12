@@ -12,22 +12,30 @@
     <div class="ingredient-form">
         <h3>Add Ingredient</h3>
 
-        
-
         <form method="post">
             {% csrf_token %}
-            <input type="text" name="name" placeholder="Ingredient Name" required>
-            <input type="text" name="unit_of_measure" placeholder="Unit (kg, liter, pcs)" required>
-            <input type="hidden" step="0.01" name="price_per_unit" placeholder="Price per Unit" required>
-            <input type="hidden" name="available_qty" placeholder="Available Quantity" required>
-            <textarea name="hidden" placeholder="Description"></textarea>
+
+            <!-- Ingredient Name -->
+            <input type="text" name="name" placeholder="Ingredient Name" required pattern="[A-Za-z\s]{2,100}" title="Enter valid ingredient name (letters only)">
+
+            <!-- Unit -->
+            <input type="text" name="unit_of_measure" placeholder="Unit (kg, liter, pcs)" required pattern="[A-Za-z\s]{1,20}" title="Enter valid unit (letters only)">
+
+            <!-- Description -->
+            <textarea name="description" placeholder="Description" required minlength="5" maxlength="200" title="Enter description (5-200 characters)"></textarea>
 
             <button type="submit" class="btn">Add Ingredient</button>
         </form>
     </div>
 
-    <!-- 2️⃣ RIGHT : INGREDIENT TABLE -->
+    <!-- 2️⃣ RIGHT : INGREDIENT TABLE WITH SEARCH -->
     <div class="ingredient-table">
+
+        <!-- SEARCH BAR -->
+        <div class="search-container" style="margin-bottom: 15px;">
+            <input type="text" id="ingredientSearch" placeholder="🔍 Search ingredient...">
+        </div>
+
         <h3>All Ingredients</h3>
 
         <table>
@@ -48,14 +56,13 @@
                 <td>{{ i.available_qty }}</td>
                 <td>{{ i.last_updated }}</td>
                 <td class="actions">
-    <a href="{% url 'edit_ingredient' i.id %}" class="icon-edit">
-        <span class="material-icons">edit</span>
-    </a>
-    <a href="{% url 'delete_ingredient' i.id %}" class="icon-delete" onclick="return confirm('Are you sure?')">
-        <span class="material-icons">delete</span>
-    </a>
-</td>
-
+                    <a href="{% url 'edit_ingredient' i.id %}" class="icon-edit">
+                        <span class="material-icons">edit</span>
+                    </a>
+                    <a href="{% url 'delete_ingredient' i.id %}" class="icon-delete" onclick="return confirm('Are you sure?')">
+                        <span class="material-icons">delete</span>
+                    </a>
+                </td>
             </tr>
             {% empty %}
             <tr>
@@ -67,7 +74,29 @@
 
 </div>
 
-<!-- 5️⃣ BACK LINK -->
-<a href="{% url 'dashboard' %}">⬅ Back to dashboard</a>
+<!-- BACK LINK -->
+<a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:5px;margin-top:20px;padding:8px 14px;background-color:#28343b;color:#fff;text-decoration:none;font-weight:500;border-radius:5px;transition:0.3s;">⬅ Back to Dashboard</a>
+
+<!-- JS SEARCH FOR INGREDIENTS -->
+<script>
+    const searchInput = document.getElementById('ingredientSearch');
+    const table = document.querySelector('.ingredient-table table');
+    const rows = table.getElementsByTagName('tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const filter = searchInput.value.toLowerCase();
+
+        for (let i = 1; i < rows.length; i++) { // skip header row
+            const cells = rows[i].getElementsByTagName('td');
+            let rowText = "";
+
+            for (let j = 0; j < cells.length; j++) {
+                rowText += cells[j].textContent.toLowerCase();
+            }
+
+            rows[i].style.display = rowText.includes(filter) ? "" : "none";
+        }
+    });
+</script>
 
 {% endblock %}

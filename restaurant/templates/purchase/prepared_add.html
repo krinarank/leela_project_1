@@ -4,95 +4,262 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'purchase/css/purchase.css' %}">
 
-
 <div class="purchase-container">
 <div class="purchase-form">
 <h3>Add Prepared Item</h3>
+
 <form method="POST">
 {% csrf_token %}
-<label>Product Name:</label>
-<input type="text" name="product_name" required>
 
+<!-- PRODUCT -->
+<label>Product:</label>
+<select id="productSelect" class="form-control">
+    <option value="">-- Select Product --</option>
+    {% for name in product_names %}
+        <option value="{{ name }}">{{ name }}</option>
+    {% endfor %}
+    <option value="__new__">➕ New Product</option>
+</select>
 
+<input type="text" name="product_name" id="newProductInput"
+       placeholder="Enter new product name"
+       style="display:none;margin-top:5px;"
+       pattern="[A-Za-z\s]{2,50}">
+
+<!-- DATE -->
 <label>Production Date:</label>
-<input type="date" name="production_date" required>
+<input type="date" name="production_date" required id="production_date">
 
-
+<!-- QTY PRODUCED -->
 <label>Quantity Produced:</label>
 <input type="number" name="quantity_produced" min="1" required>
-
 
 <h4>Ingredient Usage</h4>
 <table id="ingredient-table" border="1" cellpadding="5" cellspacing="0">
 <tr>
-<th>Ingredient</th>
-<th>Qty Used</th>
-<th>Unit</th>
-<th>Action</th>
+    <th>Ingredient</th>
+    <th>Qty Used</th>
+    <th>Unit</th>
+    <th>Action</th>
 </tr>
+
+<!-- ✅ DEFAULT VISIBLE ROW -->
 <tr class="usage-row">
-<td>
-<select name="raw[]" required>
-<option value="">Select Ingredient</option>
-{% for ing in ingredients %}
-<option value="{{ ing.id }}">{{ ing.name }} (Stock: {{ ing.available_qty }})</option>
-{% endfor %}
-</select>
-</td>
-<td><input type="number" name="qty_used[]" min="0.01" step="0.01" required></td>
-<td><input type="text" name="unit[]" placeholder="kg, pcs, liter"></td>
-<td><button type="button" onclick="removeRow(this)">❌</button></td>
+    <td>
+        <select name="raw[]" required>
+            <option value="">Select Ingredient</option>
+            {% for ing in ingredients %}
+            <option value="{{ ing.id }}">{{ ing.name }} (Stock: {{ ing.available_qty }})</option>
+            {% endfor %}
+        </select>
+    </td>
+    <td><input type="number" name="qty_used[]" min="0.01" step="0.01" required></td>
+    <td><input type="text" name="unit[]" placeholder="kg, pcs, liter"></td>
+    <td><button type="button" onclick="removeRow(this)">❌</button></td>
+</tr>
+
+<!-- 🔥 HIDDEN TEMPLATE ROW (NO REQUIRED HERE) -->
+<tr class="usage-row template-row" style="display:none;">
+    <td>
+        <select name="raw[]">
+            <option value="">Select Ingredient</option>
+            {% for ing in ingredients %}
+            <option value="{{ ing.id }}">{{ ing.name }} (Stock: {{ ing.available_qty }})</option>
+            {% endfor %}
+        </select>
+    </td>
+    <td><input type="number" name="qty_used[]" min="0.01" step="0.01"></td>
+    <td><input type="text" name="unit[]" placeholder="kg, pcs, liter"></td>
+    <td><button type="button" onclick="removeRow(this)">❌</button></td>
 </tr>
 </table>
+
 <button type="button" onclick="addRow()">➕ Add Row</button>
 <button type="submit" class="btn" style="margin-top:10px;">Add Prepared Item</button>
 </form>
 </div>
 
-
+<!-- ================= TABLE ================= -->
 <div class="purchase-table">
 <h3>All Prepared Items</h3>
 <table>
 <tr>
-<th>Product</th>
-<th>Date</th>
-<th>Quantity</th>
-<th>Ingredients Used</th>
-<th>Actions</th>
+    <th>Product</th>
+    <th>Date</th>
+    <th>Quantity</th>
+    <th>Actions</th>
 </tr>
+
 {% for p in prepared_items %}
 <tr>
-<td>{{ p.product_name }}</td>
-<td>{{ p.production_date }}</td>
-<td>{{ p.quantity_produced }}</td>
-<td>
-{% for u in p.items.all %}
-{{ u.raw.name }} ({{ u.qty_used }} {{ u.unit }}){% if not forloop.last %}, {% endif %}
-{% empty %}-{% endfor %}
-</td>
-<td>
-<a href="{% url 'prepared_item_edit' p.id %}" class="icon-edit"><span class="material-icons">edit</span></a>
-<a href="{% url 'prepared_item_delete' p.id %}" class="icon-delete" onclick="return confirm('Are you sure?')"><span class="material-icons">delete</span></a>
-</td>
+    <td>{{ p.product_name }}</td>
+    <td>{{ p.production_date }}</td>
+    <td>{{ p.quantity_produced }}</td>
+    <td>
+        <a href="{% url 'prepared_item_edit' p.id %}">Edit</a>
+        <a href="{% url 'prepared_item_delete' p.id %}"
+           onclick="return confirm('Are you sure?')">Delete</a>
+    </td>
 </tr>
 {% empty %}
-<tr><td colspan="5" style="text-align:center;">No Prepared Items Found</td></tr>
+<tr><td colspan="4" style="text-align:center;">No Prepared Items Found</td></tr>
 {% endfor %}
 </table>
 </div>
 </div>
 
+<!-- ============ DATE JS ============ -->
+<script>
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, '0');
+const dd = String(today.getDate()).padStart(2, '0');
+const currentDate = `${yyyy}-${mm}-${dd}`;
+document.getElementById('production_date').value = currentDate;
+</script>
 
+<!-- ============ ROW FUNCTIONS ============ -->
 <script>
 function addRow() {
-let table = document.getElementById('ingredient-table');
-let row = table.rows[1].cloneNode(true);
-row.querySelectorAll('select,input').forEach(i => i.value = '');
-table.appendChild(row);
+    const template = document.querySelector('.template-row');
+    let row = template.cloneNode(true);
+    row.style.display = '';
+    row.classList.remove('template-row');
+    row.querySelectorAll('select,input').forEach(i => i.value = '');
+    document.getElementById('ingredient-table').appendChild(row);
 }
+
 function removeRow(btn) {
-let rows = document.querySelectorAll('#ingredient-table .usage-row');
-if (rows.length > 1) btn.closest('tr').remove();
+    const rows = document.querySelectorAll('#ingredient-table .usage-row:not(.template-row)');
+    if (rows.length > 1) {
+        btn.closest('tr').remove();
+    }
 }
 </script>
+
+<!-- ============ AUTO-FILL JS (FINAL) ============ -->
+<script>
+const productSelect = document.getElementById('productSelect');
+const newProductInput = document.getElementById('newProductInput');
+const qtyProducedInput = document.querySelector('input[name="quantity_produced"]');
+
+productSelect.addEventListener('change', function() {
+    const value = this.value;
+
+    // NEW PRODUCT
+    if (value === '__new__') {
+        newProductInput.style.display = 'block';
+        newProductInput.required = true;
+        newProductInput.value = '';
+        qtyProducedInput.value = '';
+        qtyProducedInput.dataset.baseQty = '';
+
+        const firstRow = document.querySelector('#ingredient-table .usage-row:not(.template-row)');
+        firstRow.querySelectorAll('select,input').forEach(i => i.value = '');
+
+        document.querySelectorAll('#ingredient-table .usage-row:not(.template-row)').forEach((row, idx) => {
+            if (idx > 0) row.remove();
+        });
+        return;
+    } else {
+        newProductInput.style.display = 'none';
+        newProductInput.required = false;
+        newProductInput.value = value;
+    }
+
+    if (!value) return;
+
+    fetch(`/purchase/get-last-recipe/?product_name=${value}`)
+    .then(res => res.json())
+    .then(data => {
+
+        console.log('RECIPE DATA:', data);
+
+        // SET BASE PRODUCT QTY
+        qtyProducedInput.value = data.quantity || '';
+        qtyProducedInput.dataset.baseQty = data.quantity || 1;
+
+        // REMOVE EXTRA ROWS
+        const rows = document.querySelectorAll('#ingredient-table .usage-row:not(.template-row)');
+        rows.forEach((row, idx) => {
+            if (idx > 0) row.remove();
+        });
+
+        const firstRow = document.querySelector('#ingredient-table .usage-row:not(.template-row)');
+
+        if (!data.items || data.items.length === 0) {
+            firstRow.querySelectorAll('select,input').forEach(i => i.value = '');
+            return;
+        }
+
+        const baseQty = parseFloat(data.quantity) || 1;
+        const newQty = parseFloat(qtyProducedInput.value) || 1;
+
+        // ---------- FIRST INGREDIENT ----------
+        const firstItem = data.items[0];
+
+        setTimeout(() => {
+            const ingSelect = firstRow.querySelector('select');
+            const qtyInput = firstRow.querySelector('input[name="qty_used[]"]');
+            const unitInput = firstRow.querySelector('input[name="unit[]"]');
+
+            ingSelect.value = firstItem.ingredient_id;
+
+            const scaledQty = (parseFloat(firstItem.qty) / baseQty) * newQty;
+            qtyInput.value = scaledQty.toFixed(2);
+
+            // STORE BASE INGREDIENT QTY
+            qtyInput.dataset.baseIng = firstItem.qty;
+
+            unitInput.value = firstItem.unit;
+        }, 50);
+
+        // ---------- EXTRA INGREDIENTS ----------
+        for (let i = 1; i < data.items.length; i++) {
+            const item = data.items[i];
+            const template = document.querySelector('.template-row');
+            let row = template.cloneNode(true);
+
+            row.style.display = '';
+            row.classList.remove('template-row');
+
+            document.getElementById('ingredient-table').appendChild(row);
+
+            setTimeout(() => {
+                const ingSelect = row.querySelector('select');
+                const qtyInput = row.querySelector('input[name="qty_used[]"]');
+                const unitInput = row.querySelector('input[name="unit[]"]');
+
+                ingSelect.value = item.ingredient_id;
+
+                const scaledQty = (parseFloat(item.qty) / baseQty) * newQty;
+                qtyInput.value = scaledQty.toFixed(2);
+
+                // STORE BASE INGREDIENT QTY
+                qtyInput.dataset.baseIng = item.qty;
+
+                unitInput.value = item.unit;
+            }, 50);
+        }
+    });
+});
+
+
+// 🔥 LIVE SCALING WHEN ADMIN CHANGES QTY PRODUCED
+qtyProducedInput.addEventListener('input', function () {
+    const baseQty = parseFloat(this.dataset.baseQty) || 1;
+    const newQty = parseFloat(this.value) || 1;
+
+    document.querySelectorAll('#ingredient-table .usage-row:not(.template-row)').forEach(row => {
+        const qtyInput = row.querySelector('input[name="qty_used[]"]');
+        const baseIng = parseFloat(qtyInput.dataset.baseIng);
+
+        if (!baseIng) return;
+
+        const scaled = (baseIng / baseQty) * newQty;
+        qtyInput.value = scaled.toFixed(2);
+    });
+});
+</script>
+
 {% endblock %}

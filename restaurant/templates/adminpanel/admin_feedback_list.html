@@ -1,0 +1,59 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">⭐ Customer Feedback & Ratings</h2>
+
+<div class="card shadow">
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Rating</th>
+                    <th>Feedback</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in feedbacks %}
+                <tr>
+                    <td class="text-center">#{{ f.order.id }}</td>
+
+                    <td>
+                        {{ f.user.firstname }} {{ f.user.lastname }}
+                    </td>
+
+                    <!-- ⭐ GOLD STARS (Decimal Support) -->
+                    <td class="text-center">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= f.rating %}
+                                <span style="color: gold; font-size:18px;">★</span>
+                            {% else %}
+                                <span style="color: #ccc; font-size:18px;">★</span>
+                            {% endif %}
+                        {% endfor %}
+                        <br>
+                        <small class="text-muted">({{ f.rating }})</small>
+                    </td>
+
+                    <td>
+                        {{ f.feedback_text|default:"-" }}
+                    </td>
+
+                    <td class="text-center">
+                        {{ f.date|date:"d M Y" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        No feedback found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

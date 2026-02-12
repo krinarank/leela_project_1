@@ -1,0 +1,36 @@
+{% extends 'deliverypanel/base_delivery.html' %}
+{% block content %}
+
+<h4>📦 My Delivered Orders (History)</h4>
+
+<table class="table table-bordered table-striped mt-3">
+    <thead class="table-dark">
+
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in delivered_assignments %}
+        <tr>
+            <td>#{{ a.order.id }}</td>
+            <td>{{ a.user.firstname }} {{ a.user.lastname }}</td>
+            <td>{{ a.user.address }}</td>
+            <td>
+                <span class="badge bg-success">Delivered</span>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">
+                No delivered orders yet.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

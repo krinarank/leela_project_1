@@ -1,7 +1,8 @@
 {% extends "deliverypanel/base_delivery.html" %}
 
 {% block content %}
-<div class="profile-card">
+
+<div class="profile-card mb-4">
     <h2>Welcome, {{ delivery.fname }} 👋</h2>
 
     <div class="info">
@@ -11,4 +12,88 @@
         <p><strong>Joining Date:</strong> {{ delivery.joining_date }}</p>
     </div>
 </div>
+
+
+<!-- ================= ACTIVE ORDERS ================= -->
+<h4 class="mb-2">🚚 Active Orders</h4>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in active_assignments %}
+        <tr>
+            <td>#{{ a.order.id }}</td>
+            <td>{{ a.user.firstname }} {{ a.user.lastname }}</td>
+            <td>{{ a.user.address }}</td>
+            <td>
+                <form method="POST" action="{% url 'delivery_mark_delivered' a.order.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-success btn-sm">
+                        Mark Delivered
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center text-muted">
+                No active orders.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- ================= NEW REQUESTS ================= -->
+<h4 class="mb-2 mt-4">🆕 New Order Requests</h4>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in new_requests %}
+        <tr>
+            <td>#{{ a.order.id }}</td>
+            <td>{{ a.user.firstname }} {{ a.user.lastname }}</td>
+            <td>
+                <form method="POST" action="{% url 'delivery_accept_order' a.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-success btn-sm">
+                        Accept
+                    </button>
+                </form>
+
+                <form method="POST" action="{% url 'delivery_reject_order' a.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm">
+                        Reject
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-center text-muted">
+                No new requests.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}

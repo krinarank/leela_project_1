@@ -8,7 +8,170 @@
 
     <!-- ================= ORDER HEADER ================= -->
     <h2>Order #{{ order.id }} Details</h2>
+    <!-- ================= ORDER STATUS TRACKER ================= -->
+<h3>Order Status</h3>
+<ul class="progressbar">
+    {% for step in steps %}
+        <li class="{% if forloop.counter0 <= current_index %}active{% endif %}">
+            {{ step|title }}
+        </li>
+    {% endfor %}
+</ul>
+
+<style>
+.progressbar {
+  display: flex;
+  justify-content: space-between;
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+  counter-reset: step;
+}
+
+.progressbar li {
+  position: relative;
+  text-align: center;
+  flex: 1;
+  color: gray;
+}
+
+.progressbar li:before {
+  content:'' ;
+  counter-increment: step;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border: 2px solid gray;
+  display: block;
+  text-align: center;
+  margin: 0 auto 10px auto;
+  border-radius: 50%;
+  background-color: white;
+  z-index: 1;
+}
+
+.progressbar li.active {
+  color: green;
+}
+
+.progressbar li.active:before {
+  content: '✓';
+  border-color: green;
+  background-color: green;
+  color: white;
+}
+
+.progressbar li:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background-color: gray;
+  top: 15px;
+  left: -50%;
+  z-index: 0;
+}
+
+.progressbar li:first-child:after {
+  content: none;
+}
+
+.progressbar li.active + li:after {
+  background-color: green;
+}
+</style>
+<style>
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    font-size: 2rem;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    color: #ccc;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: gold;
+}
+
+.star-rating input:checked ~ label {
+    color: gold;
+}
+
+</style>
     <p><strong>Status:</strong> {{ order.order_status }}</p>
+
+{% if order.order_status|upper == 'DELIVERED' %}
+
+    {% if feedback %}
+        <div class="alert alert-success mt-3">
+            <h5>⭐ Your Feedback</h5>
+            <p><strong>Rating:</strong>
+    {% for i in "12345" %}
+        {% if forloop.counter <= feedback.rating %}
+            <span style="color:gold; font-size:1.5rem;">★</span>
+        {% endif %}
+    {% endfor %}
+</p>
+
+            <p><strong>Feedback:</strong> {{ feedback.feedback_text }}</p>
+        </div>
+    {% else %}
+        <div class="card mt-3">
+            <div class="card-header bg-dark text-white">
+                Give Feedback
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+    <label class="form-label">Rating</label>
+    <div class="star-rating">
+    <input type="radio" id="star5" name="rating" value="5">
+    <label for="star5">★</label>
+
+    <input type="radio" id="star4" name="rating" value="4">
+    <label for="star4">★</label>
+
+    <input type="radio" id="star3" name="rating" value="3">
+    <label for="star3">★</label>
+
+    <input type="radio" id="star2" name="rating" value="2">
+    <label for="star2">★</label>
+
+    <input type="radio" id="star1" name="rating" value="1">
+    <label for="star1">★</label>
+</div>
+
+</div>
+
+
+                    <div class="mb-3">
+                        <label>Feedback</label>
+                        <textarea name="feedback_text"
+                                  class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        Submit Feedback
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+{% endif %}
+
     <p><strong>Date:</strong> {{ order.order_date|date:"d M Y H:i" }}</p>
     <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
 
@@ -107,4 +270,6 @@
     </div>
 
 </div>
+
+
 {% endblock %}

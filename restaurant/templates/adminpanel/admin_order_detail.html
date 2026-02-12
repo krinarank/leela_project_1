@@ -1,0 +1,61 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Order #{{ order.id }} Details</h4>
+    </div>
+
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Customer:</strong> {{ order.user.firstname }} {{ order.user.lastname }}</p>
+                <p><strong>Status:</strong> 
+                   {{ order.order_status }}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Total Amount:</strong> ₹ {{ order.total_amount }}</p>
+                <p><strong>Order Date:</strong> {{ order.order_date }}</p>
+            </div>
+        </div>
+
+        <h5 class="mb-3">🧾 Order Items</h5>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.order_details.all %}
+                    <tr>
+                        <td>{{ item.food_item.name }}</td>
+                        <td class="text-center">{{ item.qty }}</td>
+                        <td class="text-end">₹ {{ item.price }}</td>
+                        <td class="text-end fw-bold">₹ {{ item.total_amount }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            No items found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="{% url 'admin_orders' %}" class="btn btn-secondary mt-3">
+            ← Back to Orders
+        </a>
+    </div>
+</div>
+
+{% endblock %}

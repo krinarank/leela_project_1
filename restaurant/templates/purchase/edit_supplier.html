@@ -18,12 +18,27 @@
         <form method="post">
             {% csrf_token %}
 
-            <input type="text" name="fname" value="{{ supplier.fname }}" required>
-            <input type="text" name="lname" value="{{ supplier.lname }}" required>
-            <input type="text" name="contact_no" value="{{ supplier.contact_no }}" required>
-            <input type="email" name="email" value="{{ supplier.email }}" required>
-            <textarea name="address">{{ supplier.address }}</textarea>
+            <!-- First Name -->
+            <input type="text" name="fname" value="{{ supplier.fname }}" required
+                pattern="[A-Za-z\s]{2,50}" title="Enter valid first name (letters only, 2-50 characters)">
 
+            <!-- Last Name -->
+            <input type="text" name="lname" value="{{ supplier.lname }}" required
+                pattern="[A-Za-z\s]{2,50}" title="Enter valid last name (letters only, 2-50 characters)">
+
+            <!-- Contact Number -->
+            <input type="tel" name="contact_no" value="{{ supplier.contact_no }}" required
+                pattern="[0-9]{10}" title="Enter 10-digit contact number">
+
+            <!-- Email -->
+            <input type="email" name="email" value="{{ supplier.email }}" required
+                title="Enter a valid email address">
+
+            <!-- Address -->
+            <textarea name="address" required minlength="5" maxlength="200"
+                title="Enter address (5-200 characters)">{{ supplier.address }}</textarea>
+
+            <!-- Area -->
             <select name="area" required>
                 {% for area in areas %}
                 <option value="{{ area.id }}"
@@ -40,4 +55,5 @@
 </div>
 
 <link rel="stylesheet" href="{% static 'purchase/css/supplier_page.css' %}">
+
 {% endblock %}
