@@ -6,11 +6,12 @@
     <div class="register-card">
     <h2>Customer Registration</h2>
 
-    {% for msg in messages %}
-        <div class="success-msg">
-            {{ msg }}
-        </div>
-    {% endfor %}
+{% for msg in messages %}
+    <div class="{% if msg.tags == 'error' %}error-msg{% else %}success-msg{% endif %}">
+        {{ msg }}
+    </div>
+{% endfor %}
+
 
     <form method="POST">
         {% csrf_token %}

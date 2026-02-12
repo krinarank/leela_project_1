@@ -1,0 +1,86 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'menu/css/notification.css' %}">
+
+<div class="notification-wrapper">
+
+    
+    <!-- LEFT SIDE -->
+    <div class="notification-form">
+        <h2>📢 Create Notification</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-primary">Send Notification</button>
+        </form>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="notification-list">
+        <h2>📄 All Notifications</h2>
+
+          <!-- SEARCH BAR -->
+    <div class="search-container">
+        <input type="text" id="notificationSearch" placeholder="🔍 Search notifications...">
+    </div>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Recipient</th>
+                <th>Send Time</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+            {% for notif in notifications %}
+            <tr>
+                <td>{{ notif.id }}</td>
+                <td>{{ notif.title }}</td>
+                  <td>{{ notif.message }}</td>
+                <td>{{ notif.recipient_type }}</td>
+                <td>{{ notif.send_datetime }}</td>
+                <td>{{ notif.user_id|default:"All" }}</td>
+                 <td>
+        <a href="{% url 'edit_notification' notif.id %}" class="edit-btn">Edit</a>
+        <a href="{% url 'delete_notification' notif.id %}" class="delete-btn"
+           onclick="return confirm('Delete this notification?')">Delete</a>
+    </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No notifications found</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div>
+
+<!-- SEARCH SCRIPT -->
+<script>
+    const searchInput = document.getElementById('notificationSearch');
+    const table = document.querySelector('.notification-list table');
+    const rows = table.getElementsByTagName('tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const filter = searchInput.value.toLowerCase();
+
+        // skip header row → start from 1
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let match = false;
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().includes(filter)) {
+                    match = true;
+                    break;
+                }
+            }
+            rows[i].style.display = match ? "" : "none";
+        }
+    });
+</script>
+
+{% endblock %}

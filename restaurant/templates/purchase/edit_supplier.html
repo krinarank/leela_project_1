@@ -1,0 +1,43 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="supplier-container">
+    <div class="supplier-form">
+
+        <h3>Update Supplier</h3>
+
+        {% if messages %}
+        <div class="toast-container">
+            {% for message in messages %}
+                <div class="toast success">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="text" name="fname" value="{{ supplier.fname }}" required>
+            <input type="text" name="lname" value="{{ supplier.lname }}" required>
+            <input type="text" name="contact_no" value="{{ supplier.contact_no }}" required>
+            <input type="email" name="email" value="{{ supplier.email }}" required>
+            <textarea name="address">{{ supplier.address }}</textarea>
+
+            <select name="area" required>
+                {% for area in areas %}
+                <option value="{{ area.id }}"
+                    {% if supplier.area.id == area.id %}selected{% endif %}>
+                    {{ area.name }} - {{ area.city.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn">Update Supplier</button>
+        </form>
+
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'purchase/css/supplier_page.css' %}">
+{% endblock %}

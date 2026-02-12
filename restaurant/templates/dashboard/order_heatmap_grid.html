@@ -1,0 +1,35 @@
+{% extends 'adminpanel/base.html' %}
+{% block content %}
+
+<h2>Ahmedabad Area-wise Orders Treemap</h2>
+<div id="treemap" style="width: 100%; height: 600px;"></div>
+
+{{ labels|json_script:"labels-data" }}
+{{ values|json_script:"values-data" }}
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+var labels = JSON.parse(document.getElementById('labels-data').textContent);
+var values = JSON.parse(document.getElementById('values-data').textContent);
+
+var data = [{
+  type: "treemap",
+  labels: labels,
+  parents: Array(labels.length).fill(""),
+  values: values,
+  textinfo: "label+value",
+  marker: {
+      colorscale: 'Reds',
+      showscale: true
+  }
+}];
+
+var layout = {
+  margin: { t: 50, l: 25, r: 25, b: 25 }
+};
+
+Plotly.newPlot('treemap', data, layout);
+</script>
+
+{% endblock %}

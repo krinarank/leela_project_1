@@ -1,0 +1,50 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Profile Information</h5>
+      <button class="btn btn-sm btn-outline-primary" onclick="enableEditProfile()">✏️ Edit</button>
+    </div>
+    <hr>
+
+    <!-- VIEW MODE -->
+    <div id="profile-view" {% if show_modal %}style="display:none"{% endif %}>
+      <p><strong>First Name:</strong> {{ customer.firstname|default:"-" }}</p>
+      <p><strong>Last Name:</strong> {{ customer.lastname|default:"-" }}</p>
+      <p><strong>Phone:</strong> {{ customer.contactno|default:"-" }}</p>
+      <p><strong>Gender:</strong> {{ customer.gender|default:"-" }}</p>
+      <p><strong>Address:</strong> {{ customer.address|default:"-" }}</p>
+    </div>
+
+    <!-- EDIT MODE -->
+    <div id="profile-edit" {% if show_modal %}style="display:block"{% else %}style="display:none"{% endif %}>
+      {% if errors %}
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          {% for e in errors %}<li>❌ {{ e }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6"><label>First Name</label><input type="text" name="firstname" value="{{ customer.firstname }}" class="form-control"></div>
+          <div class="col-md-6"><label>Last Name</label><input type="text" name="lastname" value="{{ customer.lastname }}" class="form-control"></div>
+          <div class="col-md-6"><label>Phone</label><input type="text" name="contactno" value="{{ customer.contactno }}" class="form-control"></div>
+          <div class="col-md-6">
+            <label class="d-block">Gender</label>
+           <label><input type="radio" name="gender" value="Male" {% if customer.gender|default:'' == "Male" %}checked{% endif %}> Male</label>
+<label><input type="radio" name="gender" value="Female" {% if customer.gender|default:'' == "Female" %}checked{% endif %}> Female</label>
+
+          </div>
+          <div class="col-12"><label>Address</label><textarea name="address" class="form-control">{{ customer.address }}</textarea></div>
+          <div class="col-12"><label>Profile Image</label><input type="file" name="profile_image" class="form-control"></div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-success">Save</button>
+          <button type="button" class="btn btn-secondary" onclick="cancelEditProfile()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

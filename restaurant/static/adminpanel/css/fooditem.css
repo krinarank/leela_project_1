@@ -6,10 +6,10 @@
     padding: 0;
 }
 
-body {
+/* body {
     background: #f4f6f8;
     padding: 20px;
-}
+} */
 
 /* CONTAINER */
 
@@ -99,7 +99,7 @@ body {
 }
 
 .right table th {
-    background-color: #007bff;
+    background-color: #2c3e50;
     color: #fff;
     font-weight: 600;
 }
@@ -147,3 +147,18 @@ body {
         order: unset;
     }
 }
+
+.search-container{
+    width:100%;
+    margin-bottom:20px;
+    display:flex;
+    justify-content:flex-end;
+}
+
+.search-container input{
+    width:250px;
+    padding:10px 15px;
+    border:2px solid #3498db;
+    border-radius:5px;
+}
+

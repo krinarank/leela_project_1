@@ -1,0 +1,52 @@
+{% extends 'menu/base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'orders/css/combin_orders.css' %}">
+
+<div class="container py-4">
+    <h2>My Orders</h2>
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card" style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <p><strong>Order #{{ order.id }}</strong></p>
+                    <p>Date: {{ order.order_date|date:"d M Y H:i" }}</p>
+                    <p>Status: {{ order.order_status }}</p>
+                    <p>Total Qty: {{ order.total_qty }}</p>
+                    <p>Total Amount: ₹{{ order.total_amount }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'order_detail' order.id %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+
+            <!-- ---------------- ITEM PREVIEW ---------------- -->
+            <div class="order-items-preview" style="display:flex; margin-top:10px; gap:10px; flex-wrap:wrap;">
+                {% for item in order.order_details.all|slice:":3" %}
+                <div class="item-preview" >
+                    {% with item.food_item.images.first as img %}
+    {% if img %}
+        <img src="{{ img.img_url.url }}" alt="{{ item.food_item.name }}">
+    {% else %}
+        <img src="{% static 'images/no-food.png' %}">
+    {% endif %}
+{% endwith %}
+
+<p style="font-size:12px; margin-top:4px;">{{ item.food_item.name|truncatechars:10 }}</p>
+                </div>
+                {% endfor %}
+                {% if order.order_details.count > 3 %}
+                <div class="more-items" style="display:flex; align-items:center; justify-content:center; width:70px; height:70px; background:#eee; border-radius:6px; font-size:12px;">
+                    +{{ order.order_details.count|add:"-3" }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p>No orders yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

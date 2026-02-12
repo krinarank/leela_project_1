@@ -1,0 +1,65 @@
+{% extends 'adminpanel/base.html' %}
+{% load static%}
+{% block content %}
+<link rel="stylesheet" href="{% static 'customer_dashboard/customer_detail.css' %}">
+
+<h2>👤 Customers</h2>
+
+<div class="search-wrapper">
+    <input 
+        type="text" 
+        id="customerSearch" 
+        placeholder="🔍 Search by name, username, email, contact..."
+        onkeyup="filterCustomers()"
+    >
+</div>
+
+
+<table class="admin-table" id="customerTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Gender</th>
+            <th>Address</th>
+            <th>Joined</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for c in customers %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.firstname }} {{ c.lastname }}</td>
+            <td>{{ c.username }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.contactno }}</td>
+            <td>{{ c.gender }}</td>
+            <td>{{ c.address }}</td>
+            <td>{{ c.creationdate|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8">No customers found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+function filterCustomers() {
+    let input = document.getElementById("customerSearch").value.toLowerCase();
+    let table = document.getElementById("customerTable");
+    let rows = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < rows.length; i++) {
+        let rowText = rows[i].innerText.toLowerCase();
+        rows[i].style.display = rowText.includes(input) ? "" : "none";
+    }
+}
+</script>
+
+{% endblock %}

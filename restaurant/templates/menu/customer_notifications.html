@@ -1,0 +1,24 @@
+{% extends 'menu/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'menu/css/notification.css' %}">
+
+<div class="notifications-wrapper">
+    <h2>Notifications 🔔</h2>
+
+    <div class="notifications-container">
+        {% for notif in notifications %}
+        <div class="notification-card">
+            <h4>{{ notif.title }}</h4>
+            <p>{{ notif.message }}</p>
+            <small>Sent: {{ notif.send_datetime|date:"M d, Y H:i" }}</small>
+        </div>
+        {% empty %}
+        <p class="no-notifications">No new notifications</p>
+        {% endfor %}
+    </div>
+<a href="{% url 'home' %}" class="back-btn">Got it,thanks!</a>
+
+   </div>
+
+{% endblock %}

@@ -3,133 +3,84 @@
 
 {% block content %}
 <div class="container mt-4">
-
     <h3 class="mb-4">My Profile</h3>
 
     {% if delivery %}
-
-    <!-- Profile completion card -->
+    <!-- Profile Completion -->
     <div class="card shadow-sm mb-4">
-    <div class="card-body d-flex align-items-center gap-4">
-
-        <!-- Circle Progress -->
+      <div class="card-body d-flex align-items-center gap-4">
         <div class="position-relative" style="width:120px;height:120px;">
-            {% with circumference=326 %}
-            <svg width="120" height="120">
-                <!-- background -->
-                <circle cx="60" cy="60" r="52"
-                        stroke="#e9ecef" stroke-width="10" fill="none"/>
-                
-                <!-- progress -->
-                <circle cx="60" cy="60" r="52"
-                        stroke="#198754" stroke-width="10" fill="none"
-                        stroke-dasharray="{{ circumference }}"
-                        stroke-dashoffset="{{ circumference|add:'-'|add:profile_percent|floatformat:0|add:'*3.26' }}"
-                        stroke-linecap="round"
-                        transform="rotate(-90 60 60)"/>
-            </svg>
+          <svg width="120" height="120">
+            <circle cx="60" cy="60" r="52" stroke="#e9ecef" stroke-width="10" fill="none"/>
+            {% comment %}
+              Direct math in template not allowed, pre-calculate in view if possible.
+              Here we do simple subtraction manually.
+            {% endcomment %}
+            {% with offset=326|floatformat:0 %}
+              {% with dash_offset=offset|add:"-"|add:profile_percent|floatformat:0|add:"*3.26" %}
+            <circle cx="60" cy="60" r="52" stroke="#198754" stroke-width="10" fill="none"
+                    stroke-dasharray="326"
+                    stroke-dashoffset="{{ dash_offset }}"
+                    stroke-linecap="round" transform="rotate(-90 60 60)"/>
+              {% endwith %}
             {% endwith %}
-
-            <div class="position-absolute top-50 start-50 translate-middle fw-bold">
-                {{ profile_percent }}%
-            </div>
+          </svg>
+          <div class="position-absolute top-50 start-50 translate-middle fw-bold">{{ profile_percent }}%</div>
         </div>
-
         <div>
-            <h6 class="mb-1">Profile completion</h6>
-            <small class="text-muted">Complete your profile details</small>
+          <h6 class="mb-1">Profile completion</h6>
+          <small class="text-muted">Complete your profile details</small>
         </div>
-
+      </div>
     </div>
-</div>
 
-
-    <!-- Profile card -->
+    <!-- Profile Card -->
     <div class="card shadow-sm">
-        <div class="card-body">
-
-            <!-- Top section -->
-            <div class="row align-items-center mb-4">
-                <div class="col-md-3 text-center">
-                    {% if delivery.profile_image %}
-                        <img src="{{ delivery.profile_image.url }}"
-                             class="rounded-circle shadow"
-                             width="120" height="120">
-                    {% else %}
-                        <img src="{% static 'default-avatar.png' }}"
-                             class="rounded-circle shadow"
-                             width="120" height="120">
-                    {% endif %}
-                </div>
-
-                <div class="col-md-9">
-                    <h5 class="mb-1">
-                        {{ delivery.fname }} {{ delivery.lname }}
-                    </h5>
-                    <p class="mb-2 text-muted">{{ delivery.email }}</p>
-
-                    {% if delivery.is_active %}
-                        <span class="badge bg-success px-3 py-1">Active</span>
-                    {% else %}
-                        <span class="badge bg-danger px-3 py-1">Inactive</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <hr>
-
-            <!-- Upload image only once -->
-            {% if not delivery.profile_image %}
-            <form method="POST" enctype="multipart/form-data" class="mb-4">
-                {% csrf_token %}
-                <label class="form-label fw-semibold">
-                    Upload profile picture
-                </label>
-                <input type="file" name="profile_image" class="form-control mb-2">
-                <button class="btn btn-primary btn-sm">Upload</button>
-            </form>
-            <hr>
+      <div class="card-body">
+        <div class="row align-items-center mb-4">
+          <div class="col-md-3 text-center">
+            {% if delivery.profile_image %}
+              <img src="{{ delivery.profile_image.url }}"
+                   class="rounded-circle shadow" width="120" height="120">
+            {% else %}
+              <img src="{% static 'default-avatar.png' %}"
+                   class="rounded-circle shadow" width="120" height="120">
             {% endif %}
-
-            <!-- Details -->
-            <div class="row mb-2">
-                <div class="col-4 fw-semibold">📞 Contact</div>
-                <div class="col-8">{{ delivery.contact_no }}</div>
-            </div>
-
-            <div class="row mb-2">
-                <div class="col-4 fw-semibold">📍 Address</div>
-                <div class="col-8">{{ delivery.address }}</div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-4 fw-semibold">📅 Joining Date</div>
-                <div class="col-8">{{ delivery.joining_date }}</div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="mt-3">
-    <a href="{% url 'delivery_profile_edit' %}" class="btn btn-primary btn-sm">
-        Edit Profile
-    </a>
-
-    <a href="{% url 'delivery_vehicle' %}" class="btn btn-info btn-sm">
-        My Vehicle
-    </a>
-
-    <a href="{% url 'delivery_change_password' %}" class="btn btn-warning btn-sm">
-        Change Password
-    </a>
-</div>
-
+          </div>
+          <div class="col-md-9">
+            <h5>{{ delivery.fname }} {{ delivery.lname }}</h5>
+            <p class="mb-2 text-muted">{{ delivery.email }}</p>
+            {% if delivery.is_active %}
+              <span class="badge bg-success px-3 py-1">Active</span>
+            {% else %}
+              <span class="badge bg-danger px-3 py-1">Inactive</span>
+            {% endif %}
+          </div>
         </div>
+
+        {% if not delivery.profile_image %}
+        <form method="POST" enctype="multipart/form-data" class="mb-4">
+            {% csrf_token %}
+            <label class="form-label fw-semibold">Upload profile picture</label>
+            <input type="file" name="profile_image" class="form-control mb-2">
+            <button class="btn btn-primary btn-sm">Upload</button>
+        </form>
+        <hr>
+        {% endif %}
+
+        <div class="row mb-2"><div class="col-4 fw-semibold">📞 Contact</div><div class="col-8">{{ delivery.contact_no }}</div></div>
+        <div class="row mb-2"><div class="col-4 fw-semibold">📍 Address</div><div class="col-8">{{ delivery.address }}</div></div>
+        <div class="row mb-3"><div class="col-4 fw-semibold">📅 Joining Date</div><div class="col-8">{{ delivery.joining_date }}</div></div>
+
+        <div class="mt-3">
+          <a href="{% url 'delivery_profile_edit' %}" class="btn btn-primary btn-sm">Edit Profile</a>
+          <a href="{% url 'delivery_vehicle' %}" class="btn btn-info btn-sm">My Vehicle</a>
+          <a href="{% url 'delivery_change_password' %}" class="btn btn-warning btn-sm">Change Password</a>
+        </div>
+      </div>
     </div>
-
     {% else %}
-        <div class="alert alert-warning text-center">
-            Profile not found
-        </div>
+      <div class="alert alert-warning text-center">Profile not found</div>
     {% endif %}
-
 </div>
 {% endblock %}

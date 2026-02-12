@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Category</title>
-      {% load static %}
-    <link rel="stylesheet" href="{% static 'adminpanel/css/category.css' %}">
-</head>
-<body>
+{% extends 'adminpanel/base.html' %}
+{% load static %}
 
+{% block content %}
+<link rel="stylesheet" href="{% static 'adminpanel/css/category.css' %}">
+<link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">
+   
 <div class="container">
-
-    <!-- TABLE (visual LEFT ma dekhase) -->
+ 
+    <!-- TABLE (LEFT SIDE) -->
     <div class="left">
+        
         <u><h3>Added Categories</h3></u>
+
+                    <!-- MOVE SEARCH BAR HERE -->
+    <div class="search-container" style="margin-bottom: 15px;">
+        <input type="text" id="categorySearch" placeholder="🔍 Search categories...">
+    </div>
 
         <table>
             <tr>
@@ -36,9 +40,9 @@
         </table>
     </div>
 
-    <!-- FORM (visual RIGHT ma dekhase) -->
+    <!-- FORM (RIGHT SIDE) -->
     <div class="right">
-        <u><h3>Add Category</h3></u>
+        <u><h3>Add Category</h3></u><br>
 
         <form method="post">
             {% csrf_token %}
@@ -48,6 +52,22 @@
     </div>
 
 </div>
-<a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
-</body>
-</html>
+
+<a href="{% url 'dashboard' %}">⬅ Back to dashboard</a>
+
+
+<!-- JS SEARCH -->
+<script>
+    const searchInput = document.getElementById('categorySearch');
+    const table = document.querySelector('.left table');
+    const rows = table.getElementsByTagName('tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const filter = searchInput.value.toLowerCase();
+        for (let i = 1; i < rows.length; i++) { // skip header
+            const cell = rows[i].getElementsByTagName('td')[0]; // only category name
+            rows[i].style.display = cell.textContent.toLowerCase().includes(filter) ? "" : "none";
+        }
+    });
+</script>
+{% endblock %}

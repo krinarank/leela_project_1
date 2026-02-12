@@ -9,6 +9,9 @@ body {
     background: #fff;
 }
 
+/* =======================
+   MAIN DASHBOARD LAYOUT
+======================= */
 .dashboard {
     display: flex;
     min-height: 100vh;
@@ -18,7 +21,8 @@ body {
    LEFT SIDEBAR
 ======================= */
 .dashboard-left {
-    width: 230px;
+    width: 250px;
+    min-width: 250px;
     background: #2c3e50;
     padding: 20px;
     display: flex;
@@ -30,13 +34,9 @@ body {
     margin-bottom: 20px;
 }
 
-/*  ALL LINKS FORCE BLOCK */
 .dashboard-left a {
-    display: block !important;
-    width: 100% !important;
-    clear: both !important;
-    float: none !important;
-
+    display: block;
+    width: 100%;
     color: #e4e4e4;
     text-decoration: none;
     padding: 8px 10px;
@@ -48,32 +48,18 @@ body {
     background: #3f5f7f;
 }
 
-/* =======================
-   SUBMENUS — ONLY FIX AREA
-======================= */
+/* SUBMENU */
 .submenu {
     display: none;
     padding-left: 15px;
 }
 
-/*  FORCE VERTICAL STACKING */
-.submenu a,
-.submenu-inner a {
-    display: block !important;
-    width: 100% !important;
-    white-space: normal !important;
-}
-
-/*  KILL ANY FLEX / INLINE EFFECT */
-.submenu a,
-.submenu-inner a {
-    display: block !important;
+.submenu a {
+    display: block;
     width: 100%;
 }
 
-/* =======================
-   LOGOUT
-======================= */
+/* LOGOUT */
 .logout {
     margin-top: auto;
 }
@@ -85,34 +71,44 @@ body {
 }
 
 /* =======================
-   RIGHT SIDE (UNCHANGED)
+   RIGHT SIDE
 ======================= */
 .dashboard-right {
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
+/* =======================
+   HEADER (FIXED AREA)
+======================= */
 .dashboard-header {
     background: #2c3e50;
     color: white;
     padding: 15px 30px;
+
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
+/* 🔥 FORCE RIGHT ALIGN */
 .header-right {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
+/* ICON */
 .header-icon {
     position: relative;
     font-size: 22px;
     color: white;
     text-decoration: none;
+    flex-shrink: 0;
 }
 
+/* BADGE */
 .badge {
     position: absolute;
     top: -6px;
@@ -124,15 +120,20 @@ body {
     border-radius: 50%;
 }
 
+/* ADMIN NAME */
 .admin-name {
     font-weight: bold;
+    white-space: nowrap;
 }
 
+/* =======================
+   CONTENT
+======================= */
 .dashboard-content {
     padding: 30px;
 }
 
-/* DASHBOARD CARDS */
+/* CARDS */
 .dashboard-cards {
     display: flex;
     gap: 20px;
@@ -175,19 +176,48 @@ body {
     font-weight: bold;
 }
 
-
-.dashboard-right form input, 
+/* FORMS */
+.dashboard-right form input,
 .dashboard-right form button {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
 }
 
+/* TABLE */
 .dashboard-right table {
     border-collapse: collapse;
+    width: 100%;
 }
 
-.dashboard-right table th, table td {
+.dashboard-right table th,
+.dashboard-right table td {
     padding: 10px;
     text-align: left;
 }
+
+/* =======================
+   KILL ALL OLD SHIT 😤
+======================= */
+.header-right,
+.header-icon {
+    float: none !important;
+    left: auto !important;
+    right: auto !important;
+}
+
+
+.messages-wrapper {
+    margin-bottom: 15px;
+}
+
+.alert {
+    padding: 8px 12px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.alert.success { background-color: #d4edda; color: #155724; }
+.alert.error   { background-color: #f8d7da; color: #721c24; }
+.alert.warning { background-color: #fff3cd; color: #856404; }

@@ -10,9 +10,12 @@ from adminpanel.models import (
 from accounts.forms import CustomerProfileForm
 from django.contrib.auth.decorators import login_required
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from .models import Inquiry
 from orders.utils import get_best_offer
 from decimal import Decimal
+from orders.models import Wishlist
 
 from django.contrib.auth.decorators import login_required
 from orders.models import Wishlist
@@ -29,6 +32,99 @@ def home(request):
         'special_items': special_items
     })
 
+
+
+# def menu_page(request):
+
+#     categories = FoodItemCategory.objects.prefetch_related(
+#         'fooditemsubcategory_set__fooditem_set__images'
+#     )
+
+#     all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
+
+#     # 🔁 helper function
+#     def apply_offer(item):
+#         offer = get_best_offer(item)
+#         if offer:
+#             discount = offer.offer.discount_percentage
+#             item.offer_percent = discount
+#             item.discounted_price = round(
+#                 item.price - (item.price * discount / 100), 2
+#             )
+#             item.has_offer = True
+#         else:
+#             item.has_offer = False
+
+#     # ✅ MAIN ALL ITEMS
+#     for item in all_items:
+#         apply_offer(item)
+
+#     # ✅ CATEGORY + SUBCATEGORY ITEMS
+#     for category in categories:
+#         for sub in category.fooditemsubcategory_set.all():
+#             for item in sub.fooditem_set.all():
+#                 apply_offer(item)
+
+#     context = {
+#         'categories': categories,
+#         'all_items': all_items
+#     }
+
+#     return render(request, 'menu/menu.html', context)
+# def menu_page(request):
+
+#     categories = FoodItemCategory.objects.prefetch_related(
+#         'fooditemsubcategory_set__fooditem_set__images'
+#     )
+
+#     all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
+
+#     # 🔁 helper function
+#     def apply_offer(item):
+#         offer = get_best_offer(item)
+#         if offer:
+#             discount = offer.offer.discount_percentage
+#             item.offer_percent = discount
+#             item.discounted_price = round(
+#                 item.price - (item.price * discount / 100), 2
+#             )
+#             item.has_offer = True
+#         else:
+#             item.has_offer = False
+
+#     # ✅ MAIN ALL ITEMS
+#     for item in all_items:
+#         apply_offer(item)
+
+#     # ✅ CATEGORY + SUBCATEGORY ITEMS
+#     for category in categories:
+#         for sub in category.fooditemsubcategory_set.all():
+#             for item in sub.fooditem_set.all():
+#                 apply_offer(item)
+
+#     context = {
+#         'categories': categories,
+#         'all_items': all_items
+#     }
+
+#     return render(request, 'menu/menu.html', context)
+
+
+# def menu_page(request):
+#     categories = FoodItemCategory.objects.all()
+
+#     if request.user.is_authenticated:
+#         wishlist_items = list(
+#             Wishlist.objects.filter(user=request.user)
+#             .values_list('food_item_id', flat=True)
+#         )
+#     else:
+#         wishlist_items = request.session.get('wishlist', [])
+
+#     return render(request, 'menu/menu.html', {
+#         'categories': categories,
+#         'wishlist_items': wishlist_items
+#     })
 def menu_page(request):
 
     categories = FoodItemCategory.objects.prefetch_related(
@@ -89,6 +185,60 @@ def contact(request):
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Inquiry
+# def menu_page(request):
+
+#     categories = FoodItemCategory.objects.prefetch_related(
+#         'fooditemsubcategory_set__fooditem_set__images'
+#     )
+
+#     all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
+
+#     # 🔁 helper function
+#     def apply_offer(item):
+#         offer = get_best_offer(item)
+#         if offer:
+#             discount = offer.offer.discount_percentage
+#             item.offer_percent = discount
+#             item.discounted_price = round(
+#                 item.price - (item.price * discount / 100), 2
+#             )
+#             item.has_offer = True
+#         else:
+#             item.has_offer = False
+
+#     # ✅ MAIN ALL ITEMS
+#     for item in all_items:
+#         apply_offer(item)
+
+#     # ✅ CATEGORY + SUBCATEGORY ITEMS
+#     for category in categories:
+#         for sub in category.fooditemsubcategory_set.all():
+#             for item in sub.fooditem_set.all():
+#                 apply_offer(item)
+
+#     context = {
+#         'categories': categories,
+#         'all_items': all_items
+#     }
+
+#     return render(request, 'menu/menu.html', context)
+
+
+# def menu_page(request):
+#     categories = FoodItemCategory.objects.all()
+
+#     if request.user.is_authenticated:
+#         wishlist_items = list(
+#             Wishlist.objects.filter(user=request.user)
+#             .values_list('food_item_id', flat=True)
+#         )
+#     else:
+#         wishlist_items = request.session.get('wishlist', [])
+
+#     return render(request, 'menu/menu.html', {
+#         'categories': categories,
+#         'wishlist_items': wishlist_items
+#     })
 
 
 def contact_view(request):
@@ -300,14 +450,371 @@ from django.utils import timezone
 import uuid
 import re
 
+# @login_required(login_url='customer_login')
+# def customer_profile(request):
+#     customer = request.user
+#     errors = []
+#     success_msg = ""
+#     show_modal = False  # Only open modal if errors
+
+#     if request.method == 'POST':
+#         firstname = request.POST.get('firstname', '').strip()
+#         lastname = request.POST.get('lastname', '').strip()
+#         contactno = request.POST.get('contactno', '').strip()
+#         gender = request.POST.get('gender', '').strip()
+#         address = request.POST.get('address', '').strip()
+#         profile_image = request.FILES.get('profile_image')
+
+#         # ===== Validation =====
+#         if not firstname:
+#             errors.append("First name is required")
+#         elif not re.fullmatch(r"[A-Za-z ]+", firstname):
+#             errors.append("First name can contain only letters and spaces")
+
+#         if not lastname:
+#             errors.append("Last name is required")
+#         elif not re.fullmatch(r"[A-Za-z ]+", lastname):
+#             errors.append("Last name can contain only letters and spaces")
+
+#         if not contactno:
+#             errors.append("Phone number is required")
+#         elif not re.fullmatch(r"\d{10}", contactno):
+#             errors.append("Enter a valid 10-digit phone number")
+
+#         if gender not in ['Male', 'Female', 'Other']:
+#             errors.append("Select a valid gender")
+
+#         if not address:
+#             errors.append("Address is required")
+
+#         if profile_image:
+#             if profile_image.size > 2 * 1024 * 1024:
+#                 errors.append("Profile image size should be less than 2MB")
+#             if profile_image.content_type not in ['image/jpeg', 'image/png']:
+#                 errors.append("Only JPEG or PNG images are allowed")
+
+#         # ===== Handle errors =====
+#         if errors:
+#             show_modal = True
+#         else:
+#             # ===== Save data =====
+#             customer.firstname = firstname
+#             customer.lastname = lastname
+#             customer.contactno = contactno
+#             customer.gender = gender
+#             customer.address = address
+
+#             if profile_image:
+#                 ext = profile_image.name.split('.')[-1]
+#                 filename = f"profile_{uuid.uuid4().hex}.{ext}"
+#                 customer.profile_image.save(filename, profile_image)
+
+#             customer.updationdate = timezone.now()
+#             customer.save()
+#             success_msg = "Profile updated successfully"
+
+#     # ===== Profile completion =====
+#     fields = [
+#         customer.firstname,
+#         customer.lastname,
+#         customer.contactno,
+#         customer.gender,
+#         customer.address,
+#         customer.profile_image
+#     ]
+#     completed = int(sum(100/6 for f in fields if f))
+
+#     return render(request, 'menu/profile.html', {
+#         'customer': customer,
+#         'completed': completed,
+#         'errors': errors,
+#         'success_msg': success_msg,
+#         'show_modal': show_modal
+#     })
+
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+import re
+import re
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+
 @login_required(login_url='customer_login')
-def customer_profile(request):
+def customer_change_password(request):
     customer = request.user
     errors = []
-    success_msg = ""
-    show_modal = False  # Only open modal if errors
 
+    if request.method == "POST":
+        old_password = request.POST.get("old_password")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        # 1️⃣ Old password check
+        if not customer.check_password(old_password):
+            errors.append("Current password is incorrect")
+
+        # 2️⃣ New = old check
+        if customer.check_password(new_password):
+            errors.append("New password cannot be same as old password")
+
+        # 3️⃣ Match check
+        if new_password != confirm_password:
+            errors.append("New password and confirm password do not match")
+
+        # 4️⃣ Strength validation
+        if len(new_password) < 8:
+            errors.append("Password must be at least 8 characters")
+
+        if not re.search(r"[A-Z]", new_password):
+            errors.append("Password must contain at least one uppercase letter")
+
+        if not re.search(r"[a-z]", new_password):
+            errors.append("Password must contain at least one lowercase letter")
+
+        if not re.search(r"\d", new_password):
+            errors.append("Password must contain at least one number")
+
+        # ❌ Errors
+        if errors:
+            return render(request, "profile/profile_page.html", {
+                "errors": errors,
+                "show_section": "change-password"
+            })
+
+        # ✅ SUCCESS
+        customer.set_password(new_password)
+        customer.save()
+
+        messages.success(request, "Password changed successfully")
+        return redirect("/profile/#change-password")
+
+    return redirect("/profile/#change-password")
+
+# 
+
+def menu_page(request):
+
+    categories = FoodItemCategory.objects.prefetch_related(
+        'fooditemsubcategory_set__fooditem_set__images'
+    )
+
+    all_items = FoodItem.objects.filter(
+        is_available=True
+    ).prefetch_related('images')
+
+    # 🔁 OFFER HELPER
+    def apply_offer(item):
+        offer = get_best_offer(item)
+        if offer:
+            discount = offer.offer.discount_percentage
+            item.offer_percent = discount
+            item.discounted_price = round(
+                item.price - (item.price * discount / 100), 2
+            )
+            item.has_offer = True
+        else:
+            item.has_offer = False
+
+    # ✅ Apply offers to all items
+    for item in all_items:
+        apply_offer(item)
+
+    for category in categories:
+        for sub in category.fooditemsubcategory_set.all():
+            for item in sub.fooditem_set.all():
+                apply_offer(item)
+
+    # ❤️ WISHLIST DATA
+    if request.user.is_authenticated:
+        wishlist_items = list(
+            Wishlist.objects.filter(user=request.user)
+            .values_list('food_item_id', flat=True)
+        )
+    else:
+        wishlist_items = request.session.get('wishlist', [])
+
+    context = {
+        'categories': categories,
+        'all_items': all_items,
+        'wishlist_items': wishlist_items
+    }
+
+    return render(request, 'menu/menu.html', context)
+
+
+from orders.models import Notification
+from django.utils import timezone
+from django.db.models import Q
+
+def customer_dashboard(request):
+    customer = request.user.customer
+    notifications = Notification.objects.filter(
+        recipient_type='customer',
+        send_datetime__lte=timezone.now(),
+        read_status=False
+    ).filter(
+        Q(user_id__isnull=True) | Q(user_id=customer.id)
+    )
+    return render(request, 'menu/dashboard.html', {'notifications': notifications})
+
+
+from django.shortcuts import render
+from orders.models import Notification
+from django.db.models import Q
+from django.utils import timezone
+
+
+
+from django.utils import timezone
+from django.db.models import Q
+from adminpanel.models import Notification
+
+def customer_notifications(request):
+
+    notifications = Notification.objects.filter(
+        recipient_type='customer'
+    ).filter(
+        Q(user_id__isnull=True) | Q(user_id=request.user.id)
+    ).order_by('-send_datetime')
+
+    # unread ne read banavi de
+    notifications.filter(read_status=False).update(read_status=True)
+
+    return render(request, 'menu/customer_notifications.html', {
+        'notifications': notifications
+    })
+
+
+# @login_required(login_url='customer_login')
+# def profile_page(request):
+#     return render(request, 'profile/profile_page.html')
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils import timezone
+import uuid, re
+
+
+# @login_required(login_url='customer_login')
+# def profile_page(request):
+#     customer = request.user
+#     errors = []
+#     success_msg = ""
+#     show_modal = False   # False = view, True = edit
+
+#     if request.method == 'POST':
+#         show_modal = True   # jab tak success na ho, edit open
+
+#         firstname = request.POST.get('firstname', '').strip()
+#         lastname = request.POST.get('lastname', '').strip()
+#         contactno = request.POST.get('contactno', '').strip()
+#         gender = request.POST.get('gender', '').strip()
+#         address = request.POST.get('address', '').strip()
+#         profile_image = request.FILES.get('profile_image')
+
+#         # -------- VALIDATIONS --------
+#         if not firstname or not re.fullmatch(r"[A-Za-z ]+", firstname):
+#             errors.append("Invalid first name")
+
+#         if not lastname or not re.fullmatch(r"[A-Za-z ]+", lastname):
+#             errors.append("Invalid last name")
+
+#         if not re.fullmatch(r"\d{10}", contactno):
+#             errors.append("Enter valid 10 digit phone number")
+
+#         if gender not in ['Male', 'Female', 'Other']:
+#             errors.append("Select valid gender")
+
+#         if not address:
+#             errors.append("Address required")
+
+#         # -------- IMAGE VALIDATION --------
+#         if profile_image:
+#             # size
+#             if profile_image.size > 2 * 1024 * 1024:
+#                 errors.append("Profile image must be less than 2MB")
+
+#             # format (REAL FIX)
+#             allowed_formats = ['jpg', 'jpeg', 'png']
+#             ext = profile_image.name.split('.')[-1].lower()
+#             if ext not in allowed_formats:
+#                 errors.append("Only JPG, JPEG, PNG images allowed")
+
+#         # -------- SAVE --------
+#         if not errors:
+#             customer.firstname = firstname
+#             customer.lastname = lastname
+#             customer.contactno = contactno
+#             customer.gender = gender
+#             customer.address = address
+
+#             if profile_image:
+#                 ext = profile_image.name.split('.')[-1]
+#                 filename = f"profile_{uuid.uuid4().hex}.{ext}"
+#                 customer.profile_image.save(filename, profile_image)
+
+#             customer.updationdate = timezone.now()
+#             customer.save()
+
+#             success_msg = "Profile updated successfully"
+#             show_modal = False   # back to view mode
+
+#     # -------- PROFILE COMPLETION --------
+#     fields = [
+#         customer.firstname,
+#         customer.lastname,
+#         customer.contactno,
+#         customer.gender,
+#         customer.address,
+#         customer.profile_image
+#     ]
+#     completed = int(sum(100 / 6 for f in fields if f))
+
+#     wishlist_items = FoodItem.objects.filter(wishlist__user=customer).prefetch_related('images')
+
+#     return render(request, 'profile/profile_page.html', {
+#         'customer': customer,
+#         'completed': completed,
+#         'errors': errors,
+#         'success_msg': success_msg,
+#         'show_modal': show_modal,
+#         'wishlist_items': wishlist_items,  
+#     })
+
+from django.shortcuts import render, redirect
+
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils import timezone
+import re, uuid
+#from .models import Customer, FoodItem  # ensure FoodItem imported
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils import timezone
+import uuid, re
+
+
+@login_required(login_url='customer_login')
+def profile_page(request):
+    user = request.user
+
+    # ---------------- SAFE CHECK ----------------
+    if user.isadmin or user.is_delivery_person:
+        messages.error(request, "You cannot access customer profile.")
+        return redirect('customer_login')
+
+    errors = []
+    success_msg = ""
+    show_modal = False
+
+    # -------- POST = Update Profile --------
     if request.method == 'POST':
+        show_modal = True
         firstname = request.POST.get('firstname', '').strip()
         lastname = request.POST.get('lastname', '').strip()
         contactno = request.POST.get('contactno', '').strip()
@@ -315,101 +822,62 @@ def customer_profile(request):
         address = request.POST.get('address', '').strip()
         profile_image = request.FILES.get('profile_image')
 
-        # ===== Validation =====
-        if not firstname:
-            errors.append("First name is required")
-        elif not re.fullmatch(r"[A-Za-z ]+", firstname):
-            errors.append("First name can contain only letters and spaces")
-
-        if not lastname:
-            errors.append("Last name is required")
-        elif not re.fullmatch(r"[A-Za-z ]+", lastname):
-            errors.append("Last name can contain only letters and spaces")
-
-        if not contactno:
-            errors.append("Phone number is required")
-        elif not re.fullmatch(r"\d{10}", contactno):
-            errors.append("Enter a valid 10-digit phone number")
-
-        if gender not in ['Male', 'Female', 'Other']:
-            errors.append("Select a valid gender")
-
+        # -------- VALIDATIONS --------
+        if not firstname or not re.fullmatch(r"[A-Za-z ]+", firstname):
+            errors.append("Invalid first name")
+        if not lastname or not re.fullmatch(r"[A-Za-z ]+", lastname):
+            errors.append("Invalid last name")
+        if not re.fullmatch(r"\d{10}", contactno):
+            errors.append("Enter valid 10 digit phone number")
+        if gender not in ['Male', 'Female',]:
+            errors.append("Select valid gender")
         if not address:
-            errors.append("Address is required")
+            errors.append("Address required")
 
         if profile_image:
             if profile_image.size > 2 * 1024 * 1024:
-                errors.append("Profile image size should be less than 2MB")
-            if profile_image.content_type not in ['image/jpeg', 'image/png']:
-                errors.append("Only JPEG or PNG images are allowed")
+                errors.append("Profile image must be less than 2MB")
+            allowed_formats = ['jpg', 'jpeg', 'png']
+            ext = profile_image.name.split('.')[-1].lower()
+            if ext not in allowed_formats:
+                errors.append("Only JPG, JPEG, PNG images allowed")
 
-        # ===== Handle errors =====
-        if errors:
-            show_modal = True
-        else:
-            # ===== Save data =====
-            customer.firstname = firstname
-            customer.lastname = lastname
-            customer.contactno = contactno
-            customer.gender = gender
-            customer.address = address
+        # -------- SAVE PROFILE IF NO ERRORS --------
+        if not errors:
+            user.firstname = firstname
+            user.lastname = lastname
+            user.contactno = contactno
+            user.gender = gender
+            user.address = address
 
             if profile_image:
                 ext = profile_image.name.split('.')[-1]
                 filename = f"profile_{uuid.uuid4().hex}.{ext}"
-                customer.profile_image.save(filename, profile_image)
+                user.profile_image.save(filename, profile_image)
 
-            customer.updationdate = timezone.now()
-            customer.save()
+            user.updationdate = timezone.now()
+            user.save()
             success_msg = "Profile updated successfully"
+            show_modal = False
 
-    # ===== Profile completion =====
+    # -------- PROFILE COMPLETION --------
     fields = [
-        customer.firstname,
-        customer.lastname,
-        customer.contactno,
-        customer.gender,
-        customer.address,
-        customer.profile_image
+        user.firstname,
+        user.lastname,
+        user.contactno,
+        user.gender,
+        user.address,
+        user.profile_image
     ]
-    completed = int(sum(100/6 for f in fields if f))
+    completed = int(sum(100 / 6 for f in fields if f))
 
-    return render(request, 'menu/profile.html', {
-        'customer': customer,
+    wishlist_items = FoodItem.objects.filter(wishlist__user=user).prefetch_related('images')
+
+    return render(request, 'profile/profile_page.html', {
+        'customer': user,
         'completed': completed,
         'errors': errors,
         'success_msg': success_msg,
-        'show_modal': show_modal
+        'show_modal': show_modal,
+        'wishlist_items': wishlist_items,
     })
-
-
-from django.contrib.auth import update_session_auth_hash
-
-@login_required(login_url='customer_login')
-def customer_change_password(request):
-    if request.method == 'POST':
-        old = request.POST.get('old_password')
-        new = request.POST.get('new_password')
-        confirm = request.POST.get('confirm_password')
-
-        user = request.user
-
-        if not user.check_password(old):
-            messages.error(request, "Current password is incorrect")
-            return redirect('customer_profile')
-
-        if new != confirm:
-            messages.error(request, "Passwords do not match")
-            return redirect('customer_profile')
-
-        if len(new) < 6:
-            messages.error(request, "Password must be at least 6 characters")
-            return redirect('customer_profile')
-
-        user.set_password(new)
-        user.save()
-        update_session_auth_hash(request, user)
-
-        messages.success(request, "Password updated successfully")
-        return redirect('customer_profile')
-# 

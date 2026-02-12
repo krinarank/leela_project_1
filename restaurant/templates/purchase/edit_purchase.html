@@ -1,0 +1,94 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'purchase/css/purchase.css' %}">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div class="purchase-container">
+
+    <!-- Edit Purchase Form -->
+    <div class="purchase-form">
+        <h3>Edit Purchase</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            <label>Supplier:</label>
+            <select name="supplier" required>
+                {% for s in suppliers %}
+                <option value="{{ s.id }}" {% if s.id == purchase.supplier.id %}selected{% endif %}>
+                    {{ s.fname }} {{ s.lname }}
+                </option>
+                {% endfor %}
+            </select>
+
+           
+            <h4>Purchase Details</h4>
+            <table id="purchase-details-table" border="1" cellpadding="5" cellspacing="0">
+                <tr>
+                    <th>Ingredient</th>
+                    <th>Qty</th>
+                    <th>Price per Unit</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for item in purchase_items %}
+                <tr class="detail-row">
+                    <td>
+                        <select name="ingredient[]" required>
+                            {% for ing in ingredients %}
+                            <option value="{{ ing.id }}" {% if ing.id == item.ingredient.id %}selected{% endif %}>
+                                {{ ing.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" name="qty[]" min="1" value="{{ item.qty }}" required></td>
+                    <td><input type="number" name="price_per_unit[]" step="0.01" value="{{ item.price_per_unit }}" required></td>
+                    <td><input type="number" name="total_price[]" value="{{ item.total_price }}" readonly></td>
+                    <td><button type="button" onclick="removeRow(this)">❌</button></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <button type="button" onclick="addRow()">➕ Add Row</button>
+            <button type="submit" class="btn" style="margin-top: 10px;">Update Purchase</button>
+        </form>
+    </div>
+
+
+    
+
+</div>
+
+<script>
+function addRow() {
+    let table = document.getElementById("purchase-details-table");
+    let row = table.rows[1].cloneNode(true);
+    row.querySelectorAll("select, input").forEach(i => i.value = "");
+    table.appendChild(row);
+}
+
+function removeRow(btn) {
+    let rows = document.querySelectorAll("#purchase-details-table .detail-row");
+    if (rows.length > 1) {
+        btn.closest("tr").remove();
+    }
+}
+
+function updateTotal(row) {
+    let qty = parseFloat(row.querySelector("input[name='qty[]']").value) || 0;
+    let price = parseFloat(row.querySelector("input[name='price_per_unit[]']").value) || 0;
+    row.querySelector("input[name='total_price[]']").value = (qty * price).toFixed(2);
+}
+
+document.addEventListener('input', function(e) {
+    if(e.target.matches("input[name='qty[]'], input[name='price_per_unit[]']")) {
+        let row = e.target.closest("tr");
+        updateTotal(row);
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,133 @@
+/* ===============================
+   PROFILE BASE
+================================ */
+
+.profile-wrapper {
+  display: flex;
+  gap: 20px;
+}
+
+.profile-sidebar {
+  width: 250px;
+  position: sticky;
+  top: 20px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.profile-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.profile-sidebar li {
+  margin: 10px 0;
+}
+
+.profile-sidebar a {
+  text-decoration: none;
+  color: #333;
+}
+
+.profile-sidebar a:hover {
+  color: #ff6600;
+}
+
+.profile-content {
+  flex: 1;
+}
+
+.profile-section {
+  display: none;
+}
+
+.profile-section.active {
+  display: block;
+}
+
+/* prevent floating / weird placement */
+.profile-section > * {
+  width: 100%;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.profile-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 10px;
+  border: 2px solid #eee;
+}
+
+.profile-sidebar h4 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* ===============================
+   ✅ SUCCESS TOAST (NO BG)
+================================ */
+/* ===============================
+   SUCCESS TOAST – PERFECT CENTER
+================================ */
+
+/* ===============================
+   SUCCESS TOAST – TRUE CENTER
+================================ */
+
+.toast-msg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* ONLY CENTERING */
+  z-index: 99999;
+}
+
+.toast-box {
+  background: #28a745;
+  color: #fff;
+  padding: 18px 30px;
+  border-radius: 12px;
+  font-size: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+
+  /* animation ONLY here */
+  animation: fadeScale 0.3s ease forwards;
+}
+
+/* hide animation */
+.toast-hide {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+/* ONLY scale + opacity (NO translate here) */
+@keyframes fadeScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
