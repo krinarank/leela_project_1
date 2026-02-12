@@ -106,5 +106,12 @@ if (canvas && labels.length > 0) {
     });
 }
 </script>
+<script>
+function toggleDelivery() {
+    let menu = document.getElementById("deliveryMenu");
+    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+</script>
+
 
 {% endblock %}

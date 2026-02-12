@@ -41,6 +41,10 @@ urlpatterns = [
 
     path('delivery/',include('deliverypanel.urls')),
     path('location/',include('location.urls')),
+    path('delivery/',include('deliverypanel.urls')),
+    path('orders/', include('orders.urls')),  
+    # path('adminpanel/', include('orders.urls')),  
+
 ]
 
 if settings.DEBUG:

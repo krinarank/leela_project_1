@@ -1,0 +1,46 @@
+{% extends 'deliverypanel/base_delivery.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Edit Profile</h3>
+
+    <form method="POST" enctype="multipart/form-data"
+          class="card shadow p-4" style="max-width:600px;margin:auto;">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>First Name</label>
+            <input type="text" name="fname" class="form-control"
+                   value="{{ delivery.fname }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Last Name</label>
+            <input type="text" name="lname" class="form-control"
+                   value="{{ delivery.lname }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Contact No</label>
+            <input type="text" name="contact_no" class="form-control"
+                   value="{{ delivery.contact_no }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Address</label>
+            <textarea name="address" class="form-control" rows="3" required>{{ delivery.address }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Profile Image</label>
+            <input type="file" name="profile_image" class="form-control">
+        </div>
+
+        <div class="text-center">
+            <button class="btn btn-success">Save Changes</button>
+            <a href="{% url 'delivery_profile' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

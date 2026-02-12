@@ -7,6 +7,8 @@ from adminpanel.models import (
     FoodItem,
     FoodItemImage
 )
+from accounts.forms import CustomerProfileForm
+from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -15,7 +17,7 @@ from orders.utils import get_best_offer
 from decimal import Decimal
 from orders.models import Wishlist
 
-
+from django.contrib.auth.decorators import login_required
 from orders.models import Wishlist
 from .models import Inquiry
 
@@ -361,3 +363,301 @@ def customer_notifications(request):
     return render(request, 'adminpanel/customer_notifications.html', {
         'notifications': notifications
     })
+# @login_required(login_url='customer_login')
+# def customer_profile(request):
+#     customer = request.user  # logged-in Customer
+
+#     if request.method == 'POST':
+#         form = CustomerProfileForm(
+#             request.POST,
+#             request.FILES,
+#             instance=customer
+#         )
+#         if form.is_valid():
+#             obj=form.save()
+#             print(obj.profile_image.url)  # ✅ ye URL console me dekho
+#             messages.success(request, "Profile updated successfully")
+#             return redirect('customer_profile')
+#     else:
+#         form = CustomerProfileForm(instance=customer)
+
+#     # 🔥 Profile completion %
+#     completed = 0
+#     fields = [
+#         customer.firstname,
+#         customer.lastname,
+#         customer.contactno,
+#         customer.address,
+#         customer.profile_image
+#     ]
+#     completed = sum(20 for f in fields if f)
+
+#     return render(request, 'menu/profile.html', {
+#         'form': form,
+#         'customer': customer,
+#         'completed': completed
+#     })
+
+
+# @login_required(login_url='customer_login')
+# def customer_profile(request):
+#     customer = request.user
+
+#     if request.method == 'POST':
+#         # Collect POST data
+#         firstname = request.POST.get('firstname', '').strip()
+#         lastname = request.POST.get('lastname', '').strip()
+#         contactno = request.POST.get('contactno', '').strip()
+#         gender = request.POST.get('gender', '').strip()
+#         address = request.POST.get('address', '').strip()
+#         profile_image = request.FILES.get('profile_image')
+
+#         # ---------------- VALIDATION ----------------
+#         errors = []
+
+#         if not firstname:
+#             errors.append("First name is required")
+#         if not lastname:
+#             errors.append("Last name is required")
+#         if not contactno:
+#             errors.append("Phone number is required")
+#         elif not contactno.isdigit() or len(contactno) < 10:
+#             errors.append("Enter a valid 10-digit phone number")
+#         if gender not in ['Male', 'Female', 'Other']:
+#             errors.append("Select a valid gender")
+#         if not address:
+#             errors.append("Address is required")
+
+#         if profile_image:
+#             if profile_image.size > 2 * 1024 * 1024:  # 2 MB limit
+#                 errors.append("Profile image size should be less than 2MB")
+#             if not profile_image.content_type in ['image/jpeg', 'image/png']:
+#                 errors.append("Only JPEG or PNG images are allowed")
+
+#         if errors:
+#             # Show all errors
+#             for e in errors:
+#                 messages.error(request, e)
+#         else:
+#             # Save data
+#             customer.firstname = firstname
+#             customer.lastname = lastname
+#             customer.contactno = contactno
+#             customer.gender = gender
+#             customer.address = address
+#             if profile_image:
+#                 customer.profile_image = profile_image
+#             customer.save()
+#             messages.success(request, "Profile updated successfully")
+#             return redirect('customer_profile')
+
+#     # Profile completion %
+#     fields = [
+#         customer.firstname,
+#         customer.lastname,
+#         customer.contactno,
+#         customer.address,
+#         customer.profile_image
+#     ]
+#     completed = sum(20 for f in fields if f)
+
+#     return render(request, 'menu/profile.html', {
+#         'customer': customer,
+#         'completed': completed
+#     })
+
+###workinggggggggggggggggggggggggggg
+
+# from django.contrib.auth.decorators import login_required
+# from django.contrib import messages
+# from django.shortcuts import render
+# from django.utils import timezone
+
+# @login_required(login_url='customer_login')
+# def customer_profile(request):
+#     customer = request.user
+#     show_modal = False  # Flag to keep modal open if errors
+
+#     if request.method == 'POST':
+#         # Collect POST data
+#         firstname = request.POST.get('firstname', '').strip()
+#         lastname = request.POST.get('lastname', '').strip()
+#         contactno = request.POST.get('contactno', '').strip()
+#         gender = request.POST.get('gender', '').strip()
+#         address = request.POST.get('address', '').strip()
+#         profile_image = request.FILES.get('profile_image')
+
+#         errors = []
+
+#         if not firstname:
+#             errors.append("First name is required")
+#         if not lastname:
+#             errors.append("Last name is required")
+#         if not contactno:
+#             errors.append("Phone number is required")
+#         elif not contactno.isdigit() or len(contactno) != 10:
+#             errors.append("Enter a valid 10-digit phone number")
+#         if gender not in ['Male', 'Female', 'Other']:
+#             errors.append("Select a valid gender")
+#         if not address:
+#             errors.append("Address is required")
+
+#         if profile_image:
+#             if profile_image.size > 2 * 1024 * 1024:  # 2 MB limit
+#                 errors.append("Profile image size should be less than 2MB")
+#             if not profile_image.content_type in ['image/jpeg', 'image/png']:
+#                 errors.append("Only JPEG or PNG images are allowed")
+
+#         if errors:
+#             # Don't redirect, show errors in modal
+#             for e in errors:
+#                 messages.error(request, e)
+#             show_modal = True
+#         else:
+#             # Save valid data
+#             customer.firstname = firstname
+#             customer.lastname = lastname
+#             customer.contactno = contactno
+#             customer.gender = gender
+#             customer.address = address
+#             if profile_image:
+#                 customer.profile_image = profile_image
+#             customer.updationdate = timezone.now()  # Update timestamp for cache-busting
+#             customer.save()
+#             messages.success(request, "Profile updated successfully")
+
+#     # Profile completion %
+#     fields = [
+#         customer.firstname,
+#         customer.lastname,
+#         customer.contactno,
+#         customer.address,
+#         customer.profile_image
+#     ]
+#     completed = sum(20 for f in fields if f)
+
+#     return render(request, 'menu/profile.html', {
+#         'customer': customer,
+#         'completed': completed,
+#         'show_modal': show_modal
+#     })
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils import timezone
+import uuid
+import re
+
+@login_required(login_url='customer_login')
+def customer_profile(request):
+    customer = request.user
+    errors = []
+    success_msg = ""
+    show_modal = False  # Only open modal if errors
+
+    if request.method == 'POST':
+        firstname = request.POST.get('firstname', '').strip()
+        lastname = request.POST.get('lastname', '').strip()
+        contactno = request.POST.get('contactno', '').strip()
+        gender = request.POST.get('gender', '').strip()
+        address = request.POST.get('address', '').strip()
+        profile_image = request.FILES.get('profile_image')
+
+        # ===== Validation =====
+        if not firstname:
+            errors.append("First name is required")
+        elif not re.fullmatch(r"[A-Za-z ]+", firstname):
+            errors.append("First name can contain only letters and spaces")
+
+        if not lastname:
+            errors.append("Last name is required")
+        elif not re.fullmatch(r"[A-Za-z ]+", lastname):
+            errors.append("Last name can contain only letters and spaces")
+
+        if not contactno:
+            errors.append("Phone number is required")
+        elif not re.fullmatch(r"\d{10}", contactno):
+            errors.append("Enter a valid 10-digit phone number")
+
+        if gender not in ['Male', 'Female', 'Other']:
+            errors.append("Select a valid gender")
+
+        if not address:
+            errors.append("Address is required")
+
+        if profile_image:
+            if profile_image.size > 2 * 1024 * 1024:
+                errors.append("Profile image size should be less than 2MB")
+            if profile_image.content_type not in ['image/jpeg', 'image/png']:
+                errors.append("Only JPEG or PNG images are allowed")
+
+        # ===== Handle errors =====
+        if errors:
+            show_modal = True
+        else:
+            # ===== Save data =====
+            customer.firstname = firstname
+            customer.lastname = lastname
+            customer.contactno = contactno
+            customer.gender = gender
+            customer.address = address
+
+            if profile_image:
+                ext = profile_image.name.split('.')[-1]
+                filename = f"profile_{uuid.uuid4().hex}.{ext}"
+                customer.profile_image.save(filename, profile_image)
+
+            customer.updationdate = timezone.now()
+            customer.save()
+            success_msg = "Profile updated successfully"
+
+    # ===== Profile completion =====
+    fields = [
+        customer.firstname,
+        customer.lastname,
+        customer.contactno,
+        customer.gender,
+        customer.address,
+        customer.profile_image
+    ]
+    completed = int(sum(100/6 for f in fields if f))
+
+    return render(request, 'menu/profile.html', {
+        'customer': customer,
+        'completed': completed,
+        'errors': errors,
+        'success_msg': success_msg,
+        'show_modal': show_modal
+    })
+
+
+from django.contrib.auth import update_session_auth_hash
+
+@login_required(login_url='customer_login')
+def customer_change_password(request):
+    if request.method == 'POST':
+        old = request.POST.get('old_password')
+        new = request.POST.get('new_password')
+        confirm = request.POST.get('confirm_password')
+
+        user = request.user
+
+        if not user.check_password(old):
+            messages.error(request, "Current password is incorrect")
+            return redirect('customer_profile')
+
+        if new != confirm:
+            messages.error(request, "Passwords do not match")
+            return redirect('customer_profile')
+
+        if len(new) < 6:
+            messages.error(request, "Password must be at least 6 characters")
+            return redirect('customer_profile')
+
+        user.set_password(new)
+        user.save()
+        update_session_auth_hash(request, user)
+
+        messages.success(request, "Password updated successfully")
+        return redirect('customer_profile')
+# 

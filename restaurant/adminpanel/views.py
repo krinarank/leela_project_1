@@ -13,6 +13,14 @@ from adminpanel.models import Notification
 
 
 from django.db.models import Sum
+from deliverypanel.models import DeliveryPerson 
+from django.core.paginator import Paginator
+from django.db.models import Q
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from location.models import State, City, Area
 from django.contrib.auth.decorators import login_required
 from .models import (
     FoodItemCategory,
@@ -574,6 +582,233 @@ def dashboard_view(request):
 
 def get_pending_inquiry_count():
     return Inquiry.objects.filter(status='Pending').count()
+
+# def add_delivery_person(request):
+ 
+#     if request.method == "POST":
+#         fname = request.POST.get('fname')
+#         lname = request.POST.get('lname')
+#         username = request.POST.get('username')
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+#         contact = request.POST.get('contact')
+#         address = request.POST.get('address')
+
+#         # ---- validation (basic) ----
+       
+#         if Customer.objects.filter(username=username).exists():
+#             messages.error(request, "Username already exists")
+#             return redirect('/adminpanel/add-delivery-person/')
+
+#         # ---- create CUSTOMER (login holder) ----
+#         customer = Customer.objects.create(
+#             username=username,
+#             firstname=fname,
+#             lastname=lname,
+#             email=email,
+#             password=password,   # (plain for now – hashing later)
+#             contactno=contact,
+#             address=address,
+#             is_delivery_person=True
+#         )
+
+#         # ---- create DELIVERY PERSON ----
+#         DeliveryPerson.objects.create(
+#             user=customer,
+#             fname=fname,
+#             lname=lname,
+#             email=email,
+#             contact_no=contact,
+#             address=address
+#             # joining_date auto set
+#         )
+
+#         messages.success(request, "Delivery Person added successfully")
+#         return redirect('add_delivery_person')
+
+#     return render(request, 'adminpanel/add_delivery_person.html')
+
+
+# def add_delivery_person(request):
+
+#     if request.method == "POST":
+#         fname = request.POST.get('fname')
+#         lname = request.POST.get('lname')
+#         username = request.POST.get('username')
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+#         contact = request.POST.get('contact')
+#         address = request.POST.get('address')
+
+#         if Customer.objects.filter(username=username).exists():
+#             messages.error(request, "Username already exists")
+#             return redirect('add_delivery_person')
+
+#         customer = Customer.objects.create(
+#             username=username,
+#             firstname=fname,
+#             lastname=lname,
+#             email=email,
+#             password=password,   # custom admin chhe etle ok
+#             contactno=contact,
+#             address=address,
+#             is_delivery_person=True
+#         )
+
+#         DeliveryPerson.objects.create(
+#             user=customer,
+#             fname=fname,
+#             lname=lname,
+#             email=email,
+#             contact_no=contact,
+#             address=address
+#         )
+
+#         messages.success(request, "Delivery Person Added Successfully")
+#         return redirect('add_delivery_person')
+    
+#     # ---------- SEARCH ----------
+#     search = request.GET.get('search')
+#     delivery_qs = DeliveryPerson.objects.all().order_by('-id')
+
+#     if search:
+#         delivery_qs = delivery_qs.filter(
+#             Q(fname__icontains=search) |
+#             Q(lname__icontains=search) |
+#             Q(email__icontains=search) |
+#             Q(contact_no__icontains=search)
+#         )
+
+#     # ---------- PAGINATION ----------
+#     paginator = Paginator(delivery_qs, 5)  # per page 5
+#     page_number = request.GET.get('page')
+#     delivery_list = paginator.get_page(page_number)
+
+#     return render(request, 'adminpanel/add_delivery_person.html', {
+#         'delivery_list': delivery_list,
+#         'search': search
+#     })
+
+#     delivery_list = DeliveryPerson.objects.all()
+
+#     return render(request, 'adminpanel/add_delivery_person.html', {
+#         'delivery_list': delivery_list
+#     })
+
+
+
+def add_delivery_person(request):
+
+    # ---------- ADD ----------
+    if request.method == "POST":
+        fname = request.POST.get('fname')
+        lname = request.POST.get('lname')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        contact = request.POST.get('contact')
+        address = request.POST.get('address')
+
+        if Customer.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists")
+            return redirect('add_delivery_person')
+
+        customer = Customer.objects.create(
+            username=username,
+            firstname=fname,
+            lastname=lname,
+            email=email,
+            password=password,
+            contactno=contact,
+            address=address,
+            is_delivery_person=True
+        )
+
+        DeliveryPerson.objects.create(
+            user=customer,
+            fname=fname,
+            lname=lname,
+            email=email,
+            contact_no=contact,
+            address=address
+        )
+
+        messages.success(request, "Delivery Person Added Successfully")
+        return redirect('add_delivery_person')
+
+    # ---------- SEARCH ----------
+    search = request.GET.get('search')
+    delivery_qs = DeliveryPerson.objects.all().order_by('id')
+
+    if search:
+        delivery_qs = delivery_qs.filter(
+            Q(fname__icontains=search) |
+            Q(lname__icontains=search) |
+            Q(email__icontains=search) |
+            Q(contact_no__icontains=search)
+        )
+
+    # ---------- PAGINATION ----------
+    paginator = Paginator(delivery_qs, 5)
+    page_number = request.GET.get('page')
+    delivery_list = paginator.get_page(page_number)
+
+    return render(request, 'adminpanel/add_delivery_person.html', {
+        'delivery_list': delivery_list,
+        'search': search
+    })
+
+
+def edit_delivery_person(request, id):
+    delivery = get_object_or_404(DeliveryPerson, id=id)
+
+    if request.method == "POST":
+        delivery.fname = request.POST.get('fname')
+        delivery.lname = request.POST.get('lname')
+        delivery.email = request.POST.get('email')
+        delivery.contact_no = request.POST.get('contact')
+        delivery.address = request.POST.get('address')
+
+        delivery.user.firstname = delivery.fname
+        delivery.user.lastname = delivery.lname
+        delivery.user.email = delivery.email
+        delivery.user.contactno = delivery.contact_no
+        delivery.user.address = delivery.address
+
+        delivery.save()
+        delivery.user.save()
+
+        messages.success(request, "Delivery Person Updated")
+        return redirect('add_delivery_person')
+
+    return render(request, 'adminpanel/edit_delivery_person.html', {
+        'delivery': delivery
+    })
+
+def delete_delivery_person(request, id):
+    delivery = get_object_or_404(DeliveryPerson, id=id)
+
+    delivery.user.delete()   # FK sathe delivery bhi delete
+    messages.success(request, "Delivery Person Deleted")
+
+    return redirect('add_delivery_person')
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def toggle_delivery_status(request, id):
+    if request.method == "POST":
+        delivery = get_object_or_404(DeliveryPerson, id=id)
+        delivery.is_active = not delivery.is_active
+        delivery.save()
+
+        return JsonResponse({
+            'status': delivery.is_active
+        })
+
+
+
 # ======================
 # STATE
 # ======================
@@ -901,3 +1136,6 @@ def delete_notification(request, id):
     notif.delete()
     messages.success(request, "Notification deleted")
     return redirect('admin_notifications')
+
+def delivery_person_list(request):
+    return render(request, 'adminpanel/delivery_person_list.html')

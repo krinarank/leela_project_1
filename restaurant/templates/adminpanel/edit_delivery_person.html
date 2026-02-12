@@ -1,0 +1,34 @@
+{% extends "adminpanel/base.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="card shadow col-md-6 mx-auto">
+    <div class="card-header bg-dark text-white">
+      <h5>Edit Delivery Person</h5>
+    </div>
+
+    <div class="card-body">
+      <form method="POST">
+        {% csrf_token %}
+
+        <input type="text" name="fname" class="form-control mb-2"
+               value="{{ delivery.fname }}" required>
+
+        <input type="text" name="lname" class="form-control mb-2"
+               value="{{ delivery.lname }}" required>
+
+        <input type="email" name="email" class="form-control mb-2"
+               value="{{ delivery.email }}" required>
+
+        <input type="text" name="contact" class="form-control mb-2"
+               value="{{ delivery.contact_no }}" required>
+
+        <textarea name="address" class="form-control mb-3" required>
+{{ delivery.address }}</textarea>
+
+        <button class="btn btn-primary w-100">Update</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

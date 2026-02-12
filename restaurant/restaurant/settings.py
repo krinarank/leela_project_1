@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'location',
     'deliverypanel',
     # 'purchase',
+    
+    
 ]
 
 MIDDLEWARE = [
@@ -157,3 +159,9 @@ EMAIL_HOST_PASSWORD = 'iuumwztdbuvwwpza'
 
 
 GOOGLE_MAPS_API_KEY = "AIzaSyCSzJJO79GrFQB-Uzupviy4--COLE6Aozo"
+# =================== SESSIONS SETTINGS ===================
+# ✅ ensures guest wishlist works
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # store sessions in DB
+SESSION_COOKIE_NAME = 'sessionid'  # default cookie name
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True  # saves session on every request, important for wishlist

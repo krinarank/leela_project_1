@@ -26,10 +26,14 @@ urlpatterns = [
     path('inquiries/', views.admin_inquiry_list, name='admin_inquiry_list'),
    # path('inquiries/reply/<int:inquiry_id>/', views.admin_reply_inquiry, name='admin_reply_inquiry'),
     path('inquiry/reply/<int:id>/', views.reply_inquiry, name='reply_inquiry'),
+    path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
+    path('edit_delivery_person/<int:id>/', views.edit_delivery_person, name='edit_delivery_person'),
+    path('delete_delivery_person/<int:id>/', views.delete_delivery_person, name='delete_delivery_person'),
+    path('toggle-delivery-status/<int:id>/', views.toggle_delivery_status, name='toggle_delivery_status'),
 
-   
-     path('states/', views.add_and_list_state, name='add_and_list_state'),
-     path('states/edit/<int:id>/', views.edit_state, name='edit_state'),
+
+    path('states/', views.add_and_list_state, name='add_and_list_state'),
+    path('states/edit/<int:id>/', views.edit_state, name='edit_state'),
     path('states/delete/<int:id>/', views.delete_state, name='delete_state'),
      
 
@@ -43,6 +47,17 @@ path('areas/edit/<int:id>/', views.edit_area, name='edit_area'),
 path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
 
     path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
+
+    # path('cities/', views.city_list, name='city_list'),
+    # path('cities/add/', views.add_city, name='add_city'),
+    # path('cities/edit/<int:id>/', views.edit_city, name='edit_city'),
+    # path('cities/delete/<int:id>/', views.delete_city, name='delete_city'),
+
+    # # path('areas/', views.area_list, name='area_list'),
+    # # path('areas/add/', views.add_area, name='add_area'),
+    # path('areas/edit/<int:id>/', views.edit_area, name='edit_area'),
+    # path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
+    
 
     path('customers/', views.admin_customers, name='admin_customers'),
     path('notifications/', views.admin_notifications, name='admin_notifications'),
