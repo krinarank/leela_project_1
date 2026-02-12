@@ -68,31 +68,34 @@ def get_best_offer(item):
 #         food_item=food_item,
 #         is_active=True,
 #         applied_date__lte=today,
-#         expiry_date__gte=today
+#         expiry_date__gte=today,
+#         offer__isactive=True
 #     ).select_related('offer').first()
 
 #     if food_offer:
 #         discount = Decimal(food_offer.offer.discount_percentage)
 
 #     # 2️⃣ Sub category level offer
-#     elif food_item.sub_cat:
+#     if discount == 0 and food_item.sub_cat:
 #         sub_offer = SubCategoryOfferDiscount.objects.filter(
 #             subcategory=food_item.sub_cat,
 #             is_active=True,
 #             applied_date__lte=today,
-#             expiry_date__gte=today
+#             expiry_date__gte=today,
+#             offer__isactive=True
 #         ).select_related('offer').first()
 
 #         if sub_offer:
 #             discount = Decimal(sub_offer.offer.discount_percentage)
 
 #     # 3️⃣ Category level offer
-#     elif food_item.sub_cat and food_item.sub_cat.food_item_cat:
+#     if discount == 0 and food_item.sub_cat and food_item.sub_cat.food_item_cat:
 #         cat_offer = CategoryOfferDiscount.objects.filter(
 #             category=food_item.sub_cat.food_item_cat,
 #             is_active=True,
 #             applied_date__lte=today,
-#             expiry_date__gte=today
+#             expiry_date__gte=today,
+#             offer__isactive=True
 #         ).select_related('offer').first()
 
 #         if cat_offer:
@@ -104,18 +107,18 @@ def get_best_offer(item):
 
 #     return original_price.quantize(Decimal('0.01'))
 
-# from decimal import Decimal
-# from django.utils import timezone
-# from .models import (
-#     Cart,
-#     FoodItemOfferDiscount,
-#     CategoryOfferDiscount,
-#     SubCategoryOfferDiscount,
-# )
+from decimal import Decimal
+from django.utils import timezone
 
-def get_discounted_price(food_item):
+def get_discounted_price(food_item, base_price=None):
     today = timezone.now().date()
-    original_price = Decimal(food_item.price)
+
+    # 👇 If variant price passed → use that
+    if base_price is not None:
+        original_price = Decimal(base_price)
+    else:
+        original_price = Decimal(food_item.price)
+
     discount = Decimal('0.00')
 
     # 1️⃣ Food item level offer
@@ -156,9 +159,9 @@ def get_discounted_price(food_item):
         if cat_offer:
             discount = Decimal(cat_offer.offer.discount_percentage)
 
+    # Apply discount
     if discount > 0:
         discounted_price = original_price - (original_price * discount / Decimal('100'))
         return discounted_price.quantize(Decimal('0.01'))
 
     return original_price.quantize(Decimal('0.01'))
-

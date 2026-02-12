@@ -37,14 +37,12 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('orders/', include('orders.urls')),
     path('purchase/', include('purchase.urls')),   
-    # path('adminpanel/', include('orders.urls')),  
+  
 
     path('delivery/',include('deliverypanel.urls')),
     path('location/',include('location.urls')),
-    path('delivery/',include('deliverypanel.urls')),
-    path('orders/', include('orders.urls')),  
-    # path('adminpanel/', include('orders.urls')),  
-
+    path('delivery/',include('deliverypanel.urls')), 
+   
 ]
 
 if settings.DEBUG:

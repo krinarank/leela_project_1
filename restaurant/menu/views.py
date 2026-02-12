@@ -1,25 +1,21 @@
+import json
+import re
+import uuid
+from decimal import Decimal
 from django.shortcuts import render, redirect
 from django.contrib import messages
-
-from adminpanel.models import (
-    FoodItemCategory,
-    FoodItemSubCategory,
-    FoodItem,
-    FoodItemImage
-)
-from accounts.forms import CustomerProfileForm
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+from django.db.models import Q
+from django.core.serializers.json import DjangoJSONEncoder
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
+from adminpanel.models import FoodItemCategory, FoodItemSubCategory, FoodItem, FoodItemImage
+from orders.models import Wishlist, Notification
 from .models import Inquiry
 from orders.utils import get_best_offer
-from decimal import Decimal
-from orders.models import Wishlist
-
-from django.contrib.auth.decorators import login_required
-from orders.models import Wishlist
-from .models import Inquiry
+from orders.models import Cart
+from accounts.forms import CustomerProfileForm
 
 
 def home(request):
@@ -33,86 +29,41 @@ def home(request):
     })
 
 
-
 # def menu_page(request):
+#     """
+#     Combined menu_page:
+#     - Categories + Subcategories
+#     - Apply offers
+#     - Wishlist (authenticated/session)
+#     - Cart items prefill (quantity & Go to Cart)
+#     """
 
+#     # =================== CATEGORIES & ITEMS ===================
 #     categories = FoodItemCategory.objects.prefetch_related(
 #         'fooditemsubcategory_set__fooditem_set__images'
 #     )
-
 #     all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
 
-#     # 🔁 helper function
+#     # =================== APPLY OFFERS ===================
 #     def apply_offer(item):
 #         offer = get_best_offer(item)
 #         if offer:
 #             discount = offer.offer.discount_percentage
 #             item.offer_percent = discount
-#             item.discounted_price = round(
-#                 item.price - (item.price * discount / 100), 2
-#             )
+#             item.discounted_price = round(item.price - (item.price * discount / 100), 2)
 #             item.has_offer = True
 #         else:
 #             item.has_offer = False
 
-#     # ✅ MAIN ALL ITEMS
 #     for item in all_items:
 #         apply_offer(item)
 
-#     # ✅ CATEGORY + SUBCATEGORY ITEMS
 #     for category in categories:
 #         for sub in category.fooditemsubcategory_set.all():
 #             for item in sub.fooditem_set.all():
 #                 apply_offer(item)
 
-#     context = {
-#         'categories': categories,
-#         'all_items': all_items
-#     }
-
-#     return render(request, 'menu/menu.html', context)
-# def menu_page(request):
-
-#     categories = FoodItemCategory.objects.prefetch_related(
-#         'fooditemsubcategory_set__fooditem_set__images'
-#     )
-
-#     all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
-
-#     # 🔁 helper function
-#     def apply_offer(item):
-#         offer = get_best_offer(item)
-#         if offer:
-#             discount = offer.offer.discount_percentage
-#             item.offer_percent = discount
-#             item.discounted_price = round(
-#                 item.price - (item.price * discount / 100), 2
-#             )
-#             item.has_offer = True
-#         else:
-#             item.has_offer = False
-
-#     # ✅ MAIN ALL ITEMS
-#     for item in all_items:
-#         apply_offer(item)
-
-#     # ✅ CATEGORY + SUBCATEGORY ITEMS
-#     for category in categories:
-#         for sub in category.fooditemsubcategory_set.all():
-#             for item in sub.fooditem_set.all():
-#                 apply_offer(item)
-
-#     context = {
-#         'categories': categories,
-#         'all_items': all_items
-#     }
-
-#     return render(request, 'menu/menu.html', context)
-
-
-# def menu_page(request):
-#     categories = FoodItemCategory.objects.all()
-
+#     # =================== WISHLIST ===================
 #     if request.user.is_authenticated:
 #         wishlist_items = list(
 #             Wishlist.objects.filter(user=request.user)
@@ -121,21 +72,57 @@ def home(request):
 #     else:
 #         wishlist_items = request.session.get('wishlist', [])
 
-#     return render(request, 'menu/menu.html', {
-#         'categories': categories,
-#         'wishlist_items': wishlist_items
-#     })
-def menu_page(request):
+#     # =================== CART ===================
+#     # Build a dict {food_item_id: quantity}
+#     # =================== CART ===================
+#     cart_items = {}
 
+#     if request.user.is_authenticated:
+#     # Related name check
+#      if hasattr(request.user, 'cart_items'):
+#          cart_qs = request.user.cart_items.all()
+#          for ci in cart_qs:
+#             cart_items[ci.food_item.id] = ci.quantity
+#          else:
+#         # Fallback, agar related_name nathi set
+#            cart_items = {}
+#     else:
+#        cart_items = request.session.get('cart', {})
+
+#     cart_items_json = json.dumps(cart_items, cls=DjangoJSONEncoder)
+
+#     # =================== CONTEXT ===================
+#     context = {
+#         'categories': categories,
+#         'all_items': all_items,
+#         'wishlist_items': wishlist_items,
+#         'cart_items_json': cart_items_json,
+#     }
+
+#     return render(request, 'menu/menu.html', context)
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+from django.shortcuts import render
+
+
+
+def menu_page(request):
+    """
+    Combined menu_page:
+    - Categories + Subcategories
+    - Apply offers
+    - Wishlist
+    - Cart items prefill (variant ready structure)
+    """
+
+    # =================== CATEGORIES & ITEMS ===================
     categories = FoodItemCategory.objects.prefetch_related(
         'fooditemsubcategory_set__fooditem_set__images'
     )
 
-    all_items = FoodItem.objects.filter(
-        is_available=True
-    ).prefetch_related('images')
+    all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
 
-    # 🔁 OFFER HELPER
+    # =================== APPLY OFFERS ===================
     def apply_offer(item):
         offer = get_best_offer(item)
         if offer:
@@ -148,7 +135,7 @@ def menu_page(request):
         else:
             item.has_offer = False
 
-    # ✅ Apply offers to all items
+    # Apply on all items
     for item in all_items:
         apply_offer(item)
 
@@ -157,7 +144,7 @@ def menu_page(request):
             for item in sub.fooditem_set.all():
                 apply_offer(item)
 
-    # ❤️ WISHLIST DATA
+    # =================== WISHLIST ===================
     if request.user.is_authenticated:
         wishlist_items = list(
             Wishlist.objects.filter(user=request.user)
@@ -166,13 +153,53 @@ def menu_page(request):
     else:
         wishlist_items = request.session.get('wishlist', [])
 
+    # =================== CART (VARIANT READY STRUCTURE) ===================
+    cart_items = {}
+
+    if request.user.is_authenticated:
+        cart_qs = Cart.objects.filter(user=request.user)
+
+        for ci in cart_qs:
+            food_id = str(ci.food_item.id)
+            variant_id = str(ci.variant.id) if ci.variant else "default"
+
+            if food_id not in cart_items:
+                cart_items[food_id] = {
+                    "total_qty": 0,
+                    "variants": {}
+                }
+
+            cart_items[food_id]["variants"][variant_id] = {
+                "qty": ci.quantity
+            }
+
+            cart_items[food_id]["total_qty"] += ci.quantity
+
+    else:
+        # If guest session cart simple structure hoy to pan support kariye
+        session_cart = request.session.get("cart", {})
+
+        for food_id, qty in session_cart.items():
+            cart_items[str(food_id)] = {
+                "total_qty": qty,
+                "variants": {
+                    "default": {"qty": qty}
+                }
+            }
+
+    cart_items_json = json.dumps(cart_items, cls=DjangoJSONEncoder)
+
+    # =================== CONTEXT ===================
     context = {
-        'categories': categories,
-        'all_items': all_items,
-        'wishlist_items': wishlist_items
+        "categories": categories,
+        "all_items": all_items,
+        "wishlist_items": wishlist_items,
+        "cart_items_json": cart_items_json,
+        "cart_items_json": json.dumps(cart_items), 
     }
 
-    return render(request, 'menu/menu.html', context)
+    return render(request, "menu/menu.html", context)
+
 
 def about(request):
     return render(request, 'menu/about.html')
@@ -180,65 +207,6 @@ def about(request):
 
 def contact(request):
     return render(request, 'menu/contact.html')
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Inquiry
-# def menu_page(request):
-
-#     categories = FoodItemCategory.objects.prefetch_related(
-#         'fooditemsubcategory_set__fooditem_set__images'
-#     )
-
-#     all_items = FoodItem.objects.filter(is_available=True).prefetch_related('images')
-
-#     # 🔁 helper function
-#     def apply_offer(item):
-#         offer = get_best_offer(item)
-#         if offer:
-#             discount = offer.offer.discount_percentage
-#             item.offer_percent = discount
-#             item.discounted_price = round(
-#                 item.price - (item.price * discount / 100), 2
-#             )
-#             item.has_offer = True
-#         else:
-#             item.has_offer = False
-
-#     # ✅ MAIN ALL ITEMS
-#     for item in all_items:
-#         apply_offer(item)
-
-#     # ✅ CATEGORY + SUBCATEGORY ITEMS
-#     for category in categories:
-#         for sub in category.fooditemsubcategory_set.all():
-#             for item in sub.fooditem_set.all():
-#                 apply_offer(item)
-
-#     context = {
-#         'categories': categories,
-#         'all_items': all_items
-#     }
-
-#     return render(request, 'menu/menu.html', context)
-
-
-# def menu_page(request):
-#     categories = FoodItemCategory.objects.all()
-
-#     if request.user.is_authenticated:
-#         wishlist_items = list(
-#             Wishlist.objects.filter(user=request.user)
-#             .values_list('food_item_id', flat=True)
-#         )
-#     else:
-#         wishlist_items = request.session.get('wishlist', [])
-
-#     return render(request, 'menu/menu.html', {
-#         'categories': categories,
-#         'wishlist_items': wishlist_items
-#     })
 
 
 def contact_view(request):
@@ -266,294 +234,37 @@ def contact_view(request):
     return render(request, 'menu/contact.html')
 
 
-def menu_page(request):
-
-    categories = FoodItemCategory.objects.prefetch_related(
-        'fooditemsubcategory_set__fooditem_set__images'
-    )
-
-    all_items = FoodItem.objects.filter(
-        is_available=True
-    ).prefetch_related('images')
-
-    # 🔁 OFFER HELPER
-    def apply_offer(item):
-        offer = get_best_offer(item)
-        if offer:
-            discount = offer.offer.discount_percentage
-            item.offer_percent = discount
-            item.discounted_price = round(
-                item.price - (item.price * discount / 100), 2
-            )
-            item.has_offer = True
-        else:
-            item.has_offer = False
-
-    # ✅ Apply offers to all items
-    for item in all_items:
-        apply_offer(item)
-
-    for category in categories:
-        for sub in category.fooditemsubcategory_set.all():
-            for item in sub.fooditem_set.all():
-                apply_offer(item)
-
-    # ❤️ WISHLIST DATA
-    if request.user.is_authenticated:
-        wishlist_items = list(
-            Wishlist.objects.filter(user=request.user)
-            .values_list('food_item_id', flat=True)
-        )
-    else:
-        wishlist_items = request.session.get('wishlist', [])
-
-    context = {
-        'categories': categories,
-        'all_items': all_items,
-        'wishlist_items': wishlist_items
-    }
-
-    return render(request, 'menu/menu.html', context)
-
-
-from orders.models import Notification
-from django.utils import timezone
-from django.db.models import Q
-
+@login_required(login_url='customer_login')
 def customer_dashboard(request):
     customer = request.user.customer
     notifications = Notification.objects.filter(
         recipient_type='customer',
         send_datetime__lte=timezone.now(),
         read_status=False
-    ).filter(
-        Q(user_id__isnull=True) | Q(user_id=customer.id)
-    )
+    ).filter(Q(user_id__isnull=True) | Q(user_id=customer.id))
     return render(request, 'menu/dashboard.html', {'notifications': notifications})
 
 
-from django.shortcuts import render
-from orders.models import Notification
-from django.db.models import Q
-from django.utils import timezone
-
-# def customer_notifications(request):
-
-#     notifications = Notification.objects.all().order_by('-id')
-
-#     return render(request, 'adminpanel/customer_notifications.html', {
-#         'notifications': notifications
-#     })
-
-from django.utils import timezone
-from django.db.models import Q
-from adminpanel.models import Notification
-
+@login_required(login_url='customer_login')
 def customer_notifications(request):
-
     notifications = Notification.objects.filter(
         recipient_type='customer'
-    ).filter(
-        Q(user_id__isnull=True) | Q(user_id=request.user.id)
-    ).order_by('-send_datetime')
+    ).filter(Q(user_id__isnull=True) | Q(user_id=request.user.id)).order_by('-send_datetime')
 
-    # unread ne read banavi de
+    # mark unread as read
     notifications.filter(read_status=False).update(read_status=True)
 
     return render(request, 'adminpanel/customer_notifications.html', {
         'notifications': notifications
     })
-# @login_required(login_url='customer_login')
-# def customer_profile(request):
-#     customer = request.user  # logged-in Customer
 
-#     if request.method == 'POST':
-#         form = CustomerProfileForm(
-#             request.POST,
-#             request.FILES,
-#             instance=customer
-#         )
-#         if form.is_valid():
-#             obj=form.save()
-#             print(obj.profile_image.url)  # ✅ ye URL console me dekho
-#             messages.success(request, "Profile updated successfully")
-#             return redirect('customer_profile')
-#     else:
-#         form = CustomerProfileForm(instance=customer)
-
-#     # 🔥 Profile completion %
-#     completed = 0
-#     fields = [
-#         customer.firstname,
-#         customer.lastname,
-#         customer.contactno,
-#         customer.address,
-#         customer.profile_image
-#     ]
-#     completed = sum(20 for f in fields if f)
-
-#     return render(request, 'menu/profile.html', {
-#         'form': form,
-#         'customer': customer,
-#         'completed': completed
-#     })
-
-
-# @login_required(login_url='customer_login')
-# def customer_profile(request):
-#     customer = request.user
-
-#     if request.method == 'POST':
-#         # Collect POST data
-#         firstname = request.POST.get('firstname', '').strip()
-#         lastname = request.POST.get('lastname', '').strip()
-#         contactno = request.POST.get('contactno', '').strip()
-#         gender = request.POST.get('gender', '').strip()
-#         address = request.POST.get('address', '').strip()
-#         profile_image = request.FILES.get('profile_image')
-
-#         # ---------------- VALIDATION ----------------
-#         errors = []
-
-#         if not firstname:
-#             errors.append("First name is required")
-#         if not lastname:
-#             errors.append("Last name is required")
-#         if not contactno:
-#             errors.append("Phone number is required")
-#         elif not contactno.isdigit() or len(contactno) < 10:
-#             errors.append("Enter a valid 10-digit phone number")
-#         if gender not in ['Male', 'Female', 'Other']:
-#             errors.append("Select a valid gender")
-#         if not address:
-#             errors.append("Address is required")
-
-#         if profile_image:
-#             if profile_image.size > 2 * 1024 * 1024:  # 2 MB limit
-#                 errors.append("Profile image size should be less than 2MB")
-#             if not profile_image.content_type in ['image/jpeg', 'image/png']:
-#                 errors.append("Only JPEG or PNG images are allowed")
-
-#         if errors:
-#             # Show all errors
-#             for e in errors:
-#                 messages.error(request, e)
-#         else:
-#             # Save data
-#             customer.firstname = firstname
-#             customer.lastname = lastname
-#             customer.contactno = contactno
-#             customer.gender = gender
-#             customer.address = address
-#             if profile_image:
-#                 customer.profile_image = profile_image
-#             customer.save()
-#             messages.success(request, "Profile updated successfully")
-#             return redirect('customer_profile')
-
-#     # Profile completion %
-#     fields = [
-#         customer.firstname,
-#         customer.lastname,
-#         customer.contactno,
-#         customer.address,
-#         customer.profile_image
-#     ]
-#     completed = sum(20 for f in fields if f)
-
-#     return render(request, 'menu/profile.html', {
-#         'customer': customer,
-#         'completed': completed
-#     })
-
-###workinggggggggggggggggggggggggggg
-
-# from django.contrib.auth.decorators import login_required
-# from django.contrib import messages
-# from django.shortcuts import render
-# from django.utils import timezone
-
-# @login_required(login_url='customer_login')
-# def customer_profile(request):
-#     customer = request.user
-#     show_modal = False  # Flag to keep modal open if errors
-
-#     if request.method == 'POST':
-#         # Collect POST data
-#         firstname = request.POST.get('firstname', '').strip()
-#         lastname = request.POST.get('lastname', '').strip()
-#         contactno = request.POST.get('contactno', '').strip()
-#         gender = request.POST.get('gender', '').strip()
-#         address = request.POST.get('address', '').strip()
-#         profile_image = request.FILES.get('profile_image')
-
-#         errors = []
-
-#         if not firstname:
-#             errors.append("First name is required")
-#         if not lastname:
-#             errors.append("Last name is required")
-#         if not contactno:
-#             errors.append("Phone number is required")
-#         elif not contactno.isdigit() or len(contactno) != 10:
-#             errors.append("Enter a valid 10-digit phone number")
-#         if gender not in ['Male', 'Female', 'Other']:
-#             errors.append("Select a valid gender")
-#         if not address:
-#             errors.append("Address is required")
-
-#         if profile_image:
-#             if profile_image.size > 2 * 1024 * 1024:  # 2 MB limit
-#                 errors.append("Profile image size should be less than 2MB")
-#             if not profile_image.content_type in ['image/jpeg', 'image/png']:
-#                 errors.append("Only JPEG or PNG images are allowed")
-
-#         if errors:
-#             # Don't redirect, show errors in modal
-#             for e in errors:
-#                 messages.error(request, e)
-#             show_modal = True
-#         else:
-#             # Save valid data
-#             customer.firstname = firstname
-#             customer.lastname = lastname
-#             customer.contactno = contactno
-#             customer.gender = gender
-#             customer.address = address
-#             if profile_image:
-#                 customer.profile_image = profile_image
-#             customer.updationdate = timezone.now()  # Update timestamp for cache-busting
-#             customer.save()
-#             messages.success(request, "Profile updated successfully")
-
-#     # Profile completion %
-#     fields = [
-#         customer.firstname,
-#         customer.lastname,
-#         customer.contactno,
-#         customer.address,
-#         customer.profile_image
-#     ]
-#     completed = sum(20 for f in fields if f)
-
-#     return render(request, 'menu/profile.html', {
-#         'customer': customer,
-#         'completed': completed,
-#         'show_modal': show_modal
-#     })
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.utils import timezone
-import uuid
-import re
 
 @login_required(login_url='customer_login')
 def customer_profile(request):
     customer = request.user
     errors = []
     success_msg = ""
-    show_modal = False  # Only open modal if errors
+    show_modal = False
 
     if request.method == 'POST':
         firstname = request.POST.get('firstname', '').strip()
@@ -563,7 +274,6 @@ def customer_profile(request):
         address = request.POST.get('address', '').strip()
         profile_image = request.FILES.get('profile_image')
 
-        # ===== Validation =====
         if not firstname:
             errors.append("First name is required")
         elif not re.fullmatch(r"[A-Za-z ]+", firstname):
@@ -591,11 +301,9 @@ def customer_profile(request):
             if profile_image.content_type not in ['image/jpeg', 'image/png']:
                 errors.append("Only JPEG or PNG images are allowed")
 
-        # ===== Handle errors =====
         if errors:
             show_modal = True
         else:
-            # ===== Save data =====
             customer.firstname = firstname
             customer.lastname = lastname
             customer.contactno = contactno
@@ -611,7 +319,6 @@ def customer_profile(request):
             customer.save()
             success_msg = "Profile updated successfully"
 
-    # ===== Profile completion =====
     fields = [
         customer.firstname,
         customer.lastname,
@@ -630,8 +337,6 @@ def customer_profile(request):
         'show_modal': show_modal
     })
 
-
-from django.contrib.auth import update_session_auth_hash
 
 @login_required(login_url='customer_login')
 def customer_change_password(request):
@@ -660,4 +365,3 @@ def customer_change_password(request):
 
         messages.success(request, "Password updated successfully")
         return redirect('customer_profile')
-# 

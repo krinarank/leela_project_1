@@ -3,11 +3,10 @@
 
 {% block content %}
 
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'orders/css/wishlist.css' %}">
+<link rel="stylesheet" href="{% static 'menu/css/variant.css' %}">
 
 <div class="container py-4">
     <h2 class="mb-4 text-center">🍽 Our Menu</h2>
@@ -16,107 +15,171 @@
     <div class="d-flex justify-content-center gap-2 mb-4">
         <button class="btn btn-outline-dark main-filter active" data-filter="all">All</button>
         {% for category in categories %}
-            <button class="btn btn-outline-dark main-filter"
-                    data-filter="{{ category.category_name|lower }}">
-                {{ category.category_name }}
-            </button>
+        <button class="btn btn-outline-dark main-filter" data-filter="{{ category.category_name|lower }}">
+            {{ category.category_name }}
+        </button>
         {% endfor %}
     </div>
 
     <!-- SUB CATEGORY (dynamic) -->
-    <div id="sub-filter-bar"
-         class="d-flex justify-content-start gap-2 mb-4"
-         style="display:none;"></div>
-
-
+    <div id="sub-filter-bar" class="d-flex justify-content-start gap-2 mb-4" style="display:none;"></div>
 
     <!-- ================= ALL ITEMS ================= -->
     <div id="all-items" class="row g-2">
         {% for category in categories %}
-            {% for sub in category.fooditemsubcategory_set.all %}
-                {% for item in sub.fooditem_set.all %}
-                    {% if item.is_available %}
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3 food-item"
-                             data-sub="{{ sub.subcategory_name|lower }}"
-                             data-category="{{ category.category_name|lower }}">
-                            <div class="card food-card shadow-sm h-100" data-food-id="{{ item.id }}">
+        {% for sub in category.fooditemsubcategory_set.all %}
+        {% for item in sub.fooditem_set.all %}
+        {% if item.is_available %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3 food-item" 
+             data-sub="{{ sub.subcategory_name|lower }}" 
+             data-category="{{ category.category_name|lower }}">
+            <div class="card food-card shadow-sm h-100" 
+                 data-food-id="{{ item.id }}" 
+                 data-has-variants="{{ item.variants.exists|yesno:'1,0' }}">
 
-                                {% if item.images.first %}
-                                                     <div class="image-box"
-     style="--bg-img: url('{{ item.images.first.img_url.url }}');">
-    <img src="{{ item.images.first.img_url.url }}"
-         alt="{{ item.name }}">
-</div>
-                                {% endif %}
+                {% if item.images.first %}
+                <div class="image-box" style="--bg-img: url('{{ item.images.first.img_url.url }}');">
+                    <img src="{{ item.images.first.img_url.url }}" alt="{{ item.name }}">
+                </div>
+                {% endif %}
 
-                                <div class="card-body position-relative d-flex flex-column justify-content-between">
+                <div class="card-body position-relative d-flex flex-column justify-content-between">
 
-                                    <h6 class="card-title">{{ item.name }}</h6>
+                    <h6 class="card-title">{{ item.name }}</h6>
 
-                                    {% if item.has_offer %}
-                                        <div class="price">
-                                            <span style="text-decoration:line-through;color:#999;">
-                                                ₹ {{ item.price }}
-                                            </span>
-                                            <span style="color:#28a745;font-weight:600;">
-                                                ₹ {{ item.discounted_price }}
-                                            </span>
-                                        </div>
-                                        <small class="text-danger">
-                                            {{ item.offer_percent }}% OFF
-                                        </small>
-                                    {% else %}
-                                        <div class="price">₹ {{ item.price }}</div>
-                                    {% endif %}
+                    {% if item.has_offer %}
+                    <div class="price">
+                        <span style="text-decoration:line-through;color:#999;">
+                            ₹ {{ item.price }}
+                        </span>
+                        <span style="color:#28a745;font-weight:600;">
+                            ₹ {{ item.discounted_price }}
+                        </span>
+                    </div>
+                    <small class="text-danger">
+                        {{ item.offer_percent }}% OFF
+                    </small>
+                    {% else %}
+                    <div class="price">₹ {{ item.price }}</div>
+                    {% endif %}
 
-                                    <div class="calories">{{ item.calories }} cal</div>
+                    <div class="calories">{{ item.calories }} cal</div>
 
-                                    <!-- ✅ INLINE WISHLIST MESSAGE -->
-                                    <div class="wishlist-msg small mt-1" style="display:none;"></div>
+                    <!-- ✅ INLINE WISHLIST MESSAGE -->
+                    <div class="wishlist-msg small mt-1" style="display:none;"></div>
 
-                                    <!-- ❤️ Wishlist Button -->
-                                    <span class="wishlist-btn position-absolute top-0 end-0 m-2"
-                                          data-food-id="{{ item.id }}">
-                                        {% if user.is_authenticated %}
-                                            {% if item.id in wishlist_items %}
-                                                <i class="fa-solid fa-heart text-danger"></i>
-                                            {% else %}
-                                                <i class="fa-regular fa-heart"></i>
-                                            {% endif %}
-                                        {% else %}
-                                            {% if item.id in request.session.wishlist|default:"[]" %}
-                                                <i class="fa-solid fa-heart text-danger"></i>
-                                            {% else %}
-                                                <i class="fa-regular fa-heart"></i>
-                                            {% endif %}
-                                        {% endif %}
-                                    </span>
+                    <!-- ❤️ Wishlist Button -->
+                    <span class="wishlist-btn position-absolute top-0 end-0 m-2" data-food-id="{{ item.id }}">
+                        {% if user.is_authenticated %}
+                        {% if item.id in wishlist_items %}
+                        <i class="fa-solid fa-heart text-danger"></i>
+                        {% else %}
+                        <i class="fa-regular fa-heart"></i>
+                        {% endif %}
+                        {% else %}
+                        {% if item.id in request.session.wishlist|default:"[]" %}
+                        <i class="fa-solid fa-heart text-danger"></i>
+                        {% else %}
+                        <i class="fa-regular fa-heart"></i>
+                        {% endif %}
+                        {% endif %}
+                    </span>
 
-                                    <!-- 🛒 Add to cart -->
-                                    <div class="cart-action mt-2">
-                                        {% if user.is_authenticated %}
-                                            <button class="add-cart-btn btn btn-success btn-sm"
-                                                    data-food-id="{{ item.id }}">
-                                                🛒 Add
-                                            </button>
-                                        {% else %}
-                                            <button class="btn btn-success btn-sm"
-                                                    onclick="alert('Please login first!')">
-                                                🛒 Add
-                                            </button>
-                                        {% endif %}
-                                    </div>
+                    <!-- 🛒 Add to cart -->
+                    <div class="cart-action mt-2">
+                        {% if user.is_authenticated %}
+                        <div class="card-add-area" data-food-id="{{ item.id }}">
+                            <button class="add-cart-btn btn btn-success btn-sm" data-food-id="{{ item.id }}">
+                                🛒 Add
+                            </button>
 
-                                </div>
-
+                            <div class="qty-box d-none">
+                                <button type="button" class="minus-btn btn btn-sm btn-outline-dark">-</button>
+                                <span class="card-qty">0</span>
+                                <button type="button" class="plus-btn btn btn-sm btn-outline-dark">+</button>
                             </div>
                         </div>
-                    {% endif %}
-                {% endfor %}
-            {% endfor %}
+                        {% else %}
+                        <button class="btn btn-success btn-sm" onclick="alert('Please login first!')">
+                            🛒 Add
+                        </button>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
         {% endfor %}
     </div>
 </div>
+
+<!-- ================== VARIANT BOTTOM SHEET ================== -->
+<div class="sheet-overlay"></div>
+
+<div id="variant-bottom-sheet" class="variant-sheet" style="display:none;">
+    <div class="sheet-header">
+        <div class="sheet-title">
+            <img class="sheet-image" src="" alt="Food Image">
+            <div class="sheet-name">Food Name</div>
+        </div>
+        <button id="sheet-close">&times;</button>
+    </div>
+
+    <div class="sheet-body">
+        <div class="sheet-variants"></div>
+    </div>
+
+    <div class="sheet-footer">
+        <div class="qty-selector">
+            <button id="qty-decrease">-</button>
+            <span id="qty">1</span>
+            <button id="qty-increase">+</button>
+        </div>
+        <button id="add-to-cart">Add item ₹0</button>
+    </div>
+</div>
+
+<!-- ================== FIRST BOTTOM SHEET ================== -->
+<div id="first-bottom-sheet" class="variant-sheet" style="display:none;">
+    <div class="sheet-header">
+        <div class="sheet-title">
+            <img class="sheet-image" src="" alt="Food Image">
+            <div class="sheet-name">Food Name</div>
+        </div>
+        <button class="sheet-close">&times;</button>
+    </div>
+
+    <div class="sheet-body">
+        <div class="sheet-desc">Simple add-to-cart item</div>
+    </div>
+
+    <div class="sheet-footer">
+        <div class="qty-selector">
+            <button id="fb-qty-decrease">-</button>
+            <span id="fb-qty">1</span>
+            <button id="fb-qty-increase">+</button>
+        </div>
+        <button id="fb-add-to-cart">Add item ₹0</button>
+    </div>
+</div>
+
+
+<!-- ================== REPEAT CUSTOMIZATION SHEET ================== -->
+<!-- dynamically appended by cart.js -->
+<!-- cart.js will handle creating #repeat-customization-sheet -->
+
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+    let cartItems = JSON.parse('{{ cart_items_json|escapejs }}');  // must be defined BEFORE cart.js load
+</script>
+
+<script src="{% static 'menu/js/cart.js' %}"></script>
 
 <!-- ================= FILTER & WISHLIST SCRIPT ================= -->
 <script>
@@ -126,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const items = document.querySelectorAll(".food-item");
     const subBar = document.getElementById("sub-filter-bar");
 
-    function showItems(cat, sub="all") {
+    function showItems(cat, sub = "all") {
         items.forEach(i => {
             const okCat = cat === "all" || i.dataset.category === cat;
             const okSub = sub === "all" || i.dataset.sub === sub;
@@ -136,15 +199,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function buildSub(cat) {
         subBar.innerHTML = "";
-        if (cat === "all") {
-            subBar.style.display = "none";
-            return;
-        }
+        if (cat === "all") { subBar.style.display = "none"; return; }
 
         const subs = new Set();
-        items.forEach(i => {
-            if (i.dataset.category === cat) subs.add(i.dataset.sub);
-        });
+        items.forEach(i => { if (i.dataset.category === cat) subs.add(i.dataset.sub); });
 
         subBar.style.display = "flex";
 
@@ -152,8 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
         allBtn.className = "btn btn-outline-secondary sub-filter active";
         allBtn.innerText = "All";
         allBtn.onclick = () => {
-            document.querySelectorAll(".sub-filter")
-                .forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".sub-filter").forEach(b => b.classList.remove("active"));
             allBtn.classList.add("active");
             showItems(cat);
         };
@@ -162,10 +219,9 @@ document.addEventListener("DOMContentLoaded", function () {
         subs.forEach(s => {
             const b = document.createElement("button");
             b.className = "btn btn-outline-secondary sub-filter";
-            b.innerText = s.charAt(0).toUpperCase()+s.slice(1);
+            b.innerText = s.charAt(0).toUpperCase() + s.slice(1);
             b.onclick = () => {
-                document.querySelectorAll(".sub-filter")
-                    .forEach(x => x.classList.remove("active"));
+                document.querySelectorAll(".sub-filter").forEach(x => x.classList.remove("active"));
                 b.classList.add("active");
                 showItems(cat, s);
             };
@@ -183,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // wishlist
+    // wishlist logic
     document.querySelectorAll(".wishlist-btn").forEach(btn => {
         const icon = btn.querySelector("i");
         const id = btn.dataset.foodId;
@@ -193,22 +249,22 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             fetch(`/orders/wishlist/toggle/${id}/`, {
                 method: "POST",
-                headers: {"X-CSRFToken": getCookie("csrftoken")}
+                headers: { "X-CSRFToken": getCookie("csrftoken") }
             })
-            .then(r=>r.json())
-            .then(d=>{
-                msg.style.display="block";
-                msg.classList.remove("text-success","text-danger");
-                if(d.is_wishlisted){
-                    icon.className="fa-solid fa-heart text-danger";
-                    msg.innerText="❤️ Added to wishlist";
+            .then(r => r.json())
+            .then(d => {
+                msg.style.display = "block";
+                msg.classList.remove("text-success", "text-danger");
+                if (d.is_wishlisted) {
+                    icon.className = "fa-solid fa-heart text-danger";
+                    msg.innerText = "❤️ Added to wishlist";
                     msg.classList.add("text-success");
-                }else{
-                    icon.className="fa-regular fa-heart";
-                    msg.innerText="💔 Removed from wishlist";
+                } else {
+                    icon.className = "fa-regular fa-heart";
+                    msg.innerText = "💔 Removed from wishlist";
                     msg.classList.add("text-danger");
                 }
-                setTimeout(()=>msg.style.display="none",2000);
+                setTimeout(() => msg.style.display = "none", 2000);
             });
         });
     });
@@ -217,7 +273,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let cookieValue = null;
         document.cookie.split(';').forEach(cookie => {
             cookie = cookie.trim();
-            if(cookie.startsWith(name + '=')) cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            if (cookie.startsWith(name + '=')) cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         });
         return cookieValue;
     }
@@ -225,15 +281,12 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="{% static 'menu/js/cart.js' %}"></script>
-
 {% if user.is_authenticated %}
 <a href="{% url 'cart_page' %}" class="floating-cart">
     <i class="fa fa-shopping-cart"></i>
     <span class="cart-text">View Cart</span>
     {% if cart_count > 0 %}
-        <span class="cart-badge">{{ cart_count }}</span>
+    <span class="cart-badge">{{ cart_count }}</span>
     {% endif %}
 </a>
 {% endif %}

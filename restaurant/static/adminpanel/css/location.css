@@ -308,3 +308,27 @@ input::placeholder {
 
 
 
+.btn-save {
+    background: #28a745;
+    color: white;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #5a6268; /* thodu dark gray */
+    transform: translateY(-2px);
+}
+
+
+.btn-save:hover {
+    background: #28a745; /* thodu dark gray */
+    transform: translateY(-2px);
+}

@@ -2,175 +2,141 @@
 {% load static %}
 {% block content %}
 
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'orders/checkout.css' %}">
+<style>
+/* Highlight invalid fields */
+.ck-input-error {
+    border: 1.5px solid red !important;
+}
+.ck-error {
+    color: red;
+    font-size: 0.85em;
+    margin-bottom: 5px;
+    display: block;
+}
+.ck-place-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %}
 
-<div class="checkout-container">
+<div class="ck-wrapper">
 
-    <!-- ================= LEFT : CUSTOMER DETAILS ================= -->
-    <div class="checkout-left">
-        <h2>Customer Details</h2>
+    <!-- LEFT -->
+    <div class="ck-card ck-left">
+        <h2 class="ck-title">Customer Details</h2>
 
         <form id="checkoutForm" method="post" action="{% url 'place_order' %}">
             {% csrf_token %}
 
-            <input type="text" id="name" name="name" placeholder="Full Name" required>
-            <small class="error" id="nameError"></small>
+            <input class="ck-input" id="name" type="text" name="name" placeholder="Full Name" required>
+            <small class="ck-error" id="nameError"></small>
 
-            <input type="email" id="email" name="email" placeholder="Email" required>
-            <small class="error" id="emailError"></small>
+            <input class="ck-input" id="email" type="email" name="email" placeholder="Email" required>
+            <small class="ck-error" id="emailError"></small>
 
-            <input type="tel" id="phone" name="phone" placeholder="Phone Number" maxlength="10" required>
-            <small class="error" id="phoneError"></small>
+            <input class="ck-input" id="phone" type="tel" name="phone" placeholder="Phone Number" maxlength="10" required>
+            <small class="ck-error" id="phoneError"></small>
 
-            <textarea id="address" name="address" placeholder="Delivery Address" rows="3" required></textarea>
-            <small class="error" id="addressError"></small>
+            <textarea class="ck-input" id="address" name="address" placeholder="Delivery Address" rows="3" required></textarea>
+            <small class="ck-error" id="addressError"></small>
 
-            <input type="text" id="city" name="city" placeholder="City" required>
-            <small class="error" id="cityError"></small>
+            <input class="ck-input" id="city" type="text" name="city" placeholder="City" required>
+            <small class="ck-error" id="cityError"></small>
 
-            <input type="text" id="state" name="state" placeholder="State" required>
-            <small class="error" id="stateError"></small>
+            <input class="ck-input" id="state" type="text" name="state" placeholder="State" required>
+            <small class="ck-error" id="stateError"></small>
 
-            <input type="text" id="pincode" name="pincode" placeholder="Pincode" maxlength="6" required>
-            <small class="error" id="pincodeError"></small>
+            <input class="ck-input" id="pincode" type="text" name="pincode" placeholder="Pincode" maxlength="6" required>
+            <small class="ck-error" id="pincodeError"></small>
 
-            <!-- AREA -->
-            <select name="area_id" required>
-                <option value="">-- Select Delivery Area --</option>
+            <select class="ck-input" id="area_id" name="area_id" required>
+                <option value="">Select Delivery Area</option>
                 {% for area in areas %}
-                <option value="{{ area.id }}">
-                    {{ area.name }} ({{ area.city.name }}, {{ area.city.state.name }})
-                </option>
+                <option value="{{ area.id }}">{{ area.name }}</option>
                 {% endfor %}
             </select>
-            <small class="error" id="areaError"></small>
-
-            <input type="hidden" name="final_subtotal" value="{{ subtotal }}">
-<input type="hidden" name="final_tax" value="{{ tax }}">
-<input type="hidden" name="final_delivery" value="{{ delivery_charge }}">
-<input type="hidden" name="final_grand_total" value="{{ grand_total }}">
-<input type="hidden" name="final_discount" value="{{ total_discount }}">
-
+            <small class="ck-error" id="areaError"></small>
+        </form>
     </div>
 
-    <!-- ================= RIGHT : ORDER SUMMARY ================= -->
-    <div class="checkout-right">
-        <h2>Order Summary</h2>
+    <!-- RIGHT -->
+    <div class="ck-card ck-right">
+        <h2 class="ck-title">Order Summary</h2>
 
-        <div class="summary-box">
-
-            <!-- ✅ SAME AS CART -->
-            <div class="summary-row">
-                <span>Food Item Total</span>
-                <span>₹ {{ original_total|floatformat:2 }}</span>
-            </div>
-
-            {% if total_discount > 0 %}
-            <div class="summary-row" style="color:green;">
-                <span>Discount You Saved</span>
-                <span>- ₹ {{ total_discount|floatformat:2 }}</span>
-            </div>
-            {% endif %}
-
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span>₹ {{ item_total|floatformat:2 }}</span>
-            </div>
-
-            <div class="summary-row">
-                <span>GST (5%)</span>
-                <span>₹ {{ tax|floatformat:2 }}</span>
-            </div>
-
-            <div class="summary-row">
-                <span>Delivery Charges</span>
-                <span>₹ {{ delivery_charge|floatformat:2 }}</span>
-            </div>
-
-            <hr>
-
-            <div class="summary-total">
-                <span>Total (incl. tax & delivery)</span>
-                <span>₹ {{ grand_total|floatformat:2 }}</span>
-            </div>
-
-            <hr>
-
-            <!-- ================= WALLET ================= -->
-            <h4>Wallet Balance</h4>
-            <p>Available: ₹ {{ wallet_balance|floatformat:2 }}</p>
-
-            <h4>Payment Method</h4>
-
-            <label>
-                <input type="radio" name="payment_method" value="COD" required>
-                Cash on Delivery
-            </label><br>
-
-            <label>
-                <input type="radio" name="payment_method" value="UPI">
-                UPI
-            </label><br>
-
-            <label>
-                <input type="radio" name="payment_method" value="WALLET">
-                Wallet Only
-            </label><br>
-
-            <label>
-                <input type="checkbox" id="use_wallet" onclick="toggleWalletInput()">
-                Use Wallet (Partial allowed)
-            </label>
-
-            <div id="wallet_input" style="display:none; margin-top:10px;">
-                <input type="number"
-                       name="wallet_amount"
-                       placeholder="Enter wallet amount"
-                       min="1"
-                       max="{{ wallet_balance }}">
-            </div>
-
-            <br><br>
-            <button type="submit" class="checkout-btn">PLACE ORDER</button>
+        <div class="ck-summary">
+            <span>Food Item Total</span>
+            <span>₹ {{ original_total|floatformat:2 }}</span>
         </div>
-        </form>
+
+        {% if total_discount > 0 %}
+        <div class="ck-summary" style="color:green;">
+            <span>Discount You Saved</span>
+            <span>- ₹ {{ total_discount|floatformat:2 }}</span>
+        </div>
+        {% endif %}
+
+        <div class="ck-summary">
+            <span>Subtotal</span>
+            <span>₹ {{ item_total|floatformat:2 }}</span>
+        </div>
+
+        <div class="ck-summary">
+            <span>GST (5%)</span>
+            <span>₹ {{ tax|floatformat:2 }}</span>
+        </div>
+
+        <div class="ck-summary">
+            <span>Delivery Charges</span>
+            <span>₹ {{ delivery_charge|floatformat:2 }}</span>
+        </div>
+
+        <hr>
+
+        <div class="ck-summary">
+            <span>Total (incl. tax & delivery)</span>
+            <span>₹ {{ grand_total|floatformat:2 }}</span>
+        </div>
+
+        <div class="ck-payments">
+            <h4 class="pay-heading">Payment Method</h4>
+            <div class="pay-methods">
+                <label class="pay-card">
+                    <input type="radio" name="payment_method" value="COD" checked>
+                    <div class="pay-content">
+                        <span class="radio-dot"></span>
+                        <span class="pay-text">Cash on Delivery</span>
+                    </div>
+                </label>
+
+                <label class="pay-card">
+                    <input type="radio" id="upiBtn" name="payment_method" value="UPI">
+                    <div class="pay-content">
+                        <span class="radio-dot"></span>
+                        <span class="pay-text">UPI</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <button type="button" id="placeOrderBtn" class="ck-place-btn" disabled>
+            PLACE ORDER
+        </button>
     </div>
 
 </div>
 
-<!-- ================= JS ================= -->
+<!-- Razorpay -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
-document.getElementById("checkoutForm").addEventListener("submit", function () {
+document.addEventListener("DOMContentLoaded", function(){
 
-    // 👇 aa values UI mathi aavva joiye
-    const subtotal = "{{ item_total }}";
-    const tax = "{{ tax }}";
-    const delivery = "{{ delivery_charge }}";
-    const discount = "{{ total_discount }}";
-    const grandTotal = "{{ grand_total }}";
-
-    document.getElementById("final_subtotal").value = subtotal;
-    document.getElementById("final_tax").value = tax;
-    document.getElementById("final_delivery").value = delivery;
-    document.getElementById("final_discount").value = discount;
-    document.getElementById("final_grand_total").value = grandTotal;
-
-    console.log("✅ FINAL TOTAL SENT:", grandTotal);
-});
-</script>
-
-
-<script>
-function toggleWalletInput() {
-    const box = document.getElementById("wallet_input");
-    box.style.display = box.style.display === "none" ? "block" : "none";
-}
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("checkoutForm");
+    const placeBtn = document.getElementById("placeOrderBtn");
+    const upiBtn = document.getElementById("upiBtn");
 
     const fields = {
         name: document.getElementById("name"),
@@ -179,7 +145,8 @@ document.addEventListener("DOMContentLoaded", function () {
         address: document.getElementById("address"),
         city: document.getElementById("city"),
         state: document.getElementById("state"),
-        pincode: document.getElementById("pincode")
+        pincode: document.getElementById("pincode"),
+        area_id: document.getElementById("area_id")
     };
 
     const errors = {
@@ -189,77 +156,129 @@ document.addEventListener("DOMContentLoaded", function () {
         address: document.getElementById("addressError"),
         city: document.getElementById("cityError"),
         state: document.getElementById("stateError"),
-        pincode: document.getElementById("pincodeError")
+        pincode: document.getElementById("pincodeError"),
+        area_id: document.getElementById("areaError")
     };
 
-    const nameRegex = /^[A-Za-z\s]+$/;
-    const digitRegex = /^\d+$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = {
+        name: /^[A-Za-z\s]+$/,
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        phone: /^\d{10}$/,
+        pincode: /^\d{6}$/
+    };
 
-    function validateField(fieldName) {
-        const field = fields[fieldName];
-        const error = errors[fieldName];
-        const value = field.value.trim();
+    function validateField(name){
+        let value = fields[name].value.trim();
+        let valid = true;
 
-        switch (fieldName) {
+        switch(name){
             case "name":
             case "city":
             case "state":
-                if (!nameRegex.test(value)) {
-                    error.innerText = `You can't enter digits in ${fieldName}`;
-                    return false;
-                }
-                break;
-
-            case "phone":
-                if (!digitRegex.test(value) || value.length !== 10) {
-                    error.innerText = "Phone must be 10 digits";
-                    return false;
-                }
-                break;
-
-            case "pincode":
-                if (!digitRegex.test(value) || value.length !== 6) {
-                    error.innerText = "Pincode must be 6 digits";
-                    return false;
-                }
-                break;
-
+                if(!regex.name.test(value)){ valid=false; errors[name].innerText="Only letters allowed"; }
+                else errors[name].innerText=""; break;
             case "email":
-                if (!emailRegex.test(value)) {
-                    error.innerText = "Enter a valid email";
-                    return false;
-                }
-                break;
-
+                if(!regex.email.test(value)){ valid=false; errors[name].innerText="Enter valid email"; }
+                else errors[name].innerText=""; break;
+            case "phone":
+                if(!regex.phone.test(value)){ valid=false; errors[name].innerText="Phone must be 10 digits"; }
+                else errors[name].innerText=""; break;
+            case "pincode":
+                if(!regex.pincode.test(value)){ valid=false; errors[name].innerText="Pincode must be 6 digits"; }
+                else errors[name].innerText=""; break;
             case "address":
-                if (value === "") {
-                    error.innerText = "Address cannot be empty";
-                    return false;
-                }
-                break;
+                if(!value){ valid=false; errors[name].innerText="Address required"; }
+                else errors[name].innerText=""; break;
+            case "area_id":
+                if(!value){ valid=false; errors[name].innerText="Select area"; }
+                else errors[name].innerText=""; break;
         }
 
-        error.innerText = "";
-        return true;
+        if(!valid) fields[name].classList.add("ck-input-error");
+        else fields[name].classList.remove("ck-input-error");
+
+        return valid;
     }
 
-    Object.keys(fields).forEach(fieldName => {
-        fields[fieldName].addEventListener("input", () => validateField(fieldName));
+    function validateForm(){
+        let valid = true;
+        Object.keys(fields).forEach(f=>{
+            if(!validateField(f)) valid=false;
+        });
+        placeBtn.disabled = !valid;
+        return valid;
+    }
+
+    Object.keys(fields).forEach(f=>{
+        fields[f].addEventListener("input", validateForm);
+        fields[f].addEventListener("change", validateForm);
     });
 
-    form.addEventListener("submit", function (e) {
-        let valid = true;
-        Object.keys(fields).forEach(fieldName => {
-            if (!validateField(fieldName)) valid = false;
-        });
-
-        if (!valid) {
-            e.preventDefault();
-            alert("Please fix all errors before submitting!");
+    // ================= COD
+    placeBtn.addEventListener("click", function(){
+        if(!validateForm()){ alert("Please fix errors before placing order"); return; }
+        const paymentMethod = document.querySelector("input[name='payment_method']:checked").value;
+        if(paymentMethod==="COD"){
+            form.submit();
         }
     });
+
+    // ================= UPI → Razorpay on radio click
+    upiBtn.addEventListener("click", function(){
+        if(!validateForm()){ alert("Please fill all details before proceeding with UPI"); return; }
+
+        fetch("{% url 'create_razorpay_order' %}",{
+            method:"POST",
+            headers:{
+                "X-CSRFToken":"{{ csrf_token }}",
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+            body:"amount={{ grand_total }}"
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            var options = {
+                key: data.key,
+                order_id: data.order_id,
+                currency:"INR",
+                name:"Leela Restaurant",
+                description:"Food Order Payment",
+                handler: function(response){
+                    fetch("{% url 'place_order' %}",{
+                        method:"POST",
+                        headers:{
+                            "X-CSRFToken":"{{ csrf_token }}",
+                            "Content-Type":"application/x-www-form-urlencoded",
+                            "X-Requested-With":"XMLHttpRequest"
+                        },
+                        body:new URLSearchParams({
+                            payment_method:"UPI",
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            name: fields.name.value,
+                            email: fields.email.value,
+                            phone: fields.phone.value,
+                            address: fields.address.value,
+                            city: fields.city.value,
+                            state: fields.state.value,
+                            pincode: fields.pincode.value,
+                            area_id: fields.area_id.value,
+                            final_subtotal:"{{ item_total }}",
+                            final_tax:"{{ tax }}",
+                            final_delivery:"{{ delivery_charge }}",
+                            final_grand_total:"{{ grand_total }}",
+                            final_discount:"{{ total_discount }}"
+                        })
+                    })
+                    .then(res=>res.json())
+                    .then(data=>{
+                        window.location.href="/orders/order-success/"+data.order_id+"/";
+                    });
+                }
+            };
+            new Razorpay(options).open();
+        });
+    });
+
 });
 </script>
-
 {% endblock %}
