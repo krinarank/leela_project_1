@@ -10,7 +10,7 @@ __pycache__/
 db.sqlite3
 *.sqlite3
 *.bak
-*.sqlite3.local
+
 
 # Media (optional)
 restaurant/media/

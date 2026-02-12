@@ -11,63 +11,91 @@ from django.contrib.auth.decorators import login_required
 from .models import DeliveryVehicle
 from django.shortcuts import get_object_or_404, redirect
 
+# def delivery_login(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')  # Only username now
+#         password = request.POST.get('password')
+
+#         try:
+#             # Username thi login check
+#             customer = Customer.objects.get(
+#                 username=username,
+#                 password=password,
+#                 is_delivery_person=True
+#             )
+
+#             delivery = DeliveryPerson.objects.get(user=customer)
+
+#             # Session set karo
+#             request.session['delivery_id'] = delivery.id
+#             request.session['delivery_name'] = delivery.fname
+
+#             return redirect('/delivery/dashboard/')
+
+#         except Customer.DoesNotExist:
+#             messages.error(request, "Invalid credentials")
+
+#     return render(request, 'deliverypanel/login.html')
+
+
+from django.contrib.auth import authenticate, login, logout
+from accounts.models import Customer
+from .models import DeliveryPerson
+
 def delivery_login(request):
     if request.method == 'POST':
-        username = request.POST.get('username')  # Only username now
+        username = request.POST.get('username')
         password = request.POST.get('password')
 
-        try:
-            # Username thi login check
-            customer = Customer.objects.get(
-                username=username,
-                password=password,
-                is_delivery_person=True
-            )
+        # Step 1: authenticate user
+        user = authenticate(request, username=username, password=password)
 
-            delivery = DeliveryPerson.objects.get(user=customer)
+        # Step 2: check if user exists and is delivery person
+        if user and user.is_delivery_person:
+            # Step 3: get delivery profile
+            try:
+                delivery = DeliveryPerson.objects.get(user=user)
+            except DeliveryPerson.DoesNotExist:
+                messages.error(request, "Delivery profile not found")
+                return redirect('/delivery/login/')
 
-            # Session set karo
+            # Step 4: set session (or login)
             request.session['delivery_id'] = delivery.id
             request.session['delivery_name'] = delivery.fname
 
-            return redirect('/delivery/dashboard/')
+            # Optional: login() if you want Django auth session
+            login(request, user)
 
-        except Customer.DoesNotExist:
-            messages.error(request, "Invalid credentials")
+            return redirect('/delivery/dashboard/')
+        else:
+            messages.error(request, "Invalid username or password")
+            return redirect('/delivery/login/')
 
     return render(request, 'deliverypanel/login.html')
 
 from deliverypanel.models import AssignOrder
 
-# def delivery_dashboard(request):
-#     if 'delivery_id' not in request.session:
-#         return redirect('/delivery/login/')
-
-#     delivery = DeliveryPerson.objects.get(id=request.session['delivery_id'])
-
-#     # ✅ ACTIVE ORDERS (current work)
-#     active_assignments = AssignOrder.objects.filter(
-#         delivery_person=delivery
-#     ).exclude(status='DELIVERED').select_related('order', 'user')
-
-#     # ✅ DELIVERED ORDERS (history)
-#     delivered_assignments = AssignOrder.objects.filter(
-#         delivery_person=delivery,
-#         status='DELIVERED'
-#     ).select_related('order', 'user')
-
-#     return render(request, 'deliverypanel/dashboard.html', {
-#         'delivery': delivery,
-#         'active_assignments': active_assignments,
-#         'delivered_assignments': delivered_assignments,
-#     })
 
 
 def delivery_dashboard(request):
-    if 'delivery_id' not in request.session:
+    delivery_id = request.session.get('delivery_id')
+    if not delivery_id:
         return redirect('/delivery/login/')
 
-    delivery = DeliveryPerson.objects.get(id=request.session['delivery_id'])
+    try:
+        delivery = DeliveryPerson.objects.select_related('user').get(id=delivery_id)
+    except DeliveryPerson.DoesNotExist:
+        messages.error(request, "Delivery profile not found")
+        return redirect('/delivery/login/')
+
+    # Notifications
+    notifications = Notification.objects.filter(
+        recipient_type='delivery_person',
+        send_datetime__lte=timezone.now(),
+        read_status=False
+    ).filter(
+        Q(user_id__isnull=True) | Q(user_id=delivery.id)
+    )
 
     # 🔹 New Requests (REQUESTED status)
     requested_assignments = AssignOrder.objects.filter(
@@ -93,6 +121,7 @@ def delivery_dashboard(request):
         'new_requests': requested_assignments,
         'active_assignments': active_assignments,
         'delivered_assignments': delivered_assignments,
+        'notifications': notifications
     })
 
 def delivery_accept_order(request, assign_id):
@@ -145,7 +174,7 @@ def delivery_reject_order(request, assign_id):
 
 def delivery_logout(request):
     request.session.flush()
-    #logout(request)
+    logout(request)
     return redirect('/delivery/login/')
 
 
@@ -191,7 +220,7 @@ def delivery_forgot_password(request):
 
             send_mail(
                 'Your OTP for Password Reset',
-                f'Your OTP is {otp}',
+                f'Your OTP is {otp}','This OTP is valid for only 5 minutes'
                 'leelarestaurant.official@gmail.com',
                 [user.email],
                 fail_silently=False
@@ -208,20 +237,7 @@ def delivery_forgot_password(request):
         'login_url': 'delivery_login'
     })
 
-# def verify_otp(request):
-#     if request.method == 'POST':
-#         entered_otp = request.POST.get('otp')
-#         session_otp = request.session.get('otp')
 
-#         if session_otp and entered_otp == session_otp:
-#             return redirect('reset_password')
-#         else:
-#             messages.error(request, "Invalid OTP")
-
-#     #return render(request, 'deliverypanel/verify_otp.html')
-#     return render(request, 'accounts/verify_otp.html', {
-#       'verify_url': 'verify_otp'
-# })
 
 
 def verify_otp(request):
@@ -347,116 +363,15 @@ def resend_otp(request):
 
 
 
-#workinggggggggggggggggggggggggg
-# @login_required
-# def delivery_profile(request):
-#     # Step 1: Try to fetch any existing DeliveryPerson (without creating new)
-#     delivery = DeliveryPerson.objects.first()  # just take the first existing profile
-#     msg = None
-#     if not delivery:
-#         msg = "Profile data not created yet."
-
-#     return render(request, 'deliverypanel/profile.html', {
-#         'delivery': delivery,
-#         'msg': msg
-#     })
-
-# @login_required
-# def delivery_profile(request):
-#     delivery = None
-
-#     delivery_id = request.session.get('delivery_id')
-#     print("SESSION delivery_id:", delivery_id)
-
-#     if delivery_id:
-#         delivery = DeliveryPerson.objects.filter(id=delivery_id).first()
-
-#     return render(
-#         request,
-#         'deliverypanel/profile.html',
-#         {'delivery': delivery}
-#     )
-####workinggggggggggggggggggggggggggggggggggg codeeeeeeeeeeeeeeeee
-# def delivery_profile(request):
-#     delivery = None
-#     delivery_id = request.session.get('delivery_id')
-
-#     if delivery_id:
-#         delivery = DeliveryPerson.objects.filter(id=delivery_id).first()
-
-#         if request.method == 'POST' and delivery:
-#             if 'profile_image' in request.FILES:
-#                 delivery.profile_image = request.FILES['profile_image']
-#                 delivery.save()
-
-#     return render(
-#         request,
-#         'deliverypanel/profile.html',
-#         {'delivery': delivery}
-#     )
-
-# def delivery_profile(request):
-#     delivery = None
-#     delivery_id = request.session.get('delivery_id')
-#     profile_completion = 0
-#     show_image_upload = True
-
-#     if delivery_id:
-#         delivery = DeliveryPerson.objects.filter(
-#             id=delivery_id
-#         ).select_related('user').first()
-
-#         if delivery:
-#             # -------- IMAGE UPLOAD --------
-#             if request.method == 'POST' and 'profile_image' in request.FILES:
-#                 delivery.profile_image = request.FILES['profile_image']
-#                 delivery.save()
-
-#             # -------- PROFILE COMPLETION --------
-#             total_fields = 6
-#             completed = 0
-
-#             if delivery.fname:
-#                 completed += 1
-#             if delivery.lname:
-#                 completed += 1
-#             if delivery.email:
-#                 completed += 1
-#             if delivery.contact_no:
-#                 completed += 1
-#             if delivery.address:
-#                 completed += 1
-
-#             if delivery.profile_image:
-#                 completed += 1
-#                 show_image_upload = False
-
-#             profile_completion = int((completed / total_fields) * 100)
-
-#     return render(
-#         request,
-#         'deliverypanel/profile.html',
-#         {
-#             'delivery': delivery,
-#             'profile_completion': profile_completion,
-#             'show_image_upload': show_image_upload
-#         }
-#     )
-
+# ---------------- PROFILE ----------------
 def delivery_profile(request):
-    delivery = None
     delivery_id = request.session.get('delivery_id')
+    if not delivery_id:
+        return redirect('delivery_login')
 
-    if delivery_id:
-        delivery = DeliveryPerson.objects.select_related('user').filter(id=delivery_id).first()
+    delivery = DeliveryPerson.objects.select_related('user').filter(id=delivery_id).first()
 
-        # ✅ PROFILE IMAGE UPLOAD (ONLY IF NOT EXISTS)
-        if request.method == 'POST' and delivery:
-            if not delivery.profile_image and 'profile_image' in request.FILES:
-                delivery.profile_image = request.FILES['profile_image']
-                delivery.save()
-
-    # ================= PROFILE COMPLETION =================
+    # Profile completion
     completion = 0
     total = 6
     pending = []
@@ -498,21 +413,17 @@ def delivery_profile(request):
 
     profile_percent = int((completion / total) * 100)
 
-    return render(
-        request,
-        'deliverypanel/profile.html',
-        {
-            'delivery': delivery,
-            'profile_percent': profile_percent,
-            'pending': pending
-        }
-    )
+    return render(request, 'deliverypanel/profile.html', {
+        'delivery': delivery,
+        'profile_percent': profile_percent,
+        'pending': pending
+    })
 
 
 
+# ---------------- EDIT PROFILE ----------------
 def delivery_profile_edit(request):
     delivery_id = request.session.get('delivery_id')
-
     if not delivery_id:
         return redirect('delivery_login')
 
@@ -530,24 +441,26 @@ def delivery_profile_edit(request):
         delivery.save()
         return redirect('delivery_profile')
 
-    return render(request, 'deliverypanel/profile_edit.html', {'delivery': delivery})
+    return render(request, 'deliverypanel/profile_edit.html', {
+        'delivery': delivery
+    })
+
 
 def delivery_change_password(request):
     delivery_id = request.session.get('delivery_id')
-
     if not delivery_id:
         return redirect('delivery_login')
 
     delivery = DeliveryPerson.objects.get(id=delivery_id)
-    user = delivery.user  # Customer
+    user = delivery.user  # Customer object
 
     if request.method == 'POST':
         old_password = request.POST.get('old_password')
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
 
-        # ✅ PLAIN TEXT CHECK
-        if user.password != old_password:
+        # Check old password correctly
+        if not user.check_password(old_password):
             messages.error(request, "Old password is incorrect")
             return redirect('delivery_change_password')
 
@@ -555,8 +468,8 @@ def delivery_change_password(request):
             messages.error(request, "Passwords do not match")
             return redirect('delivery_change_password')
 
-        # ✅ SAVE NEW PASSWORD
-        user.password = new_password
+        # Save new password securely
+        user.set_password(new_password)
         user.save()
 
         request.session.flush()
@@ -593,5 +506,9 @@ def delivery_vehicle(request):
     return render(request, 'deliverypanel/vehicle.html', {
         'vehicle': vehicle
     })
+
+from orders.models import Notification
+from django.utils import timezone
+from django.db.models import Q
 
 

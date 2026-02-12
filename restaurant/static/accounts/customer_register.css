@@ -113,3 +113,24 @@
 .login-link a:hover {
     text-decoration: underline;
 }
+/* ERROR MESSAGE */
+/* .error-text {
+    color: red;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.success-text {
+    color: green;
+    font-size: 14px;
+    margin-bottom: 8px;
+} */
+.error {
+    color: red;
+    margin-bottom: 8px;
+}
+
+.success {
+    color: green;
+    margin-bottom: 8px;
+}

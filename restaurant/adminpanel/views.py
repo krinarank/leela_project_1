@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from location.models import State, City, Area
+from location.models import State, City, Area
 from deliverypanel.models import DeliveryPerson
 from django.contrib.auth import get_user_model
 from purchase.models import Supplier
@@ -22,6 +23,7 @@ from django.views.decorators.http import require_POST
 
 from orders.models import Order
 from deliverypanel.models import DeliveryPerson, AssignOrder
+
 
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
@@ -37,9 +39,63 @@ from purchase.models import Ingredient
 from purchase.models import Purchase 
 from orders.models import FeedbackRating
 
+# def login_view(request):
+#     if request.user.is_authenticated:
+#         return redirect('dashboard')
+
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+
+#         user = authenticate(request, username=username, password=password)
+#         if user:
+#             login(request, user)
+#             return redirect('dashboard')
+#         else:
+#             return render(request, 'auth/login.html', {'error': 'Invalid credentials'})
+
+#     return render(request, 'auth/login.html')
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from accounts.models import Customer
+
+# def login_view(request):
+#     if request.user.is_authenticated:
+#         # Already logged in
+#         if request.user.isadmin:
+#             return redirect('dashboard')
+#         else:
+#             logout(request)
+#             messages.error(request, "You are not admin. Please login with admin account.")
+#             return redirect('login')
+
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+
+#         user = authenticate(request, username=username, password=password)
+
+#         if user and user.isadmin:
+#             login(request, user)  # ✅ session-safe
+#             return redirect('dashboard')
+#         elif user:
+#             messages.error(request, "This is a customer account. Use customer login.")
+#             return redirect('login')
+#         else:
+#             messages.error(request, "Invalid username or password")
+#             return redirect('login')
+
+#     return render(request, 'auth/login.html')
+
+# adminpanel/views.py
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        if request.user.isadmin:
+            return redirect('dashboard')
+        else:
+            return redirect('home')  # customer homepage
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -47,12 +103,24 @@ def login_view(request):
 
         user = authenticate(request, username=username, password=password)
         if user:
+            if not user.isadmin:
+                # NOT ADMIN
+                return render(request, 'auth/login.html', {'error': 'Invalid credentials'})
             login(request, user)
             return redirect('dashboard')
         else:
             return render(request, 'auth/login.html', {'error': 'Invalid credentials'})
 
     return render(request, 'auth/login.html')
+
+
+# def logout_view(request):
+#     logout(request)  # clears session
+#     return redirect('login')  # go back to login page
+def logout_view(request):
+    logout(request)
+    request.session.flush()
+    return redirect('login')
 
 @login_required
 def admin_menu_view(request):
@@ -213,29 +281,7 @@ def add_fooditem(request):
     })
 
 
-# ---------------- UPDATE FOOD ITEM ----------------
-# def update_fooditem(request, id):
-#     item = get_object_or_404(FoodItem, id=id)
-#     subcategories = FoodItemSubCategory.objects.all()
 
-#     if request.method == 'POST':
-#         item.name = request.POST.get('name')
-#         item.price = request.POST.get('price')
-#         item.calories = request.POST.get('calories')
-#         item.is_available = True if request.POST.get('is_available') == 'on' else False
-#         item.is_special = request.POST.get('is_special') == 'on' 
-#         item.sub_cat_id = request.POST.get('subcategory_id')
-#         item.save()
-
-#         # ✅ SHOW message on the same page
-#         messages.success(request, "Food item updated successfully")
-#         # Don't redirect to add_fooditem
-#         return redirect('update_fooditem', id=item.id)
-
-#     return render(request, 'update/update_fooditem.html', {
-#         'fooditem': item,
-#         'subcategories': subcategories
-#     })
 def update_fooditem(request, id):
     item = get_object_or_404(FoodItem, id=id)
     subcategories = FoodItemSubCategory.objects.all()
@@ -312,28 +358,7 @@ def add_foodimage(request):
         'images': images
     })
 
-# ---------------- UPDATE FOOD IMAGE ----------------
-# def update_foodimage(request, id):
-#     image = get_object_or_404(FoodItemImage, id=id)
-#     food_items = FoodItem.objects.all()
 
-#     if request.method == 'POST':
-#         food_id = request.POST.get('food_item')
-#         new_image = request.FILES.get('img_url')
-
-#         image.food_item_id = food_id
-
-#         if new_image:
-#             image.img_url = new_image
-
-#         image.save()
-#         messages.success(request, "Food image updated successfully")
-#         return redirect('update_foodimage', id=image.id)
-
-#     return render(request, 'update/update_foodimage.html', {
-#         'image': image,
-#         'food_items': food_items
-#     })
 
 def update_foodimage(request, id):
     image = get_object_or_404(FoodItemImage, id=id)
@@ -367,9 +392,6 @@ def delete_foodimage(request, id):
     return redirect('add_foodimage')
 
 
-def logout_view(request):
-    logout(request)  # clears session
-    return redirect('login')  # go back to login page
 
 
 def delete_category(request, id):
@@ -377,23 +399,7 @@ def delete_category(request, id):
     category.delete()
     return redirect('add_category')
 
-# def update_category_page(request, category_id):
-#     category = get_object_or_404(FoodItemCategory, id=category_id)
 
-#     if request.method == "POST":
-#         new_name = request.POST.get('category_name')
-#         if new_name:
-#             category.category_name = new_name
-#             category.save()
-#             messages.success(request, "Category updated successfully!")
-#             return redirect('update_category', category_id=category.id)
-#         else:
-#             messages.error(request, "Please enter a category name.")
-
-#     context = {
-#         'category': category
-#     }
-#     return render(request, 'update/update_category.html', context)
 
 def update_category_page(request, category_id):
     category = get_object_or_404(FoodItemCategory, id=category_id)
@@ -413,30 +419,7 @@ def update_category_page(request, category_id):
 
     return render(request, 'update/update_category.html', {'category': category})
 
-# #update subcategory
-# def update_subcategory(request, id):
-#     sub = get_object_or_404(FoodItemSubCategory, id=id)
-#     categories = FoodItemCategory.objects.all()
 
-#     if request.method == 'POST':
-#         sub.subcategory_name = request.POST.get('subcategory_name')
-
-#         cat_id = request.POST.get('food_item_cat')
-#         sub.food_item_cat = FoodItemCategory.objects.get(id=cat_id)
-
-#         sub.save()
-
-#         messages.success(request, "Subcategory updated successfully")
-
-#         return render(request, 'update/update_subcategory.html', {
-#             'sub': sub,
-#             'categories': categories
-#         })
-
-#     return render(request, 'update/update_subcategory.html', {
-#         'sub': sub,
-#         'categories': categories
-#     })
 
 def update_subcategory(request, id):
     sub = get_object_or_404(FoodItemSubCategory, id=id)
@@ -614,147 +597,106 @@ def dashboard_view(request):
 def get_pending_inquiry_count():
     return Inquiry.objects.filter(status='Pending').count()
 
-# def add_delivery_person(request):
- 
-#     if request.method == "POST":
-#         fname = request.POST.get('fname')
-#         lname = request.POST.get('lname')
-#         username = request.POST.get('username')
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         contact = request.POST.get('contact')
-#         address = request.POST.get('address')
-
-#         # ---- validation (basic) ----
-       
-#         if Customer.objects.filter(username=username).exists():
-#             messages.error(request, "Username already exists")
-#             return redirect('/adminpanel/add-delivery-person/')
-
-#         # ---- create CUSTOMER (login holder) ----
-#         customer = Customer.objects.create(
-#             username=username,
-#             firstname=fname,
-#             lastname=lname,
-#             email=email,
-#             password=password,   # (plain for now – hashing later)
-#             contactno=contact,
-#             address=address,
-#             is_delivery_person=True
-#         )
-
-#         # ---- create DELIVERY PERSON ----
-#         DeliveryPerson.objects.create(
-#             user=customer,
-#             fname=fname,
-#             lname=lname,
-#             email=email,
-#             contact_no=contact,
-#             address=address
-#             # joining_date auto set
-#         )
-
-#         messages.success(request, "Delivery Person added successfully")
-#         return redirect('add_delivery_person')
-
-#     return render(request, 'adminpanel/add_delivery_person.html')
 
 
-# def add_delivery_person(request):
 
-#     if request.method == "POST":
-#         fname = request.POST.get('fname')
-#         lname = request.POST.get('lname')
-#         username = request.POST.get('username')
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         contact = request.POST.get('contact')
-#         address = request.POST.get('address')
 
-#         if Customer.objects.filter(username=username).exists():
-#             messages.error(request, "Username already exists")
-#             return redirect('add_delivery_person')
 
-#         customer = Customer.objects.create(
-#             username=username,
-#             firstname=fname,
-#             lastname=lname,
-#             email=email,
-#             password=password,   # custom admin chhe etle ok
-#             contactno=contact,
-#             address=address,
-#             is_delivery_person=True
-#         )
-
-#         DeliveryPerson.objects.create(
-#             user=customer,
-#             fname=fname,
-#             lname=lname,
-#             email=email,
-#             contact_no=contact,
-#             address=address
-#         )
-
-#         messages.success(request, "Delivery Person Added Successfully")
-#         return redirect('add_delivery_person')
-    
-#     # ---------- SEARCH ----------
-#     search = request.GET.get('search')
-#     delivery_qs = DeliveryPerson.objects.all().order_by('-id')
-
-#     if search:
-#         delivery_qs = delivery_qs.filter(
-#             Q(fname__icontains=search) |
-#             Q(lname__icontains=search) |
-#             Q(email__icontains=search) |
-#             Q(contact_no__icontains=search)
-#         )
-
-#     # ---------- PAGINATION ----------
-#     paginator = Paginator(delivery_qs, 5)  # per page 5
-#     page_number = request.GET.get('page')
-#     delivery_list = paginator.get_page(page_number)
-
-#     return render(request, 'adminpanel/add_delivery_person.html', {
-#         'delivery_list': delivery_list,
-#         'search': search
-#     })
-
-#     delivery_list = DeliveryPerson.objects.all()
-
-#     return render(request, 'adminpanel/add_delivery_person.html', {
-#         'delivery_list': delivery_list
-#     })
-
+import re
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from accounts.models import Customer
+from deliverypanel.models import DeliveryPerson
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 
 def add_delivery_person(request):
 
-    # ---------- ADD ----------
     if request.method == "POST":
-        fname = request.POST.get('fname')
-        lname = request.POST.get('lname')
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        contact = request.POST.get('contact')
-        address = request.POST.get('address')
 
+        fname = request.POST.get('fname', '').strip()
+        lname = request.POST.get('lname', '').strip()
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        contact = request.POST.get('contact', '').strip()
+        address = request.POST.get('address', '').strip()
+
+        errors = []
+
+        # ===== Required Fields =====
+        if not all([fname, lname, username, email, password, confirm_password, contact, address]):
+            errors.append("All fields are required.")
+
+        # ===== Name Validation =====
+        if not fname.isalpha():
+            errors.append("First name must contain only letters.")
+
+        if not lname.isalpha():
+            errors.append("Last name must contain only letters.")
+
+        # ===== Username Validation =====
+        if not re.match(r'^[A-Za-z0-9_]{4,20}$', username):
+            errors.append("Username must be 4-20 characters (letters, numbers, underscore).")
+
+        # ===== Email Validation =====
+        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+            errors.append("Invalid email format.")
+
+        # ===== Contact Validation (Indian) =====
+        if not re.match(r'^[6-9]\d{9}$', contact):
+            errors.append("Enter valid 10 digit Indian mobile number.")
+
+        # ===== Password Validation =====
+        if len(password) < 8:
+            errors.append("Password must be at least 8 characters.")
+
+        if not re.search(r'[A-Z]', password):
+            errors.append("Password must contain one uppercase letter.")
+
+        if not re.search(r'[a-z]', password):
+            errors.append("Password must contain one lowercase letter.")
+
+        if not re.search(r'\d', password):
+            errors.append("Password must contain one number.")
+
+        if not re.search(r'[@$!%*?&]', password):
+            errors.append("Password must contain one special character.")
+
+        if password != confirm_password:
+            errors.append("Password and Confirm Password do not match.")
+
+        # ===== Duplicate Checks =====
         if Customer.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists")
+            errors.append("Username already exists.")
+
+        if Customer.objects.filter(email=email).exists():
+            errors.append("Email already exists.")
+
+        if DeliveryPerson.objects.filter(email=email).exists():
+            errors.append("Delivery email already exists.")
+
+        # ===== Stop if errors =====
+        if errors:
+            for error in errors:
+                messages.error(request, error)
             return redirect('add_delivery_person')
 
-        customer = Customer.objects.create(
+        # ===== Create Customer (Secure Way) =====
+        customer = Customer.objects.create_user(
             username=username,
-            firstname=fname,
-            lastname=lname,
             email=email,
             password=password,
+            firstname=fname,
+            lastname=lname,
             contactno=contact,
             address=address,
             is_delivery_person=True
         )
 
+        # ===== Create DeliveryPerson =====
         DeliveryPerson.objects.create(
             user=customer,
             fname=fname,
@@ -767,7 +709,8 @@ def add_delivery_person(request):
         messages.success(request, "Delivery Person Added Successfully")
         return redirect('add_delivery_person')
 
-    # ---------- SEARCH ----------
+    # -------- SEARCH + PAGINATION --------
+
     search = request.GET.get('search')
     delivery_qs = DeliveryPerson.objects.all().order_by('id')
 
@@ -779,7 +722,6 @@ def add_delivery_person(request):
             Q(contact_no__icontains=search)
         )
 
-    # ---------- PAGINATION ----------
     paginator = Paginator(delivery_qs, 5)
     page_number = request.GET.get('page')
     delivery_list = paginator.get_page(page_number)
@@ -788,6 +730,10 @@ def add_delivery_person(request):
         'delivery_list': delivery_list,
         'search': search
     })
+
+
+# def delivery_person_list(request):
+#     return render(request, 'adminpanel/delivery_person_list.html')
 
 
 def edit_delivery_person(request, id):
@@ -929,25 +875,7 @@ def delete_city(request, id):
     return redirect('add_and_list_city')
 
 
-# ======================
-# AREA
-# ======================
-# # def add_and_list_area(request):
-# #     if request.method == "POST":
-# #         name = request.POST.get('name')
-# #         city_id = request.POST.get('city')
-# #         if name and city_id:
-# #             city = City.objects.get(id=city_id)
-# #             if Area.objects.filter(name__iexact=name, city=city).exists():
-# #                 messages.error(request, "Area already exists in this city!")
-# #             else:
-# #                 Area.objects.create(name=name, city=city)
-# #                 messages.success(request, "Area added successfully!")
-# #         return redirect('add_and_list_area')
 
-#     cities = City.objects.all().order_by('name')  # for dropdown
-#     areas = Area.objects.all().order_by('id')
-#     return render(request, "adminpanel/add_and_list_area.html", {'areas': areas, 'cities': cities})
 def add_and_list_area(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -1011,6 +939,7 @@ def edit_area(request, id):
 def delete_area(request, id):
     Area.objects.filter(id=id).delete()
     return redirect('add_and_list_area')
+
 
 def delivery_person_list(request):
     return render(request, 'adminpanel/add_delivery_person.html')
@@ -1095,6 +1024,8 @@ def delivery_my_orders(request):
 
 
 
+
+
 @require_POST
 def admin_assign_delivery(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -1161,23 +1092,6 @@ def get_lat_lng_from_osm(area, city, state="Gujarat"):
 from django.shortcuts import render, redirect
 from .forms import NotificationForm
 
-# @login_required
-# def admin_notifications(request):
-#     notifications = Notification.objects.all().order_by('-send_datetime')
-
-#     if request.method == "POST":
-#         form = NotificationForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "Notification sent successfully")
-#             form = NotificationForm()   # ✅ reset form
-#     else:
-#         form = NotificationForm()
-
-#     return render(request, 'adminpanel/notifications.html', {
-#         'form': form,
-#         'notifications': notifications
-#     })
 @login_required
 def admin_notifications(request):
     notifications = Notification.objects.all().order_by('-send_datetime')
@@ -1227,3 +1141,143 @@ def admin_feedback_list(request):
     return render(request, 'adminpanel/admin_feedback_list.html', {
         'feedbacks': feedbacks
     })
+from accounts.models import Customer, PasswordResetOTP
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
+import re
+
+
+def admin_forgot_password(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+
+        if not username:
+            messages.error(request, "Username is required")
+            return redirect("admin_forgot_password")
+
+        try:
+            admin = Customer.objects.get(username=username, isadmin=True)
+        except Customer.DoesNotExist:
+            messages.error(request, "Admin not found")
+            return redirect("admin_forgot_password")
+
+        # Delete old OTP
+        PasswordResetOTP.objects.filter(user=admin).delete()
+
+        otp = PasswordResetOTP.generate_otp()
+
+        PasswordResetOTP.objects.create(
+            user=admin,
+            otp=otp
+        )
+
+        request.session["admin_reset_user_id"] = admin.id
+
+        send_mail(
+            subject="Admin Password Reset OTP",
+            message=f"Your OTP is {otp}. Valid for 5 minutes.",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[admin.email],
+            fail_silently=False
+        )
+
+        return redirect("admin_verify_otp")
+
+    return render(request, "auth/admin_forgot_password.html")
+
+def admin_verify_otp(request):
+    user_id = request.session.get("admin_reset_user_id")
+
+    if not user_id:
+        messages.error(request, "Session expired.")
+        return redirect("admin_forgot_password")
+
+    admin = Customer.objects.get(id=user_id, isadmin=True)
+
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+
+        otp_obj = PasswordResetOTP.objects.filter(user=admin).last()
+
+        if not otp_obj:
+            messages.error(request, "Invalid OTP")
+            return redirect("admin_verify_otp")
+
+        if otp_obj.is_expired():
+            messages.error(request, "OTP expired")
+            return redirect("admin_verify_otp")
+
+        if otp_obj.otp != entered_otp:
+            otp_obj.attempts += 1
+            otp_obj.save()
+            messages.error(request, "Incorrect OTP")
+            return redirect("admin_verify_otp")
+
+        otp_obj.is_used = True
+        otp_obj.save()
+
+        return redirect("admin_reset_password")
+
+    return render(request, "auth/admin_verify_otp.html")
+
+def admin_reset_password(request):
+    user_id = request.session.get("admin_reset_user_id")
+
+    if not user_id:
+        messages.error(request, "Session expired.")
+        return redirect("admin_forgot_password")
+
+    admin = Customer.objects.get(id=user_id, isadmin=True)
+
+    if request.method == "POST":
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match")
+            return redirect("admin_reset_password")
+
+        if len(password) < 6:
+            messages.error(request, "Password must be at least 6 characters")
+            return redirect("admin_reset_password")
+
+        admin.set_password(password)
+        admin.save()
+
+        PasswordResetOTP.objects.filter(user=admin).delete()
+        request.session.flush()
+
+        messages.success(request, "Password reset successful")
+        return redirect("login")
+
+    return render(request, "auth/admin_reset_password.html")
+
+def admin_resend_otp(request):
+    user_id = request.session.get("admin_reset_user_id")
+
+    if not user_id:
+        messages.error(request, "Session expired.")
+        return redirect("admin_forgot_password")
+
+    admin = Customer.objects.get(id=user_id, isadmin=True)
+
+    PasswordResetOTP.objects.filter(user=admin).delete()
+
+    otp = PasswordResetOTP.generate_otp()
+
+    PasswordResetOTP.objects.create(
+        user=admin,
+        otp=otp
+    )
+
+    send_mail(
+        subject="New Admin OTP",
+        message=f"Your new OTP is {otp}. Valid for 5 minutes.",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[admin.email],
+        fail_silently=False
+    )
+
+    messages.success(request, "New OTP sent")
+    return redirect("admin_verify_otp")

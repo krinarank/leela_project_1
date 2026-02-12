@@ -1,7 +1,7 @@
 from django.db import models
-import requests
-from django.conf import settings
 
+from django.conf import settings
+import requests
 
 class State(models.Model):
     name = models.CharField(max_length=100)

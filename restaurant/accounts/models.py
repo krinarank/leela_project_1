@@ -1,5 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
+import random
+
 
 class Customer(AbstractUser):
     firstname = models.CharField(max_length=50)
@@ -8,20 +12,35 @@ class Customer(AbstractUser):
     contactno = models.CharField(max_length=15)
     address = models.TextField()
     isadmin = models.BooleanField(default=False)
-    # is_delivery_person = models.BooleanField(default=False)  # ⭐ MAIN FLAG
+    is_delivery_person = models.BooleanField(default=False)  # ⭐ MAIN FLAG
 
     profile_image = models.ImageField(
-        upload_to='customer_profiles/',  # simple folder
+        upload_to='customer_profiles/',
         blank=True,
         null=True
     )
 
 
-    password = models.CharField(max_length=100)
-    is_delivery_person = models.BooleanField(default=False)  # ⭐ MAIN FLAG
-    
     creationdate = models.DateTimeField(auto_now_add=True)
     updationdate = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.username
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+    attempts = models.IntegerField(default=0)   # ✅ ADD THIS
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(minutes=5)
+
+
+    @staticmethod
+    def generate_otp():
+        return str(random.randint(100000, 999999))
+
+    def __str__(self):
+        return f"{self.user.username} - {self.otp}"

@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'deliverypanel',
     'orders',
     'location',
-    # 'deliverypanel',
+
     # 'purchase',
 ]
 

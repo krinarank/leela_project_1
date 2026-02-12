@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify OTP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .otp-input {
+            font-size: 24px;
+            letter-spacing: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 12px;
+            height: 55px;
+        }
+
+        .otp-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 10px rgba(13,110,253,0.3);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg p-4" style="width:430px; border-radius:20px;">
+
+        <h4 class="text-center mb-2">Verify OTP</h4>
+        <p class="text-center text-muted small">
+            Enter the 6-digit code sent to your email
+        </p>
+
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <input type="text"
+                       name="otp"
+                       maxlength="6"
+                       class="form-control otp-input"
+                       placeholder="______"
+                       required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Verify OTP
+            </button>
+        </form>
+
+        <!-- Resend -->
+        <div class="text-center mt-3">
+            <span id="timer-text">
+                Resend OTP in <span id="countdown">60</span>s
+            </span>
+
+            <a href="{% url 'customer_resend_otp' %}"
+               id="resend-btn"
+               class="d-block mt-2 text-decoration-none text-primary"
+               style="display:none;">
+               Resend OTP
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// Only digits allowed
+document.querySelector("input[name='otp']").addEventListener("input", function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+// Timer
+let seconds = 60;
+let countdown = document.getElementById("countdown");
+let resendBtn = document.getElementById("resend-btn");
+let timerText = document.getElementById("timer-text");
+
+let timer = setInterval(function(){
+    seconds--;
+    countdown.innerText = seconds;
+
+    if(seconds <= 0){
+        clearInterval(timer);
+        timerText.style.display = "none";
+        resendBtn.style.display = "block";
+    }
+},1000);
+</script>
+
+</body>
+</html>

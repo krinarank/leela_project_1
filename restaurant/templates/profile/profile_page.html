@@ -1,0 +1,61 @@
+{% extends 'menu/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="profile-wrapper">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="profile-sidebar">
+    <img src="{% if customer.profile_image %}{{ customer.profile_image.url }}?v={{ customer.updationdate|date:'U' }}{% else %}{% static 'default-avatar.png' %}{% endif %}" class="profile-img" alt="Profile Image">
+    <h4>{{ customer.username }}</h4>
+    <ul class="profile-menu">
+      <li><a href="#profile-info">👤 Profile Info</a></li>
+      <li><a href="#orders">📦 My Orders</a></li>
+      <li><a href="#wishlist">❤️ Wishlist</a></li>
+      <li><a href="#reviews">⭐ Reviews</a></li>
+      <li><a href="#tips">ℹ️ Profile Tips</a></li>
+      <li><a href="#change-password">🔐 Change Password</a></li>
+      <li><a href="{% url 'customer_logout' %}" onclick="return confirm('Are you sure you want to logout?')">🚪 Logout</a></li>
+    </ul>
+  </div>
+
+  <!-- RIGHT CONTENT -->
+  <div class="profile-content">
+    <div id="profile-info" class="profile-section {% if show_modal %}active{% endif %}">
+      {% include "profile/profile_info.html" %}
+    </div>
+
+    <div id="orders" class="profile-section">
+      {% include 'profile/order_history.html' %}
+    </div>
+
+    <div id="wishlist" class="profile-section">
+      {% include "profile/wishlist.html" %}
+    </div>
+
+    <div id="reviews" class="profile-section">
+      {% include 'profile/reviews.html' %}
+    </div>
+
+    <div id="tips" class="profile-section">
+      {% include 'profile/profile_tips.html' %}
+    </div>
+
+    <div id="change-password" class="profile-section">
+      {% include 'profile/change_password.html' %}
+    </div>
+  </div>
+</div>
+
+{% if success_msg %}
+<div id="successToast" class="toast-msg">
+  <div class="toast-box">✅ {{ success_msg }}</div>
+</div>
+<script>
+setTimeout(() => {
+  const toast = document.getElementById("successToast");
+  if (toast) { toast.classList.add("toast-hide"); setTimeout(() => toast.remove(), 400); }
+}, 3000);
+</script>
+{% endif %}
+{% endblock %}

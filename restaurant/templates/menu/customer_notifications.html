@@ -1,4 +1,6 @@
+{% extends 'menu/base.html' %}
 {% load static %}
+{% block content %}
 <link rel="stylesheet" href="{% static 'menu/css/notification.css' %}">
 
 <div class="notifications-wrapper">
@@ -18,3 +20,5 @@
 <a href="{% url 'home' %}" class="back-btn">Got it,thanks!</a>
 
    </div>
+
+{% endblock %}

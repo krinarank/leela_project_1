@@ -77,23 +77,23 @@
                     {% endif %}
                 </a>
                 <span class="admin-name">Admin</span>
-                
+                <a href="{% url 'admin_notifications' %}">🔔</a>
             </div>
         </div>
 
         <!-- PAGE CONTENT (NOW CORRECT POSITION) -->
         <div class="dashboard-content">
-{% if messages %}
-  <div class="messages-wrapper">
-    {% for message in messages %}
-      <div class="alert {{ message.tags }}">
-        {{ message }}
-        <button onclick="this.parentElement.style.display='none'" style="float:right; border:none; background:none; font-size:16px;">&times;</button>
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
 
+            {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             {% block content %}{% endblock %}
         </div>

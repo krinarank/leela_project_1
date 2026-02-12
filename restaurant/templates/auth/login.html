@@ -151,7 +151,13 @@ button:hover {
 
     <form method="post">
         {% csrf_token %}
-
+{% if messages %}
+    <div style="margin-bottom:10px;">
+        {% for msg in messages %}
+            <p class="error">{{ msg }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
         <div class="input-box">
             <span>👤</span>
             <input type="text" name="username" placeholder="Username" required>
@@ -165,6 +171,12 @@ button:hover {
        
 
         <button type="submit">Login</button>
+        <div style="margin-top:15px;">
+    <a href="{% url 'admin_forgot_password' %}" 
+       style="text-decoration:none; font-size:14px; color:#245bff; font-weight:600;">
+        Forgot Password?
+    </a>
+</div>
     </form>
 
 </div>

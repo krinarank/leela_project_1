@@ -5,34 +5,29 @@
     <title>Delivery Panel</title>
     <link rel="stylesheet" href="{% static 'delivery/delivery.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
 </head>
 <body>
 
-
+<!-- Messages -->
+<div class="container mt-3">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
 
 <div class="header">
     <h2 class="logo">Taste Villa 🍴</h2>
-
     <div class="header-right dropdown">
-        <button class="profile-circle" data-bs-toggle="dropdown">
-            👤
-        </button>
-
+        <button class="profile-circle" data-bs-toggle="dropdown">👤</button>
         <ul class="dropdown-menu dropdown-menu-end shadow">
-            <li>
-                <a class="dropdown-item" href="{% url 'delivery_profile' %}">
-                    👤 My Profile
-                </a>
-            </li>
+            <li><a class="dropdown-item" href="{% url 'delivery_profile' %}">👤 My Profile</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li>
-                <a class="dropdown-item text-danger"
-                   data-bs-toggle="modal"
-                   data-bs-target="#logoutModal">
-                    🚪 Logout
-                </a>
-            </li>
+            <li><a class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">🚪 Logout</a></li>
         </ul>
     </div>
 </div>
@@ -64,31 +59,25 @@
     </div>
 </div>
 
-<!-- Logout Confirmation Modal -->
+<!-- Logout Modal -->
 <div class="modal fade" id="logoutModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
         <h5 class="modal-title text-danger">Confirm Logout</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body text-center">
         <p class="fs-5">Are you sure you want to logout?</p>
       </div>
-
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <a href="/delivery/logout/" class="btn btn-danger">Logout</a>
+        <a href="{% url 'delivery_logout' %}" class="btn btn-danger">Logout</a>
       </div>
-
     </div>
   </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
