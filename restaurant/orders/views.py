@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Wishlist
 from accounts.models import Customer
 import json
+from .models import FeedbackRating
 
 
 
@@ -545,20 +546,50 @@ def remove_from_wishlist(request, food_id):
     return redirect('my_wishlist')
 
 
+# def my_wishlist(request):
+
+#     # 🔹 Logged-in user
+#     if request.user.is_authenticated:
+#         wishlist_items = FoodItem.objects.filter(
+#             wishlist__user=request.user   # Wishlist FK
+#         ).prefetch_related('images')
+
+#     # 🔹 Guest user
+#     else:
+#         wishlist_ids = request.session.get('wishlist', [])
+#         wishlist_items = FoodItem.objects.filter(
+#             id__in=wishlist_ids
+#         ).prefetch_related('images')
+
+#     return render(request, 'orders/wishlist.html', {
+#         'wishlist_items': wishlist_items
+#     })
+from orders.utils import get_best_offer
+
 def my_wishlist(request):
 
-    # 🔹 Logged-in user
     if request.user.is_authenticated:
         wishlist_items = FoodItem.objects.filter(
-            wishlist__user=request.user   # Wishlist FK
+            wishlist__user=request.user
         ).prefetch_related('images')
-
-    # 🔹 Guest user
     else:
         wishlist_ids = request.session.get('wishlist', [])
         wishlist_items = FoodItem.objects.filter(
             id__in=wishlist_ids
         ).prefetch_related('images')
+
+    # 🔁 APPLY OFFER (MENU JEVI)
+    for item in wishlist_items:
+        offer = get_best_offer(item)
+        if offer:
+            discount = offer.offer.discount_percentage
+            item.offer_percent = discount
+            item.discounted_price = round(
+                item.price - (item.price * discount / 100), 2
+            )
+            item.has_offer = True
+        else:
+            item.has_offer = False
 
     return render(request, 'orders/wishlist.html', {
         'wishlist_items': wishlist_items
@@ -567,27 +598,135 @@ def my_wishlist(request):
 
 @login_required
 def my_orders(request):
-    orders = Order.objects.filter(
-        user=request.user
-    ).order_by("-order_date")
+    orders = Order.objects.filter(user=request.user).order_by("-id")
+    
+    steps = ["PLACED", "CONFIRMED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED"]
 
     return render(request, "orders/my_orders.html", {
-        "orders": orders
+        "orders": orders,
+        "steps": steps
     })
+
 
 from orders.utils import get_discounted_price   # ⚠️ je file ma hoy tya thi import karje
 
 
+# @login_required
+# def order_detail(request, order_id):
+
+#     # ================= ORDER =================
+#     order = get_object_or_404(
+#         Order,
+#         id=order_id,
+#         user=request.user
+#     )
+
+#     order_items = OrderDetail.objects.filter(order=order).select_related("food_item")
+
+#     # ================= TOTALS =================
+#     original_total = Decimal("0.00")
+#     item_total = Decimal("0.00")
+#     total_discount = Decimal("0.00")
+
+#     for item in order_items:
+#         # original price (qty sathe)
+#         original_price = item.food_item.price * item.qty
+#         original_total += original_price
+
+#         # 🔥 discounted price (runtime)
+#         discounted_price = get_discounted_price(item.food_item) * item.qty
+#         item_total += discounted_price
+
+#         # discount per item
+#         item_discount = original_price - discounted_price
+#         total_discount += item_discount
+
+#         # 🔥 attach extra values to item (HTML mate)
+#         item.discounted_price = discounted_price
+#         item.item_discount = item_discount
+
+#     # ================= EXTRA CHARGES =================
+#     tax = (item_total * Decimal("0.05")).quantize(Decimal("0.01"))
+#     delivery_charge = Decimal("50.00")   # tu area-wise pan kari sake
+
+#     grand_total = item_total + tax + delivery_charge
+
+#     # ================= CONTEXT =================
+#     context = {
+#         "order": order,
+#         "order_items": order_items,
+
+#         # checkout-style values
+#         "original_total": original_total,
+#         "total_discount": total_discount,
+#         "item_total": item_total,
+#         "tax": tax,
+#         "delivery_charge": delivery_charge,
+#         "grand_total": grand_total,
+#     }
+
+#     return render(request, "orders/order_detail.html", context)
+# @login_required
+# def order_detail(request, order_id):
+#     # ================= ORDER =================
+#     order = get_object_or_404(
+#         Order,
+#         id=order_id,
+#         user=request.user
+#     )
+#     order_items = OrderDetail.objects.filter(order=order).select_related("food_item")
+
+#     # ================= TOTALS =================
+#     original_total = Decimal("0.00")
+#     item_total = Decimal("0.00")
+#     total_discount = Decimal("0.00")
+
+#     for item in order_items:
+#         original_price = item.food_item.price * item.qty
+#         original_total += original_price
+
+#         discounted_price = get_discounted_price(item.food_item) * item.qty
+#         item_total += discounted_price
+
+#         item_discount = original_price - discounted_price
+#         total_discount += item_discount
+
+#         item.discounted_price = discounted_price
+#         item.item_discount = item_discount
+
+#     tax = (item_total * Decimal("0.05")).quantize(Decimal("0.01"))
+#     delivery_charge = Decimal("50.00")
+#     grand_total = item_total + tax + delivery_charge
+
+#     # ================= STATUS TRACKER =================
+#     steps = ["placed", "confirmed", "preparing", "out_for_delivery", "delivered"]
+#     try:
+#         current_index = steps.index(order.order_status.lower())
+#     except ValueError:
+#         current_index = 0
+
+#     # ================= CONTEXT =================
+#     context = {
+#         "order": order,
+#         "order_items": order_items,
+#         "original_total": original_total,
+#         "total_discount": total_discount,
+#         "item_total": item_total,
+#         "tax": tax,
+#         "delivery_charge": delivery_charge,
+#         "grand_total": grand_total,
+#         "steps": steps,
+#         "current_index": current_index,
+#     }
+
+#     return render(request, "orders/order_detail.html", context)
+
+
+from .models import FeedbackRating
+
 @login_required
 def order_detail(request, order_id):
-
-    # ================= ORDER =================
-    order = get_object_or_404(
-        Order,
-        id=order_id,
-        user=request.user
-    )
-
+    order = get_object_or_404(Order, id=order_id, user=request.user)
     order_items = OrderDetail.objects.filter(order=order).select_related("food_item")
 
     # ================= TOTALS =================
@@ -596,44 +735,60 @@ def order_detail(request, order_id):
     total_discount = Decimal("0.00")
 
     for item in order_items:
-        # original price (qty sathe)
         original_price = item.food_item.price * item.qty
         original_total += original_price
 
-        # 🔥 discounted price (runtime)
         discounted_price = get_discounted_price(item.food_item) * item.qty
         item_total += discounted_price
 
-        # discount per item
         item_discount = original_price - discounted_price
         total_discount += item_discount
 
-        # 🔥 attach extra values to item (HTML mate)
         item.discounted_price = discounted_price
         item.item_discount = item_discount
 
-    # ================= EXTRA CHARGES =================
     tax = (item_total * Decimal("0.05")).quantize(Decimal("0.01"))
-    delivery_charge = Decimal("50.00")   # tu area-wise pan kari sake
-
+    delivery_charge = Decimal("50.00")
     grand_total = item_total + tax + delivery_charge
 
-    # ================= CONTEXT =================
+    # ================= STATUS TRACKER =================
+    steps = ["placed", "confirmed", "preparing", "out_for_delivery", "delivered"]
+    try:
+        current_index = steps.index(order.order_status.lower())
+    except:
+        current_index = 0
+
+    # ================= FEEDBACK LOGIC =================
+    feedback = FeedbackRating.objects.filter(order=order, user=request.user).first()
+
+    if request.method == "POST" and order.order_status.upper() == "DELIVERED":
+        if not feedback:
+            rating = request.POST.get("rating")
+            feedback_text = request.POST.get("feedback_text")
+
+            FeedbackRating.objects.create(
+                user=request.user,
+                order=order,
+                rating=rating,
+                feedback_text=feedback_text
+            )
+            return redirect("order_detail", order_id=order.id)
+
     context = {
         "order": order,
         "order_items": order_items,
-
-        # checkout-style values
         "original_total": original_total,
         "total_discount": total_discount,
         "item_total": item_total,
         "tax": tax,
         "delivery_charge": delivery_charge,
         "grand_total": grand_total,
+        "steps": steps,
+        "current_index": current_index,
+        "feedback": feedback,   # 🔴 VERY IMPORTANT
     }
 
     return render(request, "orders/order_detail.html", context)
-
 
 
 @login_required
@@ -859,3 +1014,162 @@ def order_success(request, order_id):
     }
 
     return render(request, "orders/order_success.html", context)
+
+from django.views.decorators.http import require_POST
+# ================= ORDER STATUS SEQUENCE =================
+STATUS_SEQUENCE = ['PLACED', 'CONFIRMED', 'PREPARING', 'OUT_FOR_DELIVERY', 'DELIVERED']
+
+# Helper to check allowed status change
+def status_allowed(current_status, new_status):
+    """Allow only moving forward in sequence"""
+    try:
+        current_index = STATUS_SEQUENCE.index(current_status)
+        new_index = STATUS_SEQUENCE.index(new_status)
+        return new_index >= current_index  # only forward
+    except ValueError:
+        return False
+
+# def admin_orders(request):
+#     orders = Order.objects.all().order_by('-order_date')  # Use your correct field
+#     return render(request, 'adminpanel/admin_orders.html', {'orders': orders})
+# def admin_orders(request):
+#     orders = Order.objects.all().order_by('-order_date')
+
+#     # Calculate allowed status for each order
+#     order_list = []
+#     for order in orders:
+#         status_values = [status[0] for status in order.ORDER_STATUS]
+#         current_index = status_values.index(order.order_status)
+#         allowed_statuses = status_values[:current_index + 2]  # current + next
+#         order_list.append({
+#             'order': order,
+#             'allowed_statuses': allowed_statuses
+#         })
+
+#     return render(request, 'adminpanel/admin_orders.html', {'order_list': order_list})
+from deliverypanel.models import DeliveryPerson, AssignOrder
+
+def admin_orders(request):
+    orders = Order.objects.all().order_by('-order_date')
+    delivery_persons = DeliveryPerson.objects.filter(is_active=True)
+
+    order_list = []
+
+    for order in orders:
+        # Make a list of dictionaries for dropdown
+        statuses = []
+        status_values = [s[0] for s in order.ORDER_STATUS]  # ['PLACED','CONFIRMED', ...]
+        current_index = status_values.index(order.order_status)
+
+        for i, (value, label) in enumerate(order.ORDER_STATUS):
+            if i < current_index:
+                # Past statuses → green + disabled
+                statuses.append({'value': value, 'label': label, 'disabled': True, 'green': True})
+            elif i == current_index:
+                # Current status → green + disabled
+                statuses.append({'value': value, 'label': label, 'disabled': True, 'green': True})
+            elif i == current_index + 1:
+                # Next status → enabled
+                statuses.append({'value': value, 'label': label, 'disabled': False, 'green': False})
+            else:
+                # Future statuses → disabled
+                statuses.append({'value': value, 'label': label, 'disabled': True, 'green': False})
+        
+
+        # 🔴 NEW: get latest assignment for this order
+        assignment = AssignOrder.objects.filter(order=order).last()
+
+# 🔴 Get rejected delivery persons for this order
+        rejected_delivery_ids = AssignOrder.objects.filter(
+            order=order,
+            status='REJECTED'
+            ).values_list('delivery_person_id', flat=True)
+
+# 🔴 Filter dropdown delivery persons (exclude rejected ones)
+        available_delivery_persons = delivery_persons.exclude(
+             id__in=rejected_delivery_ids
+)
+
+
+        order_list.append({
+            'order': order,
+            'statuses': statuses,
+            'delivery_persons': available_delivery_persons,   # 🔴 NEW
+            'assignment': assignment,               # 🔴 NEW
+        })
+
+    return render(request, 'adminpanel/admin_orders.html', {
+        'order_list': order_list
+    })
+
+
+def admin_order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    order_items = []
+    for item in order.order_details.all():  # use 'order_details' related_name
+        order_items.append({
+            'food_item': item.food_item,
+            'quantity': item.qty,
+            'price': item.price,
+            'subtotal': item.total_amount  # or calculate: item.qty * item.price
+        })
+
+    return render(request, 'adminpanel/admin_order_detail.html', {
+        'order': order,
+        'order_items': order_items,
+        'total_amount': order.total_amount,
+        'dis_amount': order.dis_amount,
+    })
+def admin_order_confirm(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    if order.order_status == 'PLACED':
+        order.order_status = 'CONFIRMED'
+        order.save()
+        messages.success(request, f"Order #{order.id} has been confirmed.")
+    else:
+        messages.warning(request, f"Order #{order.id} cannot be confirmed. Current status: {order.order_status}")
+    
+    return redirect('admin_orders') 
+@require_POST
+def admin_order_update_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    new_status = request.POST.get('order_status')
+
+    valid_statuses = [status[0] for status in order.ORDER_STATUS]  # dynamically get valid values
+
+    if new_status in valid_statuses:
+        order.order_status = new_status
+        order.save()
+        messages.success(request, f"Order #{order.id} status updated to {new_status}.")
+    else:
+        messages.error(request, "Invalid status selected.")
+
+    return redirect('admin_orders')
+@require_POST
+def admin_assign_delivery(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    delivery_id = request.POST.get('delivery_person')
+    delivery_person = get_object_or_404(DeliveryPerson, id=delivery_id, is_active=True)
+
+    # 🔒 Check if delivery person already has a pending or active order
+    busy_assignment = AssignOrder.objects.filter(
+        delivery_person=delivery_person,
+        status__in=['REQUESTED', 'ACCEPTED']
+    ).exists()
+
+    if busy_assignment:
+        messages.error(request, f"{delivery_person.fname} already has a pending or active order. Cannot assign another.")
+        return redirect('admin_orders')
+
+    # Create new assignment
+    AssignOrder.objects.create(
+        order=order,
+        delivery_person=delivery_person,
+        user=order.user,
+        status='REQUESTED'
+    )
+
+    messages.success(request, f"Order #{order.id} assigned to {delivery_person.fname}")
+    return redirect('admin_orders')
