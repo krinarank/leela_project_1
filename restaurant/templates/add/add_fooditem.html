@@ -1,13 +1,10 @@
 {% extends 'adminpanel/base.html' %}
 {% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
+
     <title>Add Food Item</title>
     <link rel="stylesheet" href="{% static 'adminpanel/css/fooditem.css' %}">
-</head>
-<body>
+
 
 <div class="container">
 
@@ -15,11 +12,6 @@
     <div class="left">
         <u><h3>Add Food Item</h3></u>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
 
         <form method="post">
             {% csrf_token %}
@@ -62,6 +54,9 @@
     <!-- RIGHT : TABLE -->
     <div class="right">
         <u><h3>Existing Food Items</h3></u>
+         <div class="search-container">
+    <input type="text" id="foodSearch" placeholder="🔍 Search food item...">
+</div>
 
         <table>
             <tr>
@@ -99,6 +94,30 @@
 </div>
 <a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
    
-</body>
-</html>
+<script>
+const searchInput = document.getElementById('foodSearch');
+const table = document.querySelector('.right table');
+const rows = table.getElementsByTagName('tr');
+
+searchInput.addEventListener('keyup', function() {
+    const filter = searchInput.value.toLowerCase();
+
+    for (let i = 1; i < rows.length; i++) {
+        const name = rows[i].getElementsByTagName('td')[0];
+        const category = rows[i].getElementsByTagName('td')[1];
+        const subcategory = rows[i].getElementsByTagName('td')[2];
+
+        if (
+            name.textContent.toLowerCase().includes(filter) ||
+            category.textContent.toLowerCase().includes(filter) ||
+            subcategory.textContent.toLowerCase().includes(filter)
+        ){
+            rows[i].style.display = "";
+        } else {
+            rows[i].style.display = "none";
+        }
+    }
+});
+</script>
+
 {% endblock %}

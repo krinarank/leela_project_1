@@ -6,19 +6,17 @@
     padding: 0;
 }
 
-body {
-    background: #f4f6f8;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+
 
 /* Container & card */
 .container {
     width: 100%;
     max-width: 450px;
     padding: 20px;
+     margin: auto;           /* horizontal center */
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
 }
 
 .card {
@@ -105,3 +103,26 @@ button:hover {
 .back-link:hover {
     color: #0056b3;
 }
+
+.success-msg {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-left: 5px solid #28a745;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

@@ -1,0 +1,124 @@
+/* ================================
+   👤 CUSTOMER TABLE – PREMIUM UI
+================================ */
+
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: linear-gradient(180deg, #ffffff, #f9fbff);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ---------- HEADER ---------- */
+.admin-table thead {
+    background: linear-gradient(135deg, #2c3e50, #2c3e50);
+}
+
+.admin-table thead th {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    padding: 16px 14px;
+    text-transform: uppercase;
+    border-bottom: none;
+}
+
+/* ---------- BODY ---------- */
+.admin-table tbody td {
+    padding: 14px;
+    font-size: 14px;
+    color: #1f2937;
+    border-bottom: 1px solid #eef2ff;
+    vertical-align: middle;
+}
+
+/* ---------- ZEBRA STRIPES ---------- */
+.admin-table tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+/* ---------- HOVER EFFECT ---------- */
+.admin-table tbody tr {
+    transition: all 0.25s ease;
+}
+
+.admin-table tbody tr:hover {
+    background: linear-gradient(90deg, #eef2ff, #ffffff);
+    transform: scale(1.01);
+    box-shadow: inset 4px 0 0 #4f46e5;
+}
+
+/* ---------- NAME STYLE ---------- */
+.admin-table td:nth-child(2) {
+    font-weight: 600;
+    color: #111827;
+}
+
+/* ---------- EMAIL STYLE ---------- */
+.admin-table td:nth-child(4) {
+    color: #2563eb;
+    font-size: 13px;
+}
+
+/* ---------- CONTACT ---------- */
+.admin-table td:nth-child(5) {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+/* ---------- EMPTY STATE ---------- */
+.admin-table tbody tr td[colspan] {
+    text-align: center;
+    padding: 40px;
+    font-size: 15px;
+    color: #6b7280;
+    background: #f9fafb;
+}
+
+/* ---------- PAGE HEADING ---------- */
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* ================================
+   🔍 SEARCH BAR – MODERN ADMIN
+================================ */
+.search-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+#customerSearch {
+    width: 320px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #dbeafe;
+    outline: none;
+    font-size: 14px;
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+}
+
+#customerSearch::placeholder {
+    color: #9ca3af;
+}
+
+#customerSearch:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+    transform: scale(1.02);
+}

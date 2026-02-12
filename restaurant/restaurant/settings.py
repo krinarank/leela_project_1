@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'deliverypanel',
     'orders',
     'location',
+    # 'deliverypanel',
     # 'purchase',
 ]
 
@@ -70,6 +71,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'orders.context_processors.cart_count',
+                'menu.context_processors.notification_count',
             ],
         },
     },
@@ -120,6 +122,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+TIME_ZONE = 'Asia/Kolkata'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -137,6 +140,13 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
+
+# =================== SESSIONS SETTINGS ===================
+# ✅ ensures guest wishlist works
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # store sessions in DB
+SESSION_COOKIE_NAME = 'sessionid'  # default cookie name
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True  # saves session on every request, important for wishlist
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = 'smtp.gmail.com'
@@ -152,3 +162,5 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # store sessions in DB
 SESSION_COOKIE_NAME = 'sessionid'  # default cookie name
 SESSION_COOKIE_HTTPONLY = True
 SESSION_SAVE_EVERY_REQUEST = True  # saves session on every request, important for wishlist
+
+GOOGLE_MAPS_API_KEY = "AIzaSyCSzJJO79GrFQB-Uzupviy4--COLE6Aozo"

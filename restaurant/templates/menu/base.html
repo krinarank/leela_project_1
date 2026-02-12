@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{% static 'menu/css/frontend.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/menu.css' %}">
     <link rel="stylesheet" href="{% static 'menu/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'menu/css/notification.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'menu/css/footer.css' %}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,16 +22,24 @@
 <header class="header">
     <div class="logo">Taste Villa</div>
 
-    <nav class="nav">
-        <a href="{% url 'home' %}">Home</a>
-        <a href="{% url 'menu_page' %}">Menu</a>
-        <a href="{% url 'about' %}">About Us</a>
-        <a href="{% url 'contact' %}">Contact Us</a>
-        <a href="{% url 'my_wishlist' %}">❤️</a>
+        <nav class="nav">
+             <a href="{% url 'my_orders' %}">
+                📦 Your Orders
+            </a>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'menu_page' %}">Menu</a>
+            <a href="{% url 'about' %}">About Us</a>
+            <a href="{% url 'contact' %}">Contact Us</a>
+           
+            <a href="{% url 'my_wishlist' %}">❤️</a>
 
-        <!-- ===== ACCOUNT MENU ===== -->
-        <div class="account-menu">
-
+         
+    <a href="{% url 'customer_notifications' %}" class="notification-bell">
+    🔔
+    {% if notification_count > 0 %}
+        <span class="badge">{{ notification_count }}</span>
+    {% endif %}
+</a>
 {% if user.is_authenticated %}
     <a href="{% url 'customer_profile' %}" class="profile-avatar" title="My Profile">
         <i class="fa-solid fa-user"></i>
@@ -41,6 +51,10 @@
 {% else %}
     <a href="{% url 'customer_login' %}" class="login-text">Login</a>
 {% endif %}
+
+
+        </nav>
+    </header>
 
 </div>
 

@@ -46,11 +46,17 @@ path('areas/', views.add_and_list_area, name='add_and_list_area'),
 path('areas/edit/<int:id>/', views.edit_area, name='edit_area'),
 path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
 
+path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
+path('my-orders/', views.delivery_my_orders, name='delivery_my_orders'),
 
-    # path('cities/', views.city_list, name='city_list'),
-    # path('cities/add/', views.add_city, name='add_city'),
-    # path('cities/edit/<int:id>/', views.edit_city, name='edit_city'),
-    # path('cities/delete/<int:id>/', views.delete_city, name='delete_city'),
+path('customers/', views.admin_customers, name='admin_customers'),
+path('notifications/', views.admin_notifications, name='admin_notifications'),
+path('notification/delete/<int:id>/', views.delete_notification, name='delete_notification'),
+path('notification/edit/<int:pk>/', views.edit_notification, name='edit_notification'),
+path('feedbacks/', views.admin_feedback_list, name='admin_feedback_list'),
+ 
+
+
 
     # # path('areas/', views.area_list, name='area_list'),
     # # path('areas/add/', views.add_area, name='add_area'),
@@ -58,5 +64,4 @@ path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
     # path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
     
 
-     
 ]

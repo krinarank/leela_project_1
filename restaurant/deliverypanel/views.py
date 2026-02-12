@@ -9,32 +9,7 @@ import re
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from .models import DeliveryVehicle
-
-
-# ---------------- DELIVERY LOGIN ----------------
-# def delivery_login(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-
-#         try:
-#             customer = Customer.objects.get(
-#                 email=email,
-#                 password=password,
-#                 is_delivery_person=True
-#             )
-
-#             delivery = DeliveryPerson.objects.get(user=customer)
-
-#             request.session['delivery_id'] = delivery.id
-#             request.session['delivery_name'] = delivery.fname
-
-#             return redirect('/delivery/dashboard/')
-#         except:
-#             messages.error(request, "Invalid credentials")
-
-#     return render(request, 'deliverypanel/login.html')
-
+from django.shortcuts import get_object_or_404, redirect
 
 def delivery_login(request):
     if request.method == 'POST':
@@ -62,19 +37,112 @@ def delivery_login(request):
 
     return render(request, 'deliverypanel/login.html')
 
-# ---------------- DASHBOARD ----------------
+from deliverypanel.models import AssignOrder
+
+# def delivery_dashboard(request):
+#     if 'delivery_id' not in request.session:
+#         return redirect('/delivery/login/')
+
+#     delivery = DeliveryPerson.objects.get(id=request.session['delivery_id'])
+
+#     # ✅ ACTIVE ORDERS (current work)
+#     active_assignments = AssignOrder.objects.filter(
+#         delivery_person=delivery
+#     ).exclude(status='DELIVERED').select_related('order', 'user')
+
+#     # ✅ DELIVERED ORDERS (history)
+#     delivered_assignments = AssignOrder.objects.filter(
+#         delivery_person=delivery,
+#         status='DELIVERED'
+#     ).select_related('order', 'user')
+
+#     return render(request, 'deliverypanel/dashboard.html', {
+#         'delivery': delivery,
+#         'active_assignments': active_assignments,
+#         'delivered_assignments': delivered_assignments,
+#     })
+
+
 def delivery_dashboard(request):
     if 'delivery_id' not in request.session:
         return redirect('/delivery/login/')
 
     delivery = DeliveryPerson.objects.get(id=request.session['delivery_id'])
 
+    # 🔹 New Requests (REQUESTED status)
+    requested_assignments = AssignOrder.objects.filter(
+        delivery_person=delivery,
+        status='REQUESTED'
+    ).select_related('order', 'user')
+
+    # 🔹 Active Orders (ACCEPTED)
+    active_assignments = AssignOrder.objects.filter(
+        delivery_person=delivery,
+        status='ACCEPTED'
+    ).select_related('order', 'user')
+
+    # 🔹 Delivered Orders
+    delivered_assignments = AssignOrder.objects.filter(
+        delivery_person=delivery,
+        status='DELIVERED'
+    ).select_related('order', 'user')
+    
+
     return render(request, 'deliverypanel/dashboard.html', {
-        'delivery': delivery
+        'delivery': delivery,
+        'new_requests': requested_assignments,
+        'active_assignments': active_assignments,
+        'delivered_assignments': delivered_assignments,
     })
 
+def delivery_accept_order(request, assign_id):
+    if 'delivery_id' not in request.session:
+        return redirect('/delivery/login/')
 
-# ---------------- LOGOUT ----------------
+    delivery_id = request.session['delivery_id']
+
+    assignment = get_object_or_404(
+        AssignOrder,
+        id=assign_id,
+        delivery_person_id=delivery_id,
+        status='REQUESTED'
+    )
+
+    assignment.status = 'ACCEPTED'
+    assignment.save()
+
+    messages.success(request, "Order accepted successfully.")
+    return redirect('delivery_dashboard')
+
+
+def delivery_reject_order(request, assign_id):
+    if 'delivery_id' not in request.session:
+        return redirect('/delivery/login/')
+
+    if request.method == 'POST':
+        delivery_id = request.session['delivery_id']
+        assignment = get_object_or_404(
+            AssignOrder,
+            id=assign_id,
+            delivery_person_id=delivery_id,
+            status='REQUESTED'
+        )
+
+        # Reject the order
+        assignment.status = 'REJECTED'
+        assignment.save()
+
+        # Make order available for reassignment
+        order = assignment.order
+        # Optional: delete old rejected assignment if you want
+        # assignment.delete()
+        # Or keep it for history and create a new "ASSIGNED" record
+        # AssignOrder.objects.create(order=order, delivery_person=None, status='ASSIGNED', user=order.user)
+
+        messages.error(request, "Order rejected. Admin can now reassign this order.")
+
+    return redirect('delivery_dashboard')
+
 def delivery_logout(request):
     request.session.flush()
     #logout(request)
@@ -82,129 +150,27 @@ def delivery_logout(request):
 
 
 # ---------------- ADD DELIVERY PERSON (ADMIN) ----------------
-def add_delivery_person(request):
-    if request.method == 'POST':
-        fname = request.POST['fname']
-        lname = request.POST['lname']
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        contact = request.POST['contact']
-        address = request.POST['address']
 
-        customer = Customer.objects.create(
-            username=username,
-            firstname=fname,
-            lastname=lname,
-            email=email,
-            password=password,
-            contactno=contact,
-            address=address,
-            is_delivery_person=True
-        )
+def delivery_mark_delivered(request, order_id):
+    if 'delivery_id' not in request.session:
+        return redirect('/delivery/login/')
 
-        DeliveryPerson.objects.create(
-            user=customer,
-            fname=fname,
-            lname=lname,
-            email=email,
-            contact_no=contact,
-            address=address
-        )
+    assignment = get_object_or_404(
+        AssignOrder,
+        order_id=order_id,
+        delivery_person_id=request.session['delivery_id']
+    )
 
-        messages.success(request, "Delivery Person Added Successfully")
-        return redirect('/delivery/add/')
+    # Update assignment + order
+    assignment.status = 'DELIVERED'
+    assignment.save()
 
-    return render(request, 'deliverypanel/add_delivery_person.html')
+    order = assignment.order
+    order.order_status = 'DELIVERED'
+    order.save()
 
-# def delivery_forgot_password(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-
-#         try:
-#             user = Customer.objects.get(
-#                 email=email,
-#                 is_delivery_person=True
-#             )
-
-#             otp = random.randint(100000, 999999)
-
-#             request.session['reset_email'] = email
-#             request.session['otp'] = otp
-
-#             send_mail(
-#                 'Your OTP for Password Reset',
-#                 f'Your OTP is {otp}',
-#                 'leelarestaurant.official@gmail.com',
-#                 [email],
-#                 fail_silently=False
-#             )
-
-#             return redirect('verify_otp')
-
-#         except Customer.DoesNotExist:
-#             messages.error(request, "Email not found")
-
-#     return render(request, 'deliverypanel/forgot_password.html')
-
-# def verify_otp(request):
-#     if request.method == 'POST':
-#         entered_otp = request.POST.get('otp')
-#         session_otp = request.session.get('otp')
-
-#         print("Entered OTP:", entered_otp)
-#         print("Session OTP:", session_otp)
-
-#         if session_otp and entered_otp == str(session_otp):
-#             return redirect('reset_password')
-#         else:
-#             messages.error(request, "Invalid OTP")
-
-#     return render(request, 'deliverypanel/verify_otp.html')
-
-# # def reset_password(request):
-# #     if request.method == 'POST':
-# #         new_pass = request.POST.get('password')
-# #         confirm_pass = request.POST.get('confirm_password')
-
-# #         if new_pass == confirm_pass:
-# #             user_id = request.session.get('forgot_user')
-# #             user = Customer.objects.get(id=user_id)
-# #             user.password = new_pass
-# #             user.save()
-
-# #             request.session.flush()
-# #             messages.success(request, "Password reset successful")
-# #             return redirect('delivery_login')
-# #         else:
-# #             messages.error(request, "Passwords do not match")
-
-# #     return render(request, 'deliverypanel/reset_password.html')
-
-
-# def reset_password(request):
-#     if request.method == 'POST':
-#         new_pass = request.POST.get('password')
-#         confirm_pass = request.POST.get('confirm_password')
-
-#         if new_pass == confirm_pass:
-#             user_id = request.session.get('reset_user_id')
-
-#             if not user_id:
-#                 messages.error(request, "Session expired. Try again.")
-#                 return redirect('delivery_forgot_password')
-
-#             user = Customer.objects.get(id=user_id)
-#             user.set_password(new_pass)
-#             user.save()
-
-#             request.session.flush()
-#             messages.success(request, "Password reset successful")
-#             return redirect('delivery_login')
-#         else:
-#             messages.error(request, "Passwords do not match")
-
-#     return render(request, 'deliverypanel/reset_password.html')
+    messages.success(request, f"Order #{order.id} marked as delivered.")
+    return redirect('delivery_dashboard')
 
 def delivery_forgot_password(request):
     if request.method == 'POST':
@@ -627,3 +593,5 @@ def delivery_vehicle(request):
     return render(request, 'deliverypanel/vehicle.html', {
         'vehicle': vehicle
     })
+
+

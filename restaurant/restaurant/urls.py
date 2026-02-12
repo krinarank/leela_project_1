@@ -32,7 +32,7 @@ from adminpanel import views as admin_views
 urlpatterns = [
     path('admin/', views.login_view, name='login'), 
     path('dashboard/', include('adminpanel.urls')),
-     path('', include('menu.urls')),
+    path('', include('menu.urls')),
     path('logout/', admin_views.logout_view, name='logout'), 
     path('accounts/', include('accounts.urls')),
     path('orders/', include('orders.urls')),
@@ -41,6 +41,8 @@ urlpatterns = [
     path('orders/', include('orders.urls')),  
     # path('adminpanel/', include('orders.urls')),  
 
+    
+    path('location/',include('location.urls')),
 ]
 
 if settings.DEBUG:

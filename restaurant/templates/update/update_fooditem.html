@@ -1,23 +1,18 @@
 {% extends 'adminpanel/base.html' %}
 {% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
+
     <title>Update Food Item</title>
     <link rel="stylesheet" href="{% static 'adminpanel/css/update_category.css' %}">
-</head>
-<body>
+
 <div class="container">
 
     <div class="card">
         <u><h3>Update Food Item</h3></u><br>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+            {% if request.GET.success %}
+<p class="success-msg">Food item Updated Successfully!</p>
+{% endif %}
 
         <form method="post">
     {% csrf_token %}
@@ -60,6 +55,5 @@
     </div>
 
 </div>
-</body>
-</html>
+
 {% endblock %}

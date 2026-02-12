@@ -1,0 +1,110 @@
+{% extends 'menu/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'orders/css/combin_orders.css' %}">
+
+<div class="container py-4">
+
+    <!-- ================= ORDER HEADER ================= -->
+    <h2>Order #{{ order.id }} Details</h2>
+    <p><strong>Status:</strong> {{ order.order_status }}</p>
+    <p><strong>Date:</strong> {{ order.order_date|date:"d M Y H:i" }}</p>
+    <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+
+    <!-- ================= ORDER ITEMS ================= -->
+    <div class="order-items" style="margin-top:20px;">
+        {% for item in order_items %}
+        <div class="order-item-card"
+             style="border:1px solid #eee; padding:12px; margin-bottom:12px;
+                    display:flex; align-items:center; border-radius:8px;">
+
+            <!-- IMAGE -->
+            <div style="width:80px; height:80px; margin-right:15px;">
+                {% with item.food_item.images.first as img %}
+                    {% if img %}
+                        <img src="{{ img.img_url.url }}"
+                             alt="{{ item.food_item.name }}"
+                             style="width:100%; height:100%; object-fit:cover; border-radius:6px;">
+                    {% else %}
+                        <img src="{% static 'images/no-food.png' %}"
+                             style="width:100%; height:100%; object-fit:cover; border-radius:6px;">
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- INFO -->
+            <div>
+                <p><strong>{{ item.food_item.name }}</strong></p>
+                <p>Qty: {{ item.qty }}</p>
+
+                <!-- ORIGINAL PRICE -->
+                <p style="font-size:14px; color:#777;">
+                    Original: ₹{{ item.food_item.price|floatformat:2 }}
+                </p>
+
+                <!-- DISCOUNTED PRICE -->
+                <p style="font-size:15px;">
+                    Price after discount:
+                    <strong>₹{{ item.discounted_price|floatformat:2 }}</strong>
+                </p>
+
+                <!-- ITEM SAVING -->
+                {% if item.item_discount > 0 %}
+                <p style="font-size:13px; color:green;">
+                    You saved ₹{{ item.item_discount|floatformat:2 }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ================= ORDER SUMMARY (CHECKOUT STYLE) ================= -->
+    <div class="order-summary"
+         style="margin-top:25px; border-top:1px solid #ddd; padding-top:15px; max-width:420px;">
+
+        <p style="display:flex; justify-content:space-between;">
+            <span><strong>Food Item Total</strong></span>
+            <span>₹ {{ original_total|floatformat:2 }}</span>
+        </p>
+
+        {% if total_discount > 0 %}
+        <p style="display:flex; justify-content:space-between; color:green;">
+            <span><strong>Discount You Saved</strong></span>
+            <span>- ₹ {{ total_discount|floatformat:2 }}</span>
+        </p>
+        {% endif %}
+
+        <p style="display:flex; justify-content:space-between;">
+            <span><strong>Subtotal</strong></span>
+            <span>₹ {{ item_total|floatformat:2 }}</span>
+        </p>
+
+        <p style="display:flex; justify-content:space-between;">
+            <span><strong>GST (5%)</strong></span>
+            <span>₹ {{ tax|floatformat:2 }}</span>
+        </p>
+
+        <p style="display:flex; justify-content:space-between;">
+            <span><strong>Delivery Charges</strong></span>
+            <span>₹ {{ delivery_charge|floatformat:2 }}</span>
+        </p>
+
+        <hr>
+
+        <p style="display:flex; justify-content:space-between; font-size:18px;">
+            <span><strong>Total Payable</strong></span>
+            <span><strong>₹ {{ grand_total|floatformat:2 }}</strong></span>
+        </p>
+    </div>
+
+    <!-- ================= BACK BUTTON ================= -->
+    <div style="margin-top:25px;">
+        <a href="{% url 'my_orders' %}" class="btn btn-secondary">
+            Back to Orders
+        </a>
+    </div>
+
+</div>
+{% endblock %}

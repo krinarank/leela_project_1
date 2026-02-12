@@ -151,7 +151,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-image: var(--bg-img);
+    background-image: var(--bg-img);   
     background-size: cover;
     background-position: center;
     filter: blur(12px);

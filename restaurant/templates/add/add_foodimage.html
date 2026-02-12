@@ -1,25 +1,15 @@
 {% extends 'adminpanel/base.html' %}
 {% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
+
     <title>Add Food Image</title>
     <link rel="stylesheet" href="{% static 'adminpanel/css/foodimage.css' %}">
-</head>
-<body>
 
 <div class="container">
 
     <!-- LEFT : ADD FORM -->
     <div class="left">
         <u><h3>Add Food Image</h3></u>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -80,6 +70,5 @@
 
 <a href="{% url 'dashboard' %}">⬅ Back to dashboard</a>
 
-</body>
-</html>
+
 {% endblock %}

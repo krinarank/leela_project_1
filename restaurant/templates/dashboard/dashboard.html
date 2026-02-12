@@ -1,241 +1,112 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Panel</title>
-    <link rel="stylesheet" href="{% static 'adminpanel/css/dashboard.css' %}">\
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% extends "adminpanel/base.html" %}
+{% block content %}
 
-</head>
-<body>
+<div class="dashboard-cards">
 
-<div class="dashboard">
+    <div class="admin-stat-card">
+        <h4>Total Customers</h4>
+        <h2>{{ total_customers }}</h2>
+    </div>
 
-    <!-- LEFT SIDEBAR -->
-    <div class="dashboard-left">
-        <h2>Admin Panel</h2>
-
-        <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
-
-        <a href="javascript:void(0)" onclick="toggleMainMenu()">🍽 Menu ▾</a>
-
-        <div id="mainMenu" class="submenu">
-            <a href="javascript:void(0)" onclick="toggleGridMenu()">🍱 Menu Grid ▾</a>
-
-            <div id="gridMenu" class="submenu-inner">
-                <a href="{% url 'add_category' %}">Food Category</a>
-                <a href="{% url 'add_subcategory' %}">Food Subcategory</a>
-                <a href="{% url 'add_fooditem' %}">Food Item</a>
-                <a href="{% url 'add_foodimage' %}">Food Image</a>
+    <div class="admin-stat-card">
+        <h4>Total Suppliers</h4>
+        <h2>{{ total_suppliers }}</h2>
+    </div>
+    <div class="admin-stat-card">
+        <h4>Total Orders</h4>
+        <h2>{{ total_orders }}</h2>
+    </div>
+    <div class="admin-stat-card inquiry-card">
+        <h4>Inquiries</h4>
+        <div class="inquiry-stats">
+            <div class="stat-item">
+                <span>Total</span>
+                <span class="stat-number">{{ total_inquiries }}</span>
             </div>
-        </div>
-
-        <a href="#">📦 Orders</a>
-        <a href="#">👤 Customers</a>
-        <a href="{% url 'supplier_page' %}">🚚 Supplier</a>
-        <a href="{% url 'purchase_add' %}">💳 Purchase</a>
-        <a href="{% url 'purchase_return_add' %}">↩️ Purchase Return</a>
-        <a href="{% url 'ingredient_page' %}">🧂 Ingredients</a>
-        <a href="{% url 'prepared_item_add' %}">🍳 Prepared Items</a>
-        
-
-        <a href="javascript:void(0)" onclick="toggleLocation()">📍 Location ▾</a>
-        <div id="locationBlock" class="submenu">
-            <a href="{% url 'add_and_list_state' %}">🌍 States</a>
-            <a href="{% url 'add_and_list_city' %}">🏙 Cities</a>
-            <a href="{% url 'add_and_list_area' %}">📌 Areas</a>
-        </div>
-
-        <a href="{% url 'create_offer' %}" > 💰offer & discount </a>
-        <!-- <a href="{% url 'apply_offer' %}" > apply_offer </a>
-        <a href="{% url 'current_offer' %}" > current_offer </a>
-         -->
-
-        <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
-        
-       <!-- DELIVERY MENU --><!-- DELIVERY MENU -->
-<a href="javascript:void(0)" onclick="toggleDelivery()">
-    🚚 Delivery
-</a>
-
-<div class="submenu" id="deliveryMenu">
-    <a href="{% url 'add_delivery_person' %}">
-        ➕ Add Delivery Person
- 
-</div>
-
-        <div class="logout">
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+            <div class="stat-item">
+                <span>Pending</span>
+                <span class="stat-number">{{ pending_inquiries }}</span>
+            </div>
+            <div class="stat-item">
+                <span>Responded</span>
+                <span class="stat-number">{{ responded_inquiries }}</span>
+            </div>
         </div>
     </div>
 
-    <!-- RIGHT CONTENT -->
-    <div class="dashboard-right">
+</div>
 
-        <!-- HEADER -->
-        <div class="dashboard-header">
-            <div class="header-left">
-                <h2>Welcome to Dashboard</h2>
-            </div>
-
-            <div class="header-right">
-                <a href="{% url 'admin_inquiry_list' %}" class="header-icon">
-                    📩
-                    {% if pending_inquiries > 0 %}
-                        <span class="badge">{{ pending_inquiries }}</span>
-                    {% endif %}
-                </a>
-                <span class="admin-name">Admin</span>
-            </div>
-        </div>
-
-        <!-- PAGE CONTENT -->
-        <div class="dashboard-content">
-
-            <!-- DASHBOARD CARDS -->
-            <div class="dashboard-cards">
-
-                <div class="admin-stat-card">
-                    <u><h4>Total Customers</h4></u>
-                    <h2>{{ total_customers }}</h2>
-                </div>
-                <div class="admin-stat-card">
-                    <u><h4>Total Suppliers</h4></u>
-                    <h2>{{ total_suppliers }}</h2>
-                </div>
-
-                <div class="admin-stat-card inquiry-card">
-                    <u><h4>Inquiries</h4></u>
-                    <div class="inquiry-stats">
-                        <div class="stat-item">
-                            <span>Total</span>
-                            <span class="stat-number">{{ total_inquiries }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Pending</span>
-                            <span class="stat-number">{{ pending_inquiries }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Responded</span>
-                            <span class="stat-number">{{ responded_inquiries }}</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-       <div style="background:#fff; padding:2px; margin-top:10px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); max-width:700px;">
+<div style="background:#fff; margin-top:20px; padding:15px; max-width:700px;">
     <h4>📊 Recent Purchases</h4>
-    <canvas id="purchaseChart" height="200"></canvas>
+    <canvas id="purchaseChart"></canvas>
+</div>
+<div style="background:#fff; margin-top:20px; padding:15px; max-width:700px;">
+    <h4>📊 Recent Orders</h4>
+    <canvas id="ordersChart"></canvas>
 </div>
 
+{% endblock %}
 
-            <!-- {% if low_stock_ingredients %}
-<div class="alert error" style="margin-bottom:15px;">
-    ⚠️ <strong>Low Stock Alert!</strong><br>
+{% block extra_js %}
 
-    {% for ing in low_stock_ingredients %}
-        🧂 {{ ing.name }} — Only {{ ing.available_qty }} left<br>
-    {% endfor %}
-</div>
-{% endif %} -->
-{% if low_stock_ingredients %}
-<div id="lowStockTopPopup" style="
-    position:fixed;
-    top:15px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#fff3cd;
-    border:1px solid #ffeeba;
-    color:#856404;
-    padding:15px 25px;
-    border-radius:6px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.2);
-    z-index:9999;
-    min-width:400px;
-">
-    <strong style="color:#dc3545;">⚠️ Low Stock Alert!</strong>
-    <ul style="margin:8px 0 0 18px;">
-        {% for ing in low_stock_ingredients %}
-            <li>
-                {{ ing.name }} — 
-                <strong style="color:red;">{{ ing.available_qty }}</strong>
-            </li>
-        {% endfor %}
-    </ul>
+{{ purchase_labels|json_script:"purchase-labels" }}
+{{ purchase_totals|json_script:"purchase-totals" }}
+{{ order_daily_labels|json_script:"order-daily-labels" }}
+{{ order_daily_totals|json_script:"order-daily-totals" }}
 
-    <div style="text-align:right; margin-top:8px;">
-        <button onclick="document.getElementById('lowStockTopPopup').style.display='none'"
-                style="padding:4px 10px; border:none; background:#dc3545; color:white; border-radius:4px; cursor:pointer;">
-            Close
-        </button>
-    </div>
-</div>
-{% endif %}
-
-
-
-            {% block content %}{% endblock %}
-        </div>
-
-    </div>
-</div>
 
 <script>
-function toggleMainMenu(){
-    let menu = document.getElementById("mainMenu");
-    let grid = document.getElementById("gridMenu");
+const labels = JSON.parse(
+    document.getElementById("purchase-labels").textContent
+);
 
-    if (menu.style.display === "block") {
-        menu.style.display = "none";
-        grid.style.display = "none";   
-    } else {
-        menu.style.display = "block";
-        grid.style.display = "none";   
-    }
-}
-function toggleGridMenu(){
-    let grid = document.getElementById("gridMenu");
-    grid.style.display = grid.style.display === "block" ? "none" : "block";
-}
+const totals = JSON.parse(
+    document.getElementById("purchase-totals").textContent
+);
 
-function toggleSupplier(){
-    let block = document.getElementById("supplierBlock");
-    block.style.display = block.style.display === "block" ? "none" : "block";
-}
+const canvas = document.getElementById("purchaseChart");
 
+if (canvas && labels.length > 0) {
 
-function toggleLocation(){
-    let block = document.getElementById("locationBlock");
-    block.style.display = block.style.display === "block" ? "none" : "block";
-}
+    Chart.getChart(canvas)?.destroy();
 
-function toggleoffer(){
-    let block = document.getElementById("offerBlock");
-    block.style.display = block.style.display === "block" ? "none" : "block";
-}
-</script>
-    <script>
-    const purchaseLabels = {{ purchase_labels|safe }};
-    const purchaseTotals = {{ purchase_totals|safe }};
-
-    const ctx = document.getElementById('purchaseChart').getContext('2d');
-
-    new Chart(ctx, {
-        type: 'line',
+    new Chart(canvas, {
+        type: "line",
         data: {
-            labels: purchaseLabels,
+            labels: labels,
             datasets: [{
-                label: 'Purchase Amount',
-                data: purchaseTotals,
-                backgroundColor: '#0d6efd'
+                label: "Purchase Amount",
+                data: totals,
+                borderColor: "#0d6efd",
+                borderWidth: 3,
+                tension: 0.35,
+                pointRadius: 4,
+                pointBackgroundColor: "#0d6efd",
+                fill: false
             }]
         },
         options: {
             responsive: true,
+            animation: false,   // ✅ animation bandh (fine)
+            
             plugins: {
-                legend: { display: true }
+                legend: {
+                    display: true
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let value = context.raw;
+
+                            if (!value || value === 0) {
+                                return "Purchase : No data";
+                            }
+                            return "Purchase : ₹ " + value;
+                        }
+                    }
+                }
             },
+
             scales: {
                 y: {
                     beginAtZero: true
@@ -243,7 +114,8 @@ function toggleoffer(){
             }
         }
     });
-    </script>
+}
+</script>
 <script>
 function toggleDelivery() {
     let menu = document.getElementById("deliveryMenu");
@@ -251,6 +123,65 @@ function toggleDelivery() {
 }
 </script>
 
+<script>
+const orderDailyLabels = JSON.parse(
+    document.getElementById("order-daily-labels").textContent
+);
 
-</body>
-</html>
+const orderDailyTotals = JSON.parse(
+    document.getElementById("order-daily-totals").textContent
+);
+
+const orderCanvas = document.getElementById("ordersChart");
+
+if (orderCanvas && orderDailyLabels.length > 0) {
+
+    Chart.getChart(orderCanvas)?.destroy();
+
+    new Chart(orderCanvas, {
+        type: "bar",   // BAR / STAMBH
+        data: {
+            labels: orderDailyLabels,
+            datasets: [{
+                label: "Daily Orders",
+                data: orderDailyTotals,
+
+                backgroundColor: "#198754",
+                borderColor: "#146c43",
+                borderWidth: 1,
+
+                // ✅ BAR WIDTH CONTROL
+                barThickness: 30,          // FIXED slim width (try 12–20)
+                maxBarThickness: 50,
+                categoryPercentage: 0.6,   // space between groups
+                barPercentage: 0.8         // space between bars
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let value = context.raw;
+                            if (!value || value === 0) return "Orders: No data";
+                            return "Orders: " + value;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+}
+</script>
+
+
+{% endblock %}

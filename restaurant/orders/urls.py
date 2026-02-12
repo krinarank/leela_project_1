@@ -11,6 +11,8 @@ urlpatterns = [
     path('cart/increase/<int:id>/', views.increase_qty, name='increase_qty'),
     path('cart/decrease/<int:id>/', views.decrease_qty, name='decrease_qty'),
     path('checkout/', views.checkout, name='checkout'),
+    path('order-success/<int:order_id>/', views.order_success, name='order_success'),
+    path('place-order/', views.place_order, name='place_order'),
     path('remove-item/<int:item_id>/', views.remove_item, name='remove_item'),
     
 
@@ -21,8 +23,11 @@ urlpatterns = [
     path('apply-offer/', views.apply_offer, name='apply_offer'),
     path("offers/create/", views.create_offer, name="create_offer"),
     path("offers/current/", views.current_offers, name="current_offer"),
+    path("delete-active-offer/<str:type>/<int:id>/", views.delete_active_offer, name="delete_active_offer"),
 
+    # path('wishlist/', views.my_wishlist, name='my_wishlist'),
 
+    
 
 
     path('wishlist/', views.my_wishlist, name='my_wishlist'),
@@ -31,6 +36,10 @@ urlpatterns = [
     path('wishlist/toggle/<int:food_id>/', views.toggle_wishlist, name='toggle_wishlist'),
     # path('wishlist/', views.my_wishlist, name='my_wishlist'),
     # path('toggle-wishlist/<int:food_id>/', views.toggle_wishlist, name='toggle_wishlist'),
+
+
+    path("my-orders/", views.my_orders, name="my_orders"),
+    path("order/<int:order_id>/", views.order_detail, name="order_detail"),
 
 ]
    
