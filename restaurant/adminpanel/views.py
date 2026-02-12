@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from accounts.models import Customer
+from orders.models import Order
 from deliverypanel.models import DeliveryPerson 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -19,6 +20,10 @@ from django.shortcuts import render, redirect
 from .forms import NotificationForm
 from adminpanel.models import Notification
 
+from django.views.decorators.http import require_POST
+
+from orders.models import Order
+from deliverypanel.models import DeliveryPerson, AssignOrder
 
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
@@ -32,7 +37,7 @@ from .models import (
 from menu.models import Inquiry
 from purchase.models import Ingredient
 from purchase.models import Purchase 
-
+from orders.models import FeedbackRating
 
 # def login_view(request):
 #     if request.user.is_authenticated:
@@ -476,12 +481,18 @@ def reply_inquiry(request, id):
 
 
 
+
+
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncDate
+from datetime import date, timedelta
+
 @login_required(login_url='login')
 def dashboard_view(request):
 
     total_customers = Customer.objects.filter(isadmin=False).count()
-    total_suppliers = Supplier.objects.count()   # ✅ ADD THIS
-
+    total_suppliers = Supplier.objects.count()
+    total_orders = Order.objects.count()
     total_inquiries = Inquiry.objects.count()
     pending_inquiries = Inquiry.objects.filter(status='Pending').count()
     responded_inquiries = Inquiry.objects.filter(status='Responded').count()
@@ -492,7 +503,9 @@ def dashboard_view(request):
         available_qty__lte=LOW_STOCK_LIMIT
     )
 
-    # 📊 DAILY PURCHASE TOTAL (Last 7 days)
+    # =========================
+    # 📊 PURCHASE CHART (existing)
+    # =========================
     daily_purchases = (
         Purchase.objects
         .values('purchase_date')
@@ -505,21 +518,43 @@ def dashboard_view(request):
     purchase_labels = [str(p['purchase_date']) for p in daily_purchases]
     purchase_totals = [float(p['total'] or 0) for p in daily_purchases]
 
+    # =========================
+    # 📦 ORDERS CHART (NEW)
+    # =========================
+    today = date.today()
+    start_date = today - timedelta(days=7)
+
+    daily_orders = (
+        Order.objects
+        .filter(order_date__date__gte=start_date)
+        .annotate(period=TruncDate('order_date'))
+        .values('period')
+        .annotate(total=Count('id'))
+        .order_by('period')
+    )
+
+    order_daily_labels = [x['period'].strftime("%d-%b") for x in daily_orders]
+    order_daily_totals = [x['total'] for x in daily_orders]
+
     return render(request, 'dashboard/dashboard.html', {
         'is_dashboard': True,
 
         'total_customers': total_customers,
-        'total_suppliers': total_suppliers,   # ✅ PASS TO TEMPLATE
-
+        'total_suppliers': total_suppliers,
+        'total_orders': total_orders,
         'total_inquiries': total_inquiries,
         'pending_inquiries': pending_inquiries,
         'responded_inquiries': responded_inquiries,
 
         'low_stock_ingredients': low_stock_ingredients,
 
+        # Purchases
         'purchase_labels': purchase_labels,
         'purchase_totals': purchase_totals,
-        
+
+        # Orders (NEW)
+        'order_daily_labels': order_daily_labels,
+        'order_daily_totals': order_daily_totals,
     })
    
 
@@ -872,6 +907,45 @@ def delete_area(request, id):
 
 
 
+def delivery_my_orders(request):
+    if 'delivery_id' not in request.session:
+        return redirect('/delivery/login/')
+
+    delivery = DeliveryPerson.objects.get(id=request.session['delivery_id'])
+
+    # ✅ ONLY DELIVERED (HISTORY)
+    delivered_assignments = AssignOrder.objects.filter(
+        delivery_person=delivery,
+        status='DELIVERED'
+    ).select_related('order', 'user')
+
+    return render(request, 'deliverypanel/my_orders.html', {
+        'delivery': delivery,
+        'delivered_assignments': delivered_assignments,
+    })
+
+
+
+
+@require_POST
+def admin_assign_delivery(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    delivery_id = request.POST.get('delivery_person')
+
+    delivery_person = get_object_or_404(DeliveryPerson, id=delivery_id, is_active=True)
+
+    # 🔹 Create AssignOrder with REQUESTED status
+    AssignOrder.objects.create(
+        order=order,
+        delivery_person=delivery_person,
+        user=order.user,
+        status='REQUESTED'
+    )
+
+    messages.success(request, f"Order #{order.id} assigned to {delivery_person.fname}")
+    return redirect('admin_orders')
+
+
 User = get_user_model()
 
 def admin_customers(request):
@@ -1099,3 +1173,12 @@ def admin_resend_otp(request):
 
     messages.success(request, "New OTP sent")
     return redirect("admin_verify_otp")
+def admin_feedback_list(request):
+    feedbacks = FeedbackRating.objects.select_related('order', 'user').order_by('-date')
+
+    for f in feedbacks:
+        f.full_stars = int(f.rating)
+
+    return render(request, 'adminpanel/admin_feedback_list.html', {
+        'feedbacks': feedbacks
+    })

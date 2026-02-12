@@ -23,6 +23,7 @@ from .models import Inquiry
 
 
 def home(request):
+    
     special_items = FoodItem.objects.filter(
         is_special=True,
         is_available=True

@@ -9,8 +9,7 @@ import re
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from .models import DeliveryVehicle
-
-
+from django.shortcuts import get_object_or_404, redirect
 
 # def delivery_login(request):
 #     if request.method == 'POST':
@@ -75,18 +74,15 @@ def delivery_login(request):
     return render(request, 'deliverypanel/login.html')
 
 
-# ---------------- DASHBOARD ----------------
+from deliverypanel.models import AssignOrder
+
+
 # def delivery_dashboard(request):
 #     if 'delivery_id' not in request.session:
 #         return redirect('/delivery/login/')
 
 #     delivery = DeliveryPerson.objects.get(id=request.session['delivery_id'])
 
-#     return render(request, 'deliverypanel/dashboard.html', {
-#         'delivery': delivery
-#     })
-
-# ---------------- DASHBOARD ----------------
 def delivery_dashboard(request):
     delivery_id = request.session.get('delivery_id')
     if not delivery_id:
@@ -107,13 +103,81 @@ def delivery_dashboard(request):
         Q(user_id__isnull=True) | Q(user_id=delivery.id)
     )
 
+    # 🔹 New Requests (REQUESTED status)
+    requested_assignments = AssignOrder.objects.filter(
+        delivery_person=delivery,
+        status='REQUESTED'
+    ).select_related('order', 'user')
+
+    # 🔹 Active Orders (ACCEPTED)
+    active_assignments = AssignOrder.objects.filter(
+        delivery_person=delivery,
+        status='ACCEPTED'
+    ).select_related('order', 'user')
+
+    # 🔹 Delivered Orders
+    delivered_assignments = AssignOrder.objects.filter(
+        delivery_person=delivery,
+        status='DELIVERED'
+    ).select_related('order', 'user')
+    
+
     return render(request, 'deliverypanel/dashboard.html', {
         'delivery': delivery,
+        'new_requests': requested_assignments,
+        'active_assignments': active_assignments,
+        'delivered_assignments': delivered_assignments,
         'notifications': notifications
     })
 
+def delivery_accept_order(request, assign_id):
+    if 'delivery_id' not in request.session:
+        return redirect('/delivery/login/')
 
-# ---------------- LOGOUT ----------------
+    delivery_id = request.session['delivery_id']
+
+    assignment = get_object_or_404(
+        AssignOrder,
+        id=assign_id,
+        delivery_person_id=delivery_id,
+        status='REQUESTED'
+    )
+
+    assignment.status = 'ACCEPTED'
+    assignment.save()
+
+    messages.success(request, "Order accepted successfully.")
+    return redirect('delivery_dashboard')
+
+
+def delivery_reject_order(request, assign_id):
+    if 'delivery_id' not in request.session:
+        return redirect('/delivery/login/')
+
+    if request.method == 'POST':
+        delivery_id = request.session['delivery_id']
+        assignment = get_object_or_404(
+            AssignOrder,
+            id=assign_id,
+            delivery_person_id=delivery_id,
+            status='REQUESTED'
+        )
+
+        # Reject the order
+        assignment.status = 'REJECTED'
+        assignment.save()
+
+        # Make order available for reassignment
+        order = assignment.order
+        # Optional: delete old rejected assignment if you want
+        # assignment.delete()
+        # Or keep it for history and create a new "ASSIGNED" record
+        # AssignOrder.objects.create(order=order, delivery_person=None, status='ASSIGNED', user=order.user)
+
+        messages.error(request, "Order rejected. Admin can now reassign this order.")
+
+    return redirect('delivery_dashboard')
+
 def delivery_logout(request):
     request.session.flush()
     logout(request)
@@ -122,6 +186,26 @@ def delivery_logout(request):
 
 # ---------------- ADD DELIVERY PERSON (ADMIN) ----------------
 
+def delivery_mark_delivered(request, order_id):
+    if 'delivery_id' not in request.session:
+        return redirect('/delivery/login/')
+
+    assignment = get_object_or_404(
+        AssignOrder,
+        order_id=order_id,
+        delivery_person_id=request.session['delivery_id']
+    )
+
+    # Update assignment + order
+    assignment.status = 'DELIVERED'
+    assignment.save()
+
+    order = assignment.order
+    order.order_status = 'DELIVERED'
+    order.save()
+
+    messages.success(request, f"Order #{order.id} marked as delivered.")
+    return redirect('delivery_dashboard')
 
 def delivery_forgot_password(request):
     if request.method == 'POST':
@@ -285,6 +369,7 @@ def resend_otp(request):
 
 
 
+
 # ---------------- PROFILE ----------------
 def delivery_profile(request):
     delivery_id = request.session.get('delivery_id')
@@ -428,17 +513,8 @@ def delivery_vehicle(request):
     return render(request, 'deliverypanel/vehicle.html', {
         'vehicle': vehicle
     })
+
 from orders.models import Notification
 from django.utils import timezone
 from django.db.models import Q
 
-# def delivery_dashboard(request):
-#     delivery_person = request.user.deliveryperson
-#     notifications = Notification.objects.filter(
-#         recipient_type='delivery_person',
-#         send_datetime__lte=timezone.now(),
-#         read_status=False
-#     ).filter(
-#         Q(user_id__isnull=True) | Q(user_id=delivery_person.id)
-#     )
-#     return render(request, 'deliverypanel/dashboard.html', {'notifications': notifications})

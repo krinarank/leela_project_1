@@ -22,7 +22,7 @@
             </select>
 
             <label>Purchase Date:</label>
-            <input type="date" name="purchase_date" required>
+            <input type="date" name="purchase_date" id="purchase_date" required>
 
             <h4>Purchase Details</h4>
             <table id="purchase-details-table" border="1" cellpadding="5" cellspacing="0">
@@ -56,6 +56,10 @@
 
     <!-- All Purchases Table BELOW -->
     <div class="purchase-table" style="margin-top: 30px;">
+        <!-- SEARCH BAR -->
+    <div class="search-container">
+        <input type="text" id="Search" placeholder="🔍 Search purchases...">
+    </div>
         <h3>All Purchases</h3>
         <table>
             <tr>
@@ -113,5 +117,46 @@ document.addEventListener('input', function(e) {
     }
 });
 </script>
-<a href="{% url 'dashboard' %}" >⬅ Back to dashboard</a>
+<!-- JS SEARCH FOR PURCHASES -->
+<script>
+    const purchaseSearch = document.getElementById('Search');
+    const purchaseTable = document.querySelector('.purchase-table table');
+    const purchaseRows = purchaseTable.getElementsByTagName('tr');
+
+    purchaseSearch.addEventListener('keyup', function () {
+        const filter = purchaseSearch.value.toLowerCase();
+
+        for (let i = 1; i < purchaseRows.length; i++) { // skip header
+            const cells = purchaseRows[i].getElementsByTagName('td');
+            let rowText = "";
+
+            for (let j = 0; j < cells.length; j++) {
+                rowText += cells[j].textContent.toLowerCase();
+            }
+
+            purchaseRows[i].style.display = rowText.includes(filter) ? "" : "none";
+        }
+    });
+</script>
+<script>
+    // Get today's date
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+
+    const currentDate = `${yyyy}-${mm}-${dd}`;
+
+    // Get the date input
+    const dateInput = document.getElementById('purchase_date');
+
+    // Set max attribute = today (future dates disabled)
+    dateInput.setAttribute('max', currentDate);
+
+    // Optional: set default value = today
+    dateInput.value = currentDate;
+</script>
+
+<a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:5px;margin-top:20px;padding:8px 14px;background-color:#28343b;color:#fff;text-decoration:none;font-weight:500;border-radius:5px;transition:0.3s;">⬅ Back to Dashboard</a>
+
 {% endblock %}

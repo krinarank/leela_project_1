@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404
 # from .forms import PurchaseForm, PurchaseDetailForm
 from django.db.models import F
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
+from decimal import Decimal
 
 # ------------------- Supplier -------------------
 # def add_supplier(request):
@@ -160,11 +162,18 @@ def delete_ingredient(request,id):
 def purchase_add(request):
     suppliers = Supplier.objects.all()
     ingredients = Ingredient.objects.all()
-    purchases = Purchase.objects.all().order_by('-id')   # 🔥 for right side table
+    purchases = Purchase.objects.all().order_by('-id')  # 🔥 for right side table
 
     if request.method == 'POST':
         supplier_id = request.POST.get('supplier')
         supplier = get_object_or_404(Supplier, id=supplier_id)
+
+        # Get purchase date from form
+        purchase_date_str = request.POST.get('purchase_date')
+        try:
+            purchase_date = datetime.strptime(purchase_date_str, '%Y-%m-%d').date()
+        except:
+            purchase_date = datetime.today().date()  # fallback to today if invalid
 
         ingredient_ids = request.POST.getlist('ingredient[]')
         qty_list = request.POST.getlist('qty[]')
@@ -175,12 +184,14 @@ def purchase_add(request):
         # Create Purchase first
         purchase = Purchase.objects.create(
             supplier=supplier,
-            total_amount=0
+            total_amount=0,
+            purchase_date=purchase_date  # save selected date
         )
 
         for i in range(len(ingredient_ids)):
             if not ingredient_ids[i]:
-                 continue   # 👈 blank rows skip
+                continue   # 👈 skip blank rows
+
             ing = get_object_or_404(Ingredient, id=ingredient_ids[i])
             qty = int(qty_list[i])
             price = float(price_list[i])
@@ -198,10 +209,8 @@ def purchase_add(request):
             )
 
             # 🔥 AUTO UPDATE INGREDIENT STOCK
-            # ing.available_qty += qty
             ing.available_qty = F('available_qty') + qty
             ing.price_per_unit = price
-
             ing.save()
 
         # Update total amount
@@ -209,7 +218,7 @@ def purchase_add(request):
         purchase.save()
 
         messages.success(request, "Purchase added & stock updated successfully!")
-        return redirect('purchase_add')   # same page reload
+        return redirect('purchase_add')  # same page reload
 
     return render(request, 'purchase/purchase_add.html', {
         'suppliers': suppliers,
@@ -438,15 +447,129 @@ def purchase_return_add(request):
     })
 # views.py
 
+from django.http import JsonResponse
+
+def get_last_recipe(request):
+    product_name = request.GET.get('product_name')
+
+    last_prepared = PreparedItem.objects.filter(
+        product_name=product_name
+    ).order_by('-id').first()
+
+    if not last_prepared:
+        return JsonResponse({'items': [], 'quantity': ''})
+
+    usages = IngredientUsage.objects.filter(production=last_prepared)
+
+    items = []
+    for u in usages:
+        items.append({
+            'ingredient_id': u.raw.id,
+            'qty': u.qty_used,
+            'unit': u.unit
+        })
+
+    return JsonResponse({
+        'items': items,
+        'quantity': last_prepared.quantity_produced
+    })
+
+
+# @transaction.atomic
+# def prepared_item_add(request):
+#     ingredients = Ingredient.objects.all()
+#     # prepared_items = PreparedItem.objects.all().order_by('-id')
+#     prepared_items = PreparedItem.objects.values_list(
+#         'product_name', flat=True
+#         ).distinct()
+
+
+#     if request.method == 'POST':
+#         product_name = request.POST.get('product_name')
+#         production_date_str = request.POST.get('production_date')
+
+#         # Convert production_date string to date object
+#         try:
+#             production_date = datetime.strptime(production_date_str, '%Y-%m-%d').date()
+#         except:
+#             production_date = datetime.today().date()  # fallback to today if invalid
+
+#         # Safety check: future date not allowed
+#         if production_date > datetime.today().date():
+#             messages.error(request, "Future date not allowed!")
+#             return redirect('prepared_item_add')
+
+#         quantity_produced = int(request.POST.get('quantity_produced'))
+
+#         # Create PreparedItem
+#         prepared_item = PreparedItem.objects.create(
+#             product_name=product_name,
+#             production_date=production_date,
+#             quantity_produced=quantity_produced
+#         )
+
+#         # Handle ingredient usage
+#         raw_ids = request.POST.getlist('raw[]')
+#         qty_list = request.POST.getlist('qty_used[]')
+#         unit_list = request.POST.getlist('unit[]')
+
+#         for i in range(len(raw_ids)):
+#             if not raw_ids[i]:
+#                 continue
+
+#             ing = Ingredient.objects.get(id=raw_ids[i])
+#             qty = float(qty_list[i])
+#             unit = unit_list[i]
+
+#             IngredientUsage.objects.create(
+#                 production=prepared_item,
+#                 raw=ing,
+#                 qty_used=qty,
+#                 unit=unit
+#             )
+
+#             # Update ingredient stock
+#             ing.available_qty -= qty
+#             ing.save()
+
+#         messages.success(request, 'Prepared item added and stock updated successfully!')
+#         return redirect('prepared_item_add')
+
+#     return render(request, 'purchase/prepared_add.html', {
+#         'prepared_items': prepared_items,
+#         'ingredients': ingredients
+#     })
 
 @transaction.atomic
 def prepared_item_add(request):
     ingredients = Ingredient.objects.all()
+
+    # ✅ For dropdown (distinct product names)
+    product_names = PreparedItem.objects.values_list(
+        'product_name', flat=True
+    ).distinct()
+
+    # ✅ For table (full objects for edit/delete)
     prepared_items = PreparedItem.objects.all().order_by('-id')
 
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
-        production_date = request.POST.get('production_date')
+
+        if not product_name:
+            messages.error(request, "Please select or enter product name")
+            return redirect('prepared_item_add')
+
+        production_date_str = request.POST.get('production_date')
+
+        try:
+            production_date = datetime.strptime(production_date_str, '%Y-%m-%d').date()
+        except:
+            production_date = datetime.today().date()
+
+        if production_date > datetime.today().date():
+            messages.error(request, "Future date not allowed!")
+            return redirect('prepared_item_add')
+
         quantity_produced = int(request.POST.get('quantity_produced'))
 
         prepared_item = PreparedItem.objects.create(
@@ -463,9 +586,10 @@ def prepared_item_add(request):
             if not raw_ids[i]:
                 continue
 
-            # 🔑 Reload ingredient from DB fresh
             ing = Ingredient.objects.get(id=raw_ids[i])
-            qty = float(qty_list[i])
+
+            # ✅ Decimal fix
+            qty = Decimal(qty_list[i])
             unit = unit_list[i]
 
             IngredientUsage.objects.create(
@@ -475,8 +599,9 @@ def prepared_item_add(request):
                 unit=unit
             )
 
-            # 🔴 Direct subtraction from fresh value
-            ing.available_qty -= qty
+            # 🔥 Force Decimal math for stock
+            ing.available_qty = Decimal(ing.available_qty)
+            ing.available_qty = ing.available_qty - qty
             ing.save()
 
         messages.success(request, 'Prepared item added and stock updated successfully!')
@@ -484,6 +609,7 @@ def prepared_item_add(request):
 
     return render(request, 'purchase/prepared_add.html', {
         'prepared_items': prepared_items,
+        'product_names': product_names,
         'ingredients': ingredients
     })
 

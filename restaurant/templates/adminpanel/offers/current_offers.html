@@ -3,9 +3,10 @@
 {% block content %}
  <link rel="stylesheet" href="{% static 'adminpanel/css/current_offers.css' %}">
 <h2 class="offers-heading">🎁 Currently Active Offers</h2>
- <a href="{% url 'apply_offer' %}" class="back-btn"> go to Apply Offer</a>
- <a href="{% url 'create_offer' %}" class="back-btn1"> Back to create Offer</a>
-
+<div class="offers-buttons">
+    <a href="{% url 'apply_offer' %}" class="back-btn">Go to Apply Offer</a>
+    <a href="{% url 'create_offer' %}" class="back-btn1">Back to Create Offer</a>
+</div>
 
 <h3 class="offers-subheading">Food Item Offers</h3>
 <table class="offer-table">

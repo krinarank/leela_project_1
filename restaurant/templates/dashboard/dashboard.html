@@ -12,7 +12,10 @@
         <h4>Total Suppliers</h4>
         <h2>{{ total_suppliers }}</h2>
     </div>
-
+    <div class="admin-stat-card">
+        <h4>Total Orders</h4>
+        <h2>{{ total_orders }}</h2>
+    </div>
     <div class="admin-stat-card inquiry-card">
         <h4>Inquiries</h4>
         <div class="inquiry-stats">
@@ -37,6 +40,10 @@
     <h4>📊 Recent Purchases</h4>
     <canvas id="purchaseChart"></canvas>
 </div>
+<div style="background:#fff; margin-top:20px; padding:15px; max-width:700px;">
+    <h4>📊 Recent Orders</h4>
+    <canvas id="ordersChart"></canvas>
+</div>
 
 {% endblock %}
 
@@ -44,6 +51,9 @@
 
 {{ purchase_labels|json_script:"purchase-labels" }}
 {{ purchase_totals|json_script:"purchase-totals" }}
+{{ order_daily_labels|json_script:"order-daily-labels" }}
+{{ order_daily_totals|json_script:"order-daily-totals" }}
+
 
 <script>
 const labels = JSON.parse(
@@ -110,6 +120,66 @@ if (canvas && labels.length > 0) {
 function toggleDelivery() {
     let menu = document.getElementById("deliveryMenu");
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+</script>
+
+<script>
+const orderDailyLabels = JSON.parse(
+    document.getElementById("order-daily-labels").textContent
+);
+
+const orderDailyTotals = JSON.parse(
+    document.getElementById("order-daily-totals").textContent
+);
+
+const orderCanvas = document.getElementById("ordersChart");
+
+if (orderCanvas && orderDailyLabels.length > 0) {
+
+    Chart.getChart(orderCanvas)?.destroy();
+
+    new Chart(orderCanvas, {
+        type: "bar",   // BAR / STAMBH
+        data: {
+            labels: orderDailyLabels,
+            datasets: [{
+                label: "Daily Orders",
+                data: orderDailyTotals,
+
+                backgroundColor: "#198754",
+                borderColor: "#146c43",
+                borderWidth: 1,
+
+                // ✅ BAR WIDTH CONTROL
+                barThickness: 30,          // FIXED slim width (try 12–20)
+                maxBarThickness: 50,
+                categoryPercentage: 0.6,   // space between groups
+                barPercentage: 0.8         // space between bars
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let value = context.raw;
+                            if (!value || value === 0) return "Orders: No data";
+                            return "Orders: " + value;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
 }
 </script>
 

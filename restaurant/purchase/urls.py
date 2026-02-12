@@ -17,6 +17,8 @@ urlpatterns = [
     # path('purchases/', views.purchase_list, name='purchase_list'),
     # path('purchase/add/', views.purchase_create, name='purchase_add'),
     # path('purchase/delete/<int:pk>/', views.purchase_delete, name='purchase_delete'),
+    path('get-last-recipe/', views.get_last_recipe, name='get_last_recipe'),
+
     path('purchase/add/', views.purchase_add, name='purchase_add'),
     path('purchase/edit/<int:purchase_id>/', views.purchase_edit, name='purchase_edit'),
     path('purchase/delete/<int:purchase_id>/', views.purchase_delete, name='purchase_delete'),

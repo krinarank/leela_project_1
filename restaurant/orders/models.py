@@ -150,9 +150,11 @@ class Order(models.Model):
 
     ORDER_STATUS = (
         ('PLACED', 'Placed'),
-        ('CONFIRMED', 'Confirmed'),
-        ('CANCELLED', 'Cancelled'),
-        ('DELIVERED', 'Delivered'),
+    ('CONFIRMED', 'Confirmed'),
+    ('PREPARING', 'Preparing'),
+    ('OUT_FOR_DELIVERY', 'Out for Delivery'),
+    ('DELIVERED', 'Delivered'),
+    ('CANCELLED', 'Cancelled'),
     )
 
     order_date = models.DateTimeField(auto_now_add=True)
@@ -274,4 +276,13 @@ class Wishlist(models.Model):
 
         return f"{self.user.username} - {self.food_item.name}"
 
+class FeedbackRating(models.Model):
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    rating = models.DecimalField(max_digits=2, decimal_places=1)
+    feedback_text = models.CharField(max_length=200)
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order {self.order.id} - {self.rating}"
 

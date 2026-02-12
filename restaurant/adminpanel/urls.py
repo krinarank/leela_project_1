@@ -47,16 +47,26 @@ path('areas/edit/<int:id>/', views.edit_area, name='edit_area'),
 path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
 
 
+
     #path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
 
-    path('customers/', views.admin_customers, name='admin_customers'),
-    path('notifications/', views.admin_notifications, name='admin_notifications'),
-    path('notification/delete/<int:id>/', views.delete_notification, name='delete_notification'),
-    path('notification/edit/<int:pk>/', views.edit_notification, name='edit_notification'),
 
 path('admin-forgot-password/', views.admin_forgot_password, name='admin_forgot_password'),
 path('admin-verify-otp/', views.admin_verify_otp, name='admin_verify_otp'),
 path('admin-reset-password/', views.admin_reset_password, name='admin_reset_password'),
 path('admin-resend-otp/', views.admin_resend_otp, name='admin_resend_otp'),
+
+path('my-orders/', views.delivery_my_orders, name='delivery_my_orders'),
+
+path('customers/', views.admin_customers, name='admin_customers'),
+path('notifications/', views.admin_notifications, name='admin_notifications'),
+path('notification/delete/<int:id>/', views.delete_notification, name='delete_notification'),
+path('notification/edit/<int:pk>/', views.edit_notification, name='edit_notification'),
+path('feedbacks/', views.admin_feedback_list, name='admin_feedback_list'),
+ 
+
+
+
+  
 
 ]

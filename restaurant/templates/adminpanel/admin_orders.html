@@ -1,0 +1,106 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<h2>🧾 All Orders </h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Total Amount</th>
+            <th>Order Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for obj in order_list %}
+        <tr>
+            <td>{{ obj.order.id }}</td>
+            <td>{{ obj.order.user.firstname }} {{ obj.order.user.lastname }}</td>
+            <td>{{ obj.order.order_status }}</td>
+            <td>{{ obj.order.total_amount }}</td>
+            <td>{{ obj.order.order_date }}</td>
+            <td>
+                <a href="{% url 'admin_order_detail' obj.order.id %}" class="btn btn-sm btn-primary">
+                    View Details
+                </a>
+
+                <!-- Status Dropdown (Auto Update) -->
+                <form method="POST" action="{% url 'admin_order_update_status' obj.order.id %}" style="display:inline-block;">
+                    {% csrf_token %}
+                    <select name="order_status"
+                            class="form-select form-select-sm d-inline w-auto"
+                            onchange="this.form.submit()"
+                            {% if obj.order.order_status == 'DELIVERED' %}disabled{% endif %}>
+
+                        {% for status in obj.statuses %}
+                            <option value="{{ status.value }}"
+                                    {% if status.green %}selected{% endif %}
+                                    {% if status.disabled %}disabled{% endif %}
+                                    {% if status.green %}style="background-color: #d4edda;"{% endif %}>
+                                {{ status.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    
+                </form>
+
+                <!-- 🔴 Assign Delivery Person -->
+                {% if obj.order.order_status == 'OUT_FOR_DELIVERY' and not obj.assignment %}
+                    <form method="POST" action="{% url 'admin_assign_delivery' obj.order.id %}" class="mt-1">
+                        {% csrf_token %}
+                        <select name="delivery_person"
+                                class="form-select form-select-sm"
+                                onchange="this.form.submit()"
+                                required>
+                            <option value="">Assign Delivery Person</option>
+                            {% for d in obj.delivery_persons %}
+                                <option value="{{ d.id }}">
+                                    {{ d.fname }} {{ d.lname }} ({{ d.contact_no }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                {% elif obj.assignment %}
+                    <span class="badge bg-info mt-1 d-block">
+                        Assigned to: {{ obj.assignment.delivery_person.fname }}
+                        {% if obj.assignment.status == 'REJECTED' %}
+                            (Previous delivery was rejected)
+                        {% endif %}
+                    </span>
+                {% endif %}
+
+                <!-- 🔴 Reassign Rejected Orders -->
+                {% if obj.assignment and obj.assignment.status == 'REJECTED' %}
+                    <form method="POST" action="{% url 'admin_assign_delivery' obj.order.id %}" class="mt-1">
+                        {% csrf_token %}
+                        <select name="delivery_person"
+                                class="form-select form-select-sm"
+                                onchange="this.form.submit()"
+                                required>
+                            <option value="">Reassign Delivery Person</option>
+                            {% for d in obj.delivery_persons %}
+                                <option value="{{ d.id }}">
+                                    {{ d.fname }} {{ d.lname }} ({{ d.contact_no }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    <span class="badge bg-warning mt-1 d-block">
+                        Previous delivery was rejected
+                    </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">No orders found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:5px;margin-top:20px;padding:8px 14px;background-color:#28343b;color:#fff;text-decoration:none;font-weight:500;border-radius:5px;transition:0.3s;">⬅ Back to Dashboard</a>
+{% endblock %}

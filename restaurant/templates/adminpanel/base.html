@@ -30,6 +30,8 @@
         </div>
 
         <a href="{% url 'admin_customers' %}">👤 Customers</a>
+        <a href="{% url 'admin_orders' %}">🧾 Orders</a>
+
         <a href="{% url 'supplier_page' %}">🚚 Supplier</a>
         <a href="{% url 'purchase_add' %}">💳 Purchase</a>
         <a href="{% url 'purchase_return_add' %}">↩️ Purchase Return</a>
@@ -45,13 +47,14 @@
 
         <a href="{% url 'create_offer' %}">💰 Offer & Discount</a>
         <a href="{% url 'admin_inquiry_list' %}">📩 View Inquiries</a>
-
+         <a href="{% url 'admin_notifications' %}">🔔Notification   </a>
         <a href="javascript:void(0)" onclick="toggleDelivery()">🚚 Delivery</a>
         <div id="deliveryMenu" class="submenu">
             <a href="{% url 'add_delivery_person' %}">➕ Add Delivery Person</a>
         </div>
 
         <a href="{% url 'order_heatmap' %}">📊 Heatmap</a>
+        <a href="{% url 'admin_feedback_list' %}">⭐ Feedback & Rating</a>
 
         <div class="logout">
             <a href="{% url 'logout' %}" class="logout-btn">Logout</a>

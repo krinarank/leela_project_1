@@ -19,7 +19,9 @@ class Ingredient(models.Model):
     description = models.CharField(max_length=150)
     price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
     unit_of_measure = models.CharField(max_length=20)
-    available_qty = models.IntegerField()
+    # available_qty = models.IntegerField()
+    available_qty = models.DecimalField(max_digits=10, decimal_places=2)
+
     last_updated = models.DateField(auto_now=True)
 
     def __str__(self):
@@ -36,7 +38,9 @@ class PreparedItem(models.Model):
 
 
 class IngredientUsage(models.Model):
-    qty_used = models.IntegerField()
+    # qty_used = models.IntegerField()
+    qty_used = models.DecimalField(max_digits=10, decimal_places=2)
+
     unit = models.CharField(max_length=20)
     raw = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     production = models.ForeignKey(PreparedItem, on_delete=models.CASCADE)
@@ -46,7 +50,7 @@ class IngredientUsage(models.Model):
 
 
 class Purchase(models.Model):
-    purchase_date = models.DateField(auto_now_add=True)
+    purchase_date = models.DateField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
 

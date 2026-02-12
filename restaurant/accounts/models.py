@@ -21,6 +21,7 @@ class Customer(AbstractUser):
         null=True
     )
 
+
     creationdate = models.DateTimeField(auto_now_add=True)
     updationdate = models.DateTimeField(auto_now=True)
 

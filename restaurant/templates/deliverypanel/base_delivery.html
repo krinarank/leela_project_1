@@ -34,11 +34,24 @@
 
 <div class="main-layout">
     <div class="sidebar">
-        <a href="{% url 'delivery_dashboard' %}">🏠 Dashboard</a>
-        <a href="#">📦 My Orders</a>
-        <div class="logout mt-auto">
-            <a href="#" class="text-danger fw-bold" data-bs-toggle="modal" data-bs-target="#logoutModal">🚪 Logout</a>
-        </div>
+        <!-- <h3>Menu</h3> -->
+        <a href="/delivery/dashboard/">🏠 Dashboard</a>
+    
+         <a href="{% url 'delivery_my_orders' %}" class="nav-link">
+      📦 Delivered Orders (History)
+    </a>
+
+
+
+      <div class="logout mt-auto">
+    <a href="#" 
+       class="text-danger fw-bold"
+       data-bs-toggle="modal"
+       data-bs-target="#logoutModal">
+       🚪 Logout
+    </a>
+</div>
+
     </div>
 
     <div class="content">
