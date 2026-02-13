@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'location',
 
     # 'purchase',
+
 ]
 
 MIDDLEWARE = [
@@ -156,6 +157,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'leelarestaurant.official@gmail.com'
 EMAIL_HOST_PASSWORD = 'iuumwztdbuvwwpza'
 
+
+GOOGLE_MAPS_API_KEY = "AIzaSyCSzJJO79GrFQB-Uzupviy4--COLE6Aozo"
 # =================== SESSIONS SETTINGS ===================
 # ✅ ensures guest wishlist works
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # store sessions in DB
@@ -163,4 +166,6 @@ SESSION_COOKIE_NAME = 'sessionid'  # default cookie name
 SESSION_COOKIE_HTTPONLY = True
 SESSION_SAVE_EVERY_REQUEST = True  # saves session on every request, important for wishlist
 
-GOOGLE_MAPS_API_KEY = "AIzaSyCSzJJO79GrFQB-Uzupviy4--COLE6Aozo"
+
+RAZORPAY_KEY_ID = "rzp_test_SERWErY8A9nrrB"
+RAZORPAY_KEY_SECRET = "PcAqW8MeVM71yccqhV4h6Tuq"

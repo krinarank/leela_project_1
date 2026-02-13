@@ -26,6 +26,14 @@ from orders.models import Order
 from deliverypanel.models import DeliveryPerson, AssignOrder
 
 from django.db.models import Sum
+from adminpanel.models import Notification,FoodItemVariant
+from django.db.models import Sum
+from deliverypanel.models import DeliveryPerson
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from location.models import State, City, Area
 from django.contrib.auth.decorators import login_required
 from .models import (
     FoodItemCategory,
@@ -207,69 +215,178 @@ def add_subcategory(request):
     })
 # ---------------- ADD FOOD ITEM ----------------
 
+# @login_required
+# def add_fooditem(request):
+
+#     if request.method == 'POST':
+#         category_id = request.POST.get('category_id')
+#         subcategory_id = request.POST.get('subcategory_id')
+#         name = request.POST.get('name', '').strip()
+#         price = request.POST.get('price')
+#         calories = request.POST.get('calories')
+#         has_variant = request.POST.get('has_variant') == 'on'
+#         is_available = request.POST.get('is_available') == 'on'
+#         is_special = request.POST.get('is_special') == 'on'
+
+#         if not all([category_id, subcategory_id, name, calories]):
+#             messages.error(request, "All fields required")
+#             return redirect('add_fooditem')
+
+#         if name.isnumeric():
+#             messages.error(request, "Food name cannot be numeric")
+#             return redirect('add_fooditem')
+
+#         category = get_object_or_404(FoodItemCategory, id=category_id)
+#         subcategory = get_object_or_404(FoodItemSubCategory, id=subcategory_id, food_item_cat=category)
+
+#         if FoodItem.objects.filter(name__iexact=name, sub_cat=subcategory).exists():
+#             messages.error(request, "Food already exists")
+#             return redirect('add_fooditem')
+
+#         try:
+#             calories = int(calories)
+#             if calories <= 0:
+#                 raise ValueError
+#         except:
+#             messages.error(request, "Invalid calories")
+#             return redirect('add_fooditem')
+
+#         # PRICE optional if variant exists
+#         if not has_variant:
+#             try:
+#                 price = float(price)
+#                 if price <= 0:
+#                     raise ValueError
+#             except:
+#                 messages.error(request, "Invalid price")
+#                 return redirect('add_fooditem')
+#         else:
+#             price = 0
+
+#         food = FoodItem.objects.create(
+#             name=name,
+#             price=price,
+#             calories=calories,
+#             is_available=is_available,
+#             is_special=is_special,
+#             sub_cat=subcategory,
+#             has_variant=has_variant
+#         )
+
+#         # SAVE VARIANTS
+#         if has_variant:
+#             names = request.POST.getlist('variant_name[]')
+#             prices = request.POST.getlist('variant_price[]')
+
+#             for n, p in zip(names, prices):
+#                 if n and p:
+#                     FoodItemVariant.objects.create(
+#                         food_item=food,
+#                         variant_name=n,
+#                         price=p
+#                     )
+
+#         messages.success(request, "Food item added successfully")
+#         return redirect('add_fooditem')
+
+#     fooditems = FoodItem.objects.select_related('sub_cat__food_item_cat').all()
+#     categories = FoodItemCategory.objects.all()
+#     subcategories = FoodItemSubCategory.objects.all()
+
+#     return render(request, 'add/add_fooditem.html', {
+#         'fooditems': fooditems,
+#         'categories': categories,
+#         'subcategories': subcategories
+#     })
 @login_required
 def add_fooditem(request):
+
     if request.method == 'POST':
+
         category_id = request.POST.get('category_id')
         subcategory_id = request.POST.get('subcategory_id')
         name = request.POST.get('name', '').strip()
         price = request.POST.get('price')
         calories = request.POST.get('calories')
+        has_variant = request.POST.get('has_variant') == 'on'
         is_available = request.POST.get('is_available') == 'on'
-        is_special = request.POST.get('is_special') == 'on'  
+        is_special = request.POST.get('is_special') == 'on'
 
-        # 1️⃣ Required field check
-        if not all([category_id, subcategory_id, name, price, calories]):
-            messages.error(request, "All fields are required")
+        if not all([category_id, subcategory_id, name, calories]):
+            messages.error(request, "Required fields missing")
             return redirect('add_fooditem')
 
-        # 2️⃣ Name cannot be numeric
         if name.isnumeric():
-            messages.error(request, "Food item name cannot be numeric")
+            messages.error(request, "Food name cannot be numeric")
             return redirect('add_fooditem')
 
-        # 3️⃣ Category & subcategory existence check
         category = get_object_or_404(FoodItemCategory, id=category_id)
         subcategory = get_object_or_404(FoodItemSubCategory, id=subcategory_id, food_item_cat=category)
 
-        # 4️⃣ Duplicate check (same subcategory)
         if FoodItem.objects.filter(name__iexact=name, sub_cat=subcategory).exists():
-            messages.error(request, f"'{name}' already exists in this subcategory")
-            return redirect('add_fooditem')
-
-        # 5️⃣ Price & calories validation
-        try:
-            price = float(price)
-            if price <= 0:
-                messages.error(request, "Price must be greater than zero")
-                return redirect('add_fooditem')
-        except ValueError:
-            messages.error(request, "Invalid price")
+            messages.error(request, "Food already exists")
             return redirect('add_fooditem')
 
         try:
             calories = int(calories)
             if calories <= 0:
-                messages.error(request, "Calories must be greater than zero")
-                return redirect('add_fooditem')
-        except ValueError:
+                raise ValueError
+        except:
             messages.error(request, "Invalid calories")
             return redirect('add_fooditem')
 
-        # ✅ Create food item
-        FoodItem.objects.create(
+        # ===== PRICE LOGIC =====
+
+        if has_variant:
+            # FoodItem ma Regular price store karisu
+            try:
+                price = float(price)
+            except:
+                messages.error(request, "Enter Regular Price")
+                return redirect('add_fooditem')
+        else:
+            try:
+                price = float(price)
+            except:
+                messages.error(request, "Invalid price")
+                return redirect('add_fooditem')
+
+        # CREATE FOOD
+        food = FoodItem.objects.create(
             name=name,
             price=price,
             calories=calories,
             is_available=is_available,
             is_special=is_special,
+            has_variant=has_variant,
             sub_cat=subcategory
         )
+
+        # ===== VARIANT SAVE =====
+
+        if has_variant:
+
+            variant_names = request.POST.getlist('variant_name[]')
+            variant_prices = request.POST.getlist('variant_price[]')
+
+            # Default Regular variant
+            FoodItemVariant.objects.create(
+                food_item=food,
+                variant_name="Regular",
+                price=food.price
+            )
+
+            for vname, vprice in zip(variant_names, variant_prices):
+                if vname and vprice:
+                    FoodItemVariant.objects.create(
+                        food_item=food,
+                        variant_name=vname,
+                        price=float(vprice)
+                    )
 
         messages.success(request, "Food item added successfully")
         return redirect('add_fooditem')
 
-    # GET request
     fooditems = FoodItem.objects.select_related('sub_cat__food_item_cat').all()
     categories = FoodItemCategory.objects.all()
     subcategories = FoodItemSubCategory.objects.all()
@@ -279,7 +396,6 @@ def add_fooditem(request):
         'categories': categories,
         'subcategories': subcategories
     })
-
 
 
 def update_fooditem(request, id):
@@ -357,7 +473,6 @@ def add_foodimage(request):
         'food_items': food_items,
         'images': images
     })
-
 
 
 def update_foodimage(request, id):
@@ -992,6 +1107,7 @@ def get_lat_lng_from_osm(area, city, state="Gujarat"):
 
 from django.shortcuts import render, redirect
 from .forms import NotificationForm
+
 
 @login_required
 def admin_notifications(request):

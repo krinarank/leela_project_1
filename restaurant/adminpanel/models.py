@@ -19,6 +19,7 @@ class FoodItem(models.Model):
     is_available = models.BooleanField(default=True)
     is_special = models.BooleanField(default=True)
     calories = models.IntegerField()
+    has_variant = models.BooleanField(default=False)
     sub_cat = models.ForeignKey(FoodItemSubCategory, on_delete=models.CASCADE)
     def __str__(self):
         return self.name
@@ -48,3 +49,12 @@ class Notification(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.recipient_type}"
+
+
+class FoodItemVariant(models.Model):
+    food_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE, related_name='variants')
+    variant_name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.food_item.name} - {self.variant_name}"

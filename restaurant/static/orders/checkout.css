@@ -1,128 +1,223 @@
-/* Checkout Page Container */
-.checkout-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    max-width: 1000px;
+/* ============ CHECKOUT V2 (CLEAN & BALANCED) ============ */
+
+.ck-wrapper {
+    max-width: 1100px;
     margin: 40px auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* ✅ SAME WIDTH */
+    gap: 30px;
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Left and Right Panels */
-.checkout-left, .checkout-right {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+/* ========== CARDS ========== */
+.ck-card {
+    background: #ffffff;
+    padding: 28px;
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
 }
 
-.checkout-left {
-    flex: 1 1 400px;
-}
-
-.checkout-right {
-    flex: 1 1 400px;
-}
-
-/* Headings */
-.checkout-left h2, .checkout-right h2 {
+/* ========== TITLE ========== */
+.ck-title {
+    font-size: 22px;
     margin-bottom: 20px;
-    color: #333;
     border-bottom: 2px solid #f0f0f0;
     padding-bottom: 10px;
-}
-
-/* Input Fields */
-.checkout-left input, .checkout-left textarea, .checkout-left select {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    transition: all 0.3s;
-}
-
-.checkout-left input:focus, .checkout-left textarea:focus, .checkout-left select:focus {
-    border-color: #ff6b6b;
-    box-shadow: 0 0 5px rgba(255,107,107,0.3);
-    outline: none;
-}
-
-/* Checkout Right Summary */
-.summary-box {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 16px;
-    color: #555;
-}
-
-.summary-total {
-    display: flex;
-    justify-content: space-between;
-    font-size: 18px;
-    font-weight: bold;
     color: #222;
 }
 
-/* Buttons */
-.checkout-btn {
+/* ========== INPUTS ========== */
+.ck-input,
+.ck-card select,
+.ck-card textarea {
     width: 100%;
-    padding: 12px;
-    background: #ff6b6b;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
+    padding: 14px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.ck-input:focus,
+.ck-card select:focus,
+.ck-card textarea:focus {
+    outline: none;
+    border-color: #00c853;
+    box-shadow: 0 0 0 3px rgba(0,200,83,0.2);
+}
+
+/* ========== SUMMARY ========== */
+.ck-summary {
+    background: #fafafa;
+    padding: 22px;
+    border-radius: 16px;
+}
+
+.ck-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.ck-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 14px;
+}
+
+/* ========== PAYMENT BUTTONS ========== */
+.ck-payments {
+    display: flex;
+    gap: 14px;
+    margin: 22px 0;
+}
+
+.ck-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.3s;
+    border: 2px solid transparent;
+    transition: 0.3s;
 }
 
-.checkout-btn:hover {
-    background: #ff4b4b;
+/* COD – STRONG ORANGE */
+.ck-cod {
+    background: #fff;
+    border-color: #ff9800;
+    color: #ff9800;
 }
 
-/* Wallet input toggle */
-#wallet_input input {
+.ck-cod:hover {
+    background: #ff9800;
+    color: #ffffff;
+}
+
+/* UPI – PREMIUM */
+.ck-upi {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #ffffff;
+}
+
+.ck-upi:hover {
+    transform: translateY(-2px);
+}
+
+/* ========== PLACE ORDER – FULL GREEN ========== */
+.ck-place-btn {
     width: 100%;
-    padding: 8px 10px;
-    margin-top: 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    padding: 18px;
+    background: linear-gradient(135deg, #00c853, #009e42);
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-/* Responsive */
+.ck-place-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0,200,83,0.45);
+}
+
+/* ========== MOBILE ========== */
 @media (max-width: 900px) {
-    .checkout-container {
-        flex-direction: column;
-        gap: 20px;
-        padding: 0 20px;
+    .ck-wrapper {
+        grid-template-columns: 1fr;
     }
 }
 
-/* Error messages */
-.error {
-    color: red;
-    font-size: 13px;
-    margin-top: -10px;
-    margin-bottom: 10px;
-    display: block;
+
+/* ===== PAYMENT METHOD V3 ===== */
+
+.pay-heading {
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
 }
 
-/* Invalid input field */
-input.invalid, textarea.invalid {
-    border-color: red !important;
-    box-shadow: 0 0 5px rgba(255,0,0,0.5);
+.pay-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-/* Valid input field */
-input.valid, textarea.valid {
-    border-color: #28a745 !important;
-    box-shadow: 0 0 5px rgba(40,167,69,0.3);
+/* hide default radio */
+.pay-card input {
+    display: none;
 }
 
+/* card */
+.pay-card {
+    border: 1.6px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.25s ease;
+}
+
+/* content */
+.pay-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* radio circle */
+.radio-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #bdbdbd;
+    position: relative;
+}
+
+/* radio inner */
+.radio-dot::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: #16a34a;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 0.2s ease;
+}
+
+/* text */
+.pay-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: #111;
+}
+
+/* hover */
+.pay-card:hover {
+    border-color: #c7c7c7;
+}
+
+/* selected */
+.pay-card:has(input:checked) {
+    border-color: #16a34a;
+    background: #f0fdf4;
+}
+
+.pay-card:has(input:checked) .radio-dot {
+    border-color: #16a34a;
+}
+
+.pay-card:has(input:checked) .radio-dot::after {
+    transform: translate(-50%, -50%) scale(1);
+}

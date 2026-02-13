@@ -1,69 +1,223 @@
-.checkout-page {
+/* ===============================
+   CHECKOUT – FULLY ISOLATED
+   nothing outside .ck-wrapper
+================================ */
+
+.ck-wrapper {
     max-width: 1200px;
     margin: 40px auto;
-    display: flex;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
     gap: 40px;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.checkout-left { flex: 2; }
-.checkout-right { flex: 1; }
-
-.checkout-title {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.card {
+/* ---------- CARD ---------- */
+.ck-card {
     background: #fff;
-    padding: 20px;
-    border-radius: 14px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
+    padding: 28px;
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
 }
 
-.card h3 {
-    margin-bottom: 12px;
+/* ---------- TITLES ---------- */
+.ck-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    color: #111;
 }
 
-.card input,
-.card textarea {
+/* ---------- INPUTS ---------- */
+.ck-input {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    padding: 14px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: .25s;
 }
 
-.summary-box {
-    background: #fff;
-    padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+.ck-input:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34,197,94,.2);
+    outline: none;
 }
 
-.summary-box h3 {
-    margin-bottom: 15px;
-}
-
-.row, .total {
+/* ---------- SUMMARY ---------- */
+.ck-summary {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    padding: 10px 0;
+    font-size: 15px;
+    color: #333;
 }
 
-.total {
+.ck-summary span:last-child {
+    font-weight: 600;
+    color: #111;
+}
+
+.ck-right hr {
+    border: none;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+}
+
+/* ---------- PAYMENT ---------- */
+.pay-heading {
+    margin: 20px 0 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.pay-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pay-card {
+    display: block;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.pay-card input {
+    display: none;
+}
+
+.pay-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.radio-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #999;
+    position: relative;
+}
+
+.pay-card input:checked + .pay-content .radio-dot {
+    border-color: #22c55e;
+}
+
+.pay-card input:checked + .pay-content .radio-dot::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.pay-card input:checked ~ .pay-content,
+.pay-card:has(input:checked) {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+/* ---------- PLACE ORDER ---------- */
+.ck-place-btn {
+    width: 100%;
+    margin-top: 22px;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+    cursor: pointer;
+    transition: .3s;
+}
+
+.ck-place-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(34,197,94,.45);
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:900px){
+    .ck-wrapper{
+        grid-template-columns:1fr;
+    }
+}
+
+
+/* ===============================
+   ORDER SUMMARY – FIXED & CLEAN
+================================ */
+
+.ck-right {
+    background: #ffffff;
+    padding: 26px;
+    border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+}
+
+/* title */
+.ck-right .ck-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eaeaea;
+    color: #111;
+}
+
+/* each row */
+.ck-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 15px;
+    color: #333;
+}
+
+/* right side price */
+.ck-summary span:last-child {
+    font-weight: 500;
+    color: #111;
+}
+
+/* discount row */
+.ck-summary[style*="green"] {
+    color: #16a34a !important;
+    font-weight: 500;
+}
+
+/* divider */
+.ck-right hr {
+    border: none;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 14px 0;
+}
+
+/* total row */
+.ck-summary:last-of-type {
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px dashed #e5e7eb;
     font-size: 18px;
     font-weight: 700;
 }
 
-.place-order-btn {
-    width: 100%;
-    padding: 14px;
-    margin-top: 16px;
-    background: #00c94d;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+.ck-summary:last-of-type span:last-child {
+    color: #16a34a;
 }

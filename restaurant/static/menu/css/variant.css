@@ -1,0 +1,173 @@
+/* ==================== VARIANT BOTTOM SHEET ==================== */
+.variant-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 100%); /* start hidden */
+    width: 95%;
+    max-width: 500px;
+    max-height: 80vh; /* won’t cover full screen */
+    height: 550px;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* scroll handled in .sheet-body */
+    z-index: 9999;
+    transition: transform 0.3s ease;
+}
+
+.variant-sheet.active {
+    transform: translate(-50%, 0); /* slide up */
+}
+
+/* ==================== SHEET CONTENT ==================== */
+.sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.sheet-header img.sheet-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.sheet-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sheet-body {
+    padding: 10px 15px;
+    overflow-y: auto; /* scroll inside body if content too big */
+    flex: 1; /* fill available height */
+}
+
+.sheet-variants button {
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #f9f9f9;
+    cursor: pointer;
+}
+
+.sheet-variants button.active {
+    border-color: #f44336;
+    background: #ffe5e0;
+}
+
+.sheet-request textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    resize: none;
+}
+
+.sheet-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+    background: #fff;
+}
+
+.qty-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.qty-selector button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+}
+
+#add-to-cart {
+    background: #f44336;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ==================== OVERLAY ==================== */
+.sheet-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0,0,0,0.3);
+    z-index: 998;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sheet-overlay.active {
+    pointer-events: all;
+    opacity: 1;
+}
+
+/* ==================== BODY SCROLL LOCK ==================== */
+body.no-scroll {
+    overflow: hidden;
+}
+
+
+.variant-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    cursor: pointer;
+    background: #fff;
+}
+
+.variant-option input[type="radio"] {
+    display: inline-block; /* show radio button */
+    margin-right: 10px;    /* spacing before name */
+}
+
+.variant-option label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+}
+
+.variant-option label .variant-name {
+    font-weight: 500;
+}
+
+.variant-option label .variant-price {
+    font-weight: 600;
+    color: #28a745;
+}
+
+.variant-option label .variant-price s {
+    color: #999;
+    margin-left: 5px;
+}

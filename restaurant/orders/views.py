@@ -7,6 +7,7 @@ from decimal import Decimal
 from location.models import Area
 from django.utils import timezone
 from datetime import datetime
+from django.db.models import Sum
 from .utils import generate_offer_code
 from django.contrib import messages
 from django.db import transaction
@@ -23,37 +24,89 @@ from .models import FeedbackRating
 
 
 
+# @login_required(login_url='/accounts/customer_login/')
+# def add_to_cart(request, food_id):
+
+#     if request.method != "POST":
+#         return JsonResponse({'status': 'invalid'})
+
+#     item = get_object_or_404(FoodItem, id=food_id)
+
+#     # 🔥 TEMP FIX: use food price directly
+#     # price = item.price  
+#     discounted_price = get_discounted_price(item)
+
+
+#     cart_item, created = Cart.objects.get_or_create(
+#         user=request.user,
+#         food_item=item,
+#         defaults={
+#             'quantity': 1,
+#             'price': discounted_price 
+#         }
+#     )
+
+#     if not created:
+#         cart_item.quantity += 1
+#         cart_item.save()
+
+#     return JsonResponse({
+#         'status': 'success',
+#         'quantity': cart_item.quantity
+#     })
+
+from django.db.models import Sum
+from django.views.decorators.http import require_POST
+
 @login_required(login_url='/accounts/customer_login/')
-def add_to_cart(request, food_id):
+@require_POST
+def add_to_cart(request):
 
-    if request.method != "POST":
-        return JsonResponse({'status': 'invalid'})
+    food_id = request.POST.get("food_id")
+    variant_id = request.POST.get("variant_id")
+    quantity = int(request.POST.get("quantity", 1))
 
-    item = get_object_or_404(FoodItem, id=food_id)
+    if not food_id:
+        return JsonResponse({"status": "error", "message": "Food ID required"})
 
-    # 🔥 TEMP FIX: use food price directly
-    # price = item.price  
-    discounted_price = get_discounted_price(item)
+    food_item = get_object_or_404(FoodItem, id=food_id)
 
+    variant = None
+    price = None
 
+    # 🔥 If variant selected
+    if variant_id and variant_id != "default":
+        variant = get_object_or_404(FoodItemVariant, id=variant_id)
+        price = variant.price
+    else:
+        price = get_discounted_price(food_item)
+
+    # 🔥 Get or create cart row (user + food + variant)
     cart_item, created = Cart.objects.get_or_create(
         user=request.user,
-        food_item=item,
+        food_item=food_item,
+        variant=variant,
         defaults={
-            'quantity': 1,
-            'price': discounted_price 
+            "quantity": quantity,
+            "price": price
         }
     )
 
+    # If already exists → increase quantity
     if not created:
-        cart_item.quantity += 1
+        cart_item.quantity += quantity
         cart_item.save()
 
-    return JsonResponse({
-        'status': 'success',
-        'quantity': cart_item.quantity
-    })
+    # 🔥 Calculate TOTAL quantity of this food item (all variants)
+    total_qty = Cart.objects.filter(
+        user=request.user,
+        food_item=food_item
+    ).aggregate(total=Sum("quantity"))["total"] or 0
 
+    return JsonResponse({
+        "status": "success",
+        "total_qty": total_qty
+    })
 
 # ---------------- UPDATE QUANTITY ----------------
 @login_required(login_url='/accounts/customer_login/')
@@ -111,8 +164,15 @@ def cart_page(request):
 
     for item in cart_items:
         food = item.food_item
-        base_price = food.price
+
+    # ✅ If variant exists → use variant price
+        if item.variant:
+            base_price = item.variant.price
+        else:
+            base_price = food.price
+
         final_price = base_price
+
 
         # 1️⃣ Food Item Offer
         food_offer = FoodItemOfferDiscount.objects.filter(
@@ -920,9 +980,90 @@ def safe_decimal(val, default="0.00"):
     except InvalidOperation:
         return Decimal(default)
 
+# @login_required
+# @transaction.atomic
+# def place_order(request):
+#     if request.method != "POST":
+#         return redirect("checkout")
+
+#     user = request.user
+#     cart_items = Cart.objects.filter(user=user)
+
+#     if not cart_items.exists():
+#         return redirect("cart_page")
+
+#     area = get_object_or_404(Area, id=request.POST.get("area_id"))
+
+#     # ✅ SAFE VALUES FROM CHECKOUT
+#     subtotal = safe_decimal(request.POST.get("final_subtotal"))
+#     tax = safe_decimal(request.POST.get("final_tax"))
+#     delivery_charge = safe_decimal(request.POST.get("final_delivery"))
+#     grand_total = safe_decimal(request.POST.get("final_grand_total"))
+#     total_discount = safe_decimal(request.POST.get("final_discount"))
+
+#     # 🛑 ABSOLUTE SAFETY FALLBACK
+#     if grand_total <= 0:
+#         # fallback to cart calculation (last option)
+#         for item in cart_items:
+#             subtotal += item.price * item.quantity
+#         tax = (subtotal * Decimal("0.05")).quantize(Decimal("0.01"))
+#         delivery_charge = Decimal("50.00")
+#         grand_total = subtotal + tax + delivery_charge
+
+#     order = Order.objects.create(
+#         user=user,
+#         area=area,
+#         delivery_address=f"{request.POST.get('address')}, {request.POST.get('city')}, {request.POST.get('state')} - {request.POST.get('pincode')}",
+#         total_qty=sum(i.quantity for i in cart_items),
+#         total_amount=grand_total,
+#         dis_amount=total_discount,
+#         order_status="PLACED"
+#     )
+
+#     for item in cart_items:
+#         OrderDetail.objects.create(
+#             order=order,
+#             food_item=item.food_item,
+#             qty=item.quantity,
+#             price=item.price,
+#             total_amount=item.price * item.quantity
+#         )
+
+#     # payment = Payment.objects.create(
+#     #     method=request.POST.get("payment_method"),
+#     #     status="PENDING",
+#     #     amount_paid=Decimal("0.00"),
+#     #     remaining_amount=grand_total
+#     # )
+
+#     # OrderHasPayment.objects.create(
+#     #     order=order,
+#     #     payment=payment,
+#     #     amount=grand_total
+#     # )
+#     import uuid
+
+#     txn_no = "TXN-" + str(uuid.uuid4())[:10].upper()
+
+#     payment = Payment.objects.create(
+#        method=request.POST.get("payment_method", "COD"),
+#        status="PENDING",
+#        amount_paid=Decimal("0.00"),
+#        remaining_amount=grand_total
+#         )
+
+#     OrderHasPayment.objects.create(
+#         order=order,
+#         payment=payment,
+#         amount=grand_total,
+#         transaction_no=txn_no
+#         )
+#     cart_items.delete()
+#     return redirect("order_success", order.id)
 @login_required
 @transaction.atomic
 def place_order(request):
+
     if request.method != "POST":
         return redirect("checkout")
 
@@ -930,20 +1071,20 @@ def place_order(request):
     cart_items = Cart.objects.filter(user=user)
 
     if not cart_items.exists():
+        # AJAX hoy to JSON, nai to redirect
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"error": "Cart empty"}, status=400)
         return redirect("cart_page")
 
     area = get_object_or_404(Area, id=request.POST.get("area_id"))
 
-    # ✅ SAFE VALUES FROM CHECKOUT
     subtotal = safe_decimal(request.POST.get("final_subtotal"))
     tax = safe_decimal(request.POST.get("final_tax"))
     delivery_charge = safe_decimal(request.POST.get("final_delivery"))
     grand_total = safe_decimal(request.POST.get("final_grand_total"))
     total_discount = safe_decimal(request.POST.get("final_discount"))
 
-    # 🛑 ABSOLUTE SAFETY FALLBACK
     if grand_total <= 0:
-        # fallback to cart calculation (last option)
         for item in cart_items:
             subtotal += item.price * item.quantity
         tax = (subtotal * Decimal("0.05")).quantize(Decimal("0.01"))
@@ -953,7 +1094,10 @@ def place_order(request):
     order = Order.objects.create(
         user=user,
         area=area,
-        delivery_address=f"{request.POST.get('address')}, {request.POST.get('city')}, {request.POST.get('state')} - {request.POST.get('pincode')}",
+        delivery_address=f"{request.POST.get('address')}, "
+                         f"{request.POST.get('city')}, "
+                         f"{request.POST.get('state')} - "
+                         f"{request.POST.get('pincode')}",
         total_qty=sum(i.quantity for i in cart_items),
         total_amount=grand_total,
         dis_amount=total_discount,
@@ -969,38 +1113,31 @@ def place_order(request):
             total_amount=item.price * item.quantity
         )
 
-    # payment = Payment.objects.create(
-    #     method=request.POST.get("payment_method"),
-    #     status="PENDING",
-    #     amount_paid=Decimal("0.00"),
-    #     remaining_amount=grand_total
-    # )
-
-    # OrderHasPayment.objects.create(
-    #     order=order,
-    #     payment=payment,
-    #     amount=grand_total
-    # )
-    import uuid
-
     txn_no = "TXN-" + str(uuid.uuid4())[:10].upper()
 
     payment = Payment.objects.create(
-       method=request.POST.get("payment_method", "COD"),
-       status="PENDING",
-       amount_paid=Decimal("0.00"),
-       remaining_amount=grand_total
-        )
+        method=request.POST.get("payment_method", "COD"),
+        status="PAID" if request.POST.get("payment_method") == "UPI" else "PENDING",
+        amount_paid=grand_total if request.POST.get("payment_method") == "UPI" else Decimal("0.00"),
+        remaining_amount=Decimal("0.00") if request.POST.get("payment_method") == "UPI" else grand_total,
+        # razorpay_payment_id=request.POST.get("razorpay_payment_id")
+    )
 
     OrderHasPayment.objects.create(
         order=order,
         payment=payment,
         amount=grand_total,
-        transaction_no=txn_no
-        )
-    cart_items.delete()
-    return redirect("order_success", order.id)
+        transaction_no=request.POST.get("razorpay_payment_id") or txn_no
+    )
 
+    cart_items.delete()
+
+    # 🔁 If AJAX (UPI flow) → JSON
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"order_id": order.id})
+
+    # 🔁 If normal form (COD) → Redirect
+    return redirect("order_success", order_id=order.id)
 
 @login_required
 def order_success(request, order_id):
@@ -1173,3 +1310,294 @@ def admin_assign_delivery(request, order_id):
 
     messages.success(request, f"Order #{order.id} assigned to {delivery_person.fname}")
     return redirect('admin_orders')
+from django.http import JsonResponse
+from adminpanel.models import FoodItem, FoodItemVariant
+
+# @login_required
+# def get_food_variants_ajax(request, food_id):
+#     food = get_object_or_404(FoodItem, id=food_id)
+#     today = timezone.now().date()
+
+#     # Check item offer
+#     food_offer = FoodItemOfferDiscount.objects.filter(
+#         food_item=food,
+#         is_active=True,
+#         applied_date__lte=today,
+#         expiry_date__gte=today
+#     ).select_related('offer').first()
+
+#     discount_percent = 0
+#     if food_offer and food_offer.offer.is_currently_active():
+#         discount_percent = float(food_offer.offer.discount_percentage)
+
+#     # Check subcategory offer (if no item offer)
+#     if discount_percent == 0:
+#         sub_offer = SubCategoryOfferDiscount.objects.filter(
+#             subcategory=food.sub_cat,
+#             is_active=True,
+#             applied_date__lte=today,
+#             expiry_date__gte=today
+#         ).select_related('offer').first()
+#         if sub_offer and sub_offer.offer.is_currently_active():
+#             discount_percent = float(sub_offer.offer.discount_percentage)
+
+#     # Check category offer (if no item/subcategory offer)
+#     if discount_percent == 0:
+#         cat_offer = CategoryOfferDiscount.objects.filter(
+#             category=food.sub_cat.food_item_cat,
+#             is_active=True,
+#             applied_date__lte=today,
+#             expiry_date__gte=today
+#         ).select_related('offer').first()
+#         if cat_offer and cat_offer.offer.is_currently_active():
+#             discount_percent = float(cat_offer.offer.discount_percentage)
+
+#     variants = []
+#     for v in food.variants.all():
+#         price = float(v.price)
+#         discounted_price = round(price * (1 - discount_percent / 100), 2) if discount_percent > 0 else None
+#         variants.append({
+#             'id': v.id,
+#             'name': v.variant_name,
+#             'price': price,
+#             'discounted_price': discounted_price
+#         })
+
+#     data = {
+#         'id': food.id,
+#         'name': food.name,
+#         'calories': food.calories,
+#         'image': food.images.first().img_url.url if food.images.first() else '',
+#         'variants': variants
+#     }
+#     return JsonResponse(data)
+
+@login_required
+def get_food_variants_ajax(request, food_id):
+    food = get_object_or_404(FoodItem, id=food_id)
+    today = timezone.now().date()
+
+    # Calculate discount
+    discount_percent = 0
+    food_offer = FoodItemOfferDiscount.objects.filter(
+        food_item=food,
+        is_active=True,
+        applied_date__lte=today,
+        expiry_date__gte=today
+    ).select_related('offer').first()
+    if food_offer and food_offer.offer.is_currently_active():
+        discount_percent = float(food_offer.offer.discount_percentage)
+
+    if discount_percent == 0:
+        sub_offer = SubCategoryOfferDiscount.objects.filter(
+            subcategory=food.sub_cat,
+            is_active=True,
+            applied_date__lte=today,
+            expiry_date__gte=today
+        ).select_related('offer').first()
+        if sub_offer and sub_offer.offer.is_currently_active():
+            discount_percent = float(sub_offer.offer.discount_percentage)
+
+    if discount_percent == 0:
+        cat_offer = CategoryOfferDiscount.objects.filter(
+            category=food.sub_cat.food_item_cat,
+            is_active=True,
+            applied_date__lte=today,
+            expiry_date__gte=today
+        ).select_related('offer').first()
+        if cat_offer and cat_offer.offer.is_currently_active():
+            discount_percent = float(cat_offer.offer.discount_percentage)
+
+    variants = []
+
+    # ✅ Only add default "Regular" if there are NO variants in DB
+    if not food.variants.exists():
+        regular_price = float(food.price)
+        discounted_price = round(regular_price * (1 - discount_percent / 100), 2) if discount_percent > 0 else None
+        variants.append({
+            'id': None,
+            'name': "Regular",
+            'price': regular_price,
+            'discounted_price': discounted_price
+        })
+
+    # Add actual variants from DB
+    for v in food.variants.all():
+        price = float(v.price)
+        discounted_price = round(price * (1 - discount_percent / 100), 2) if discount_percent > 0 else None
+        variants.append({
+            'id': v.id,
+            'name': v.variant_name,
+            'price': price,
+            'discounted_price': discounted_price
+        })
+
+    data = {
+        'id': food.id,
+        'name': food.name,
+        'calories': food.calories,
+        'image': food.images.first().img_url.url if food.images.first() else '',
+        'variants': variants
+    }
+    return JsonResponse(data)
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from .models import Cart, FoodItem
+
+# @login_required
+# def add_variant_to_cart(request, food_id):
+#     if request.method != 'POST':
+#         return JsonResponse({'status': 'fail'}, status=400)
+
+#     user = request.user
+#     qty = int(request.POST.get('quantity', 1))
+#     variant_id = request.POST.get('variant_id')
+
+#     # safe variant handling
+#     if variant_id in ["None", "null", "", "default"]:
+#         variant_id = None
+#         variant = None
+#     else:
+#         try:
+#             variant = FoodItemVariant.objects.get(id=variant_id)
+#         except FoodItemVariant.DoesNotExist:
+#             return JsonResponse({'status': 'fail'}, status=404)
+
+#     try:
+#         food_item = FoodItem.objects.get(id=food_id)
+#     except FoodItem.DoesNotExist:
+#         return JsonResponse({'status': 'fail'}, status=404)
+
+#     price = variant.price if variant else food_item.price
+
+#     cart_item, created = Cart.objects.get_or_create(
+#         user=user,
+#         food_item=food_item,
+#         variant=variant,  # pass object, not ID
+#         defaults={'quantity': qty, 'price': price}
+#     )
+
+#     if not created:
+#         cart_item.quantity += qty
+#         cart_item.price = price
+#         cart_item.save()
+
+#     total_qty = Cart.objects.filter(user=user, food_item=food_item).aggregate(total=Sum('quantity'))['total'] or 0
+
+#     return JsonResponse({'status': 'success', 'total_quantity': total_qty})
+@login_required
+def add_variant_to_cart(request, food_id):
+
+    if request.method != "POST":
+        return JsonResponse({"status": "fail"}, status=400)
+
+    user = request.user
+    qty = int(request.POST.get("quantity", 1))
+    variant_id = request.POST.get("variant_id")
+
+    # ================= FOOD ITEM =================
+    try:
+        food_item = FoodItem.objects.get(id=food_id)
+    except FoodItem.DoesNotExist:
+        return JsonResponse({"status": "fail"}, status=404)
+
+    # ================= VARIANT SAFE HANDLING =================
+    variant = None
+
+    if variant_id and variant_id not in ["None", "null", "", "default"]:
+        try:
+            variant = FoodItemVariant.objects.get(id=variant_id, food_item=food_item)
+        except FoodItemVariant.DoesNotExist:
+            return JsonResponse({"status": "fail"}, status=404)
+
+    # ================= PRICE CALCULATION =================
+    base_price = variant.price if variant else food_item.price
+    final_price = get_discounted_price(food_item, base_price)
+
+    base_price = round(base_price, 2)
+    final_price = round(final_price, 2)
+
+    cart_item, created = Cart.objects.get_or_create(
+            user=user,
+            food_item=food_item,
+            variant=variant,
+            defaults={
+                'quantity': qty,
+                'original_price': base_price,
+                'price': final_price,
+            }
+    )
+
+    if not created:
+        cart_item.quantity += qty
+        cart_item.original_price = base_price
+        cart_item.price = final_price
+        cart_item.save()
+
+    # ================= TOTAL QUANTITY =================
+    total_qty = (
+        Cart.objects
+        .filter(user=user, food_item=food_item)
+        .aggregate(total=Sum("quantity"))["total"] or 0
+    )
+
+    return JsonResponse({
+        "status": "success",
+        "total_quantity": total_qty
+    })
+
+@login_required
+def remove_item_from_cart(request, food_id):
+    if request.method == 'POST':
+        user = request.user
+        cart_item = Cart.objects.filter(user=user, food_item_id=food_id).first()
+        if cart_item:
+            cart_item.delete()
+        # total qty for UI update
+        total_qty = sum(Cart.objects.filter(user=user, food_item_id=food_id).values_list('quantity', flat=True))
+        return JsonResponse({'status': 'success', 'total_quantity': total_qty})
+    return JsonResponse({'status': 'fail'}, status=400)
+
+from django.http import JsonResponse
+
+def get_variants(request, food_id):
+
+    food = get_object_or_404(FoodItem, id=food_id)
+
+    variants = FoodItemVariant.objects.filter(food_item=food)
+
+    variant_list = []
+
+    for v in variants:
+        variant_list.append({
+            "id": v.id,
+            "name": v.variant_name,
+            "price": float(v.price)
+        })
+
+    return JsonResponse({
+        "variants": variant_list
+    })
+
+import razorpay
+from django.conf import settings
+from django.http import JsonResponse
+
+def create_razorpay_order(request):
+
+    amount = int(float(request.POST.get("amount")) * 100)  # paise ma
+
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+    payment = client.order.create({
+        "amount": amount,
+        "currency": "INR",
+        "payment_capture": 1
+    })
+
+    return JsonResponse({
+        "order_id": payment["id"],
+        "key": settings.RAZORPAY_KEY_ID
+    })

@@ -12,8 +12,10 @@ class Customer(AbstractUser):
     contactno = models.CharField(max_length=15)
     address = models.TextField()
 
+
     isadmin = models.BooleanField(default=False)
     is_delivery_person = models.BooleanField(default=False)  # ⭐ main role flag
+
 
     profile_image = models.ImageField(
         upload_to='customer_profiles/',

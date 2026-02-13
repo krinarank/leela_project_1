@@ -48,7 +48,6 @@ path('areas/delete/<int:id>/', views.delete_area, name='delete_area'),
 
 
 
-    #path('add_delivery_person/',views.add_delivery_person,name='add_delivery_person'),
 
 
 path('admin-forgot-password/', views.admin_forgot_password, name='admin_forgot_password'),

@@ -1,17 +1,12 @@
 
-
-# Create your models here.
 from django.db import models
 from accounts.models import Customer  
-
 from adminpanel.models import *
 from django.utils import timezone
 import uuid
 from django.db import models
 from decimal import Decimal
 from django.contrib.auth import get_user_model
-
-
 from adminpanel.models import FoodItem
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -29,9 +24,10 @@ class Cart(models.Model):
     )
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-
+    original_price = models.DecimalField(max_digits=10, decimal_places=2)
+    variant = models.ForeignKey(FoodItemVariant, on_delete=models.CASCADE, null=True, blank=True)
     class Meta:
-        unique_together = ('user', 'food_item')
+        unique_together = ('user', 'food_item','variant')
 
     def __str__(self):
         return f"{self.user} - {self.food_item} ({self.quantity})"
